@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Customers</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Active Loans</th>
+            <th>Total Remaining Loan</th>
+            <th>Total Revenue</th>
+            <th>Monthly Payments (Active Loans)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for customer in customers %}
+        <tr>
+            <td><a href="{% url 'customer_detail' customer.id %}">{{ customer.get_full_name }}</a></td>
+            <td>{{ customer.active_loans }}</td>
+            <td>{{ customer.total_remaining }}</td>
+            <td>{{ customer.total_revenue }}</td>
+            <td>
+                {{ customer.loans.filter(completed=False).aggregate(total_monthly=models.Sum('monthly_payment'))['total_monthly']|default:0 }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

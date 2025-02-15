@@ -11,5 +11,5 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ["name", "surname", "active_loans", "completed_loans", "all_loans", "total_remaining", "total_loan", "total_paid", "total_revenue", "created_at"]
-    list_display_links = ["name", "surname", "active_loans", "completed_loans", "all_loans", "total_remaining", "total_loan", "total_paid", "total_revenue", "created_at"]
+    list_display = ["name", "surname", "active_montly_payment", "active_loans", "completed_loans", "all_loans", "total_remaining", "total_loan", "total_paid", "total_revenue", "created_at"]
+    list_display_links = ["name", "surname", "active_montly_payment", "active_loans", "completed_loans", "all_loans", "total_remaining", "total_loan", "total_paid", "total_revenue", "created_at"]

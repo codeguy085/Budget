@@ -49,3 +49,9 @@ class Customer(models.Model):
             loan.term * loan.monthly_payment - loan.amount
             for loan in self.loans.all()
         )   
+    
+    def active_montly_payment(self):
+        return sum(
+            loan.monthly_payment
+            for loan in self.loans.filter(completed=False)
+        )
