@@ -21,18 +21,18 @@ class Customer(models.Model):
         return f"{self.name} {self.surname}"
     
     def active_loans(self):
-        return self.loans.filter(completed=False).count()
+        return self.loans.filter(is_completed=False).count()
     
     def all_loans(self):
         return self.loans.count()
     
     def completed_loans(self):
-        return self.loans.filter(completed=True).count()
+        return self.loans.filter(is_completed=True).count()
 
     def total_remaining(self):
         return sum(
-            (loan.term - loan.paid_month) * loan.monthly_payment
-            for loan in self.loans.filter(completed=False)
+            (loan.term - loan.paid_month()) * loan.monthly_payment
+            for loan in self.loans.filter(is_completed=False)
         )
 
     def total_loan(self):
@@ -40,7 +40,7 @@ class Customer(models.Model):
     
     def total_paid(self):
         return sum(
-            loan.paid_month * loan.monthly_payment
+            loan.paid_month() * loan.monthly_payment
             for loan in self.loans.all()
         )
     
@@ -53,5 +53,5 @@ class Customer(models.Model):
     def active_montly_payment(self):
         return sum(
             loan.monthly_payment
-            for loan in self.loans.filter(completed=False)
+            for loan in self.loans.filter(is_completed=False)
         )
