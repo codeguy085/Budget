@@ -14,6 +14,7 @@ class LoanAdmin(admin.ModelAdmin):
     list_display_links = ["customer", "amount", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
     inlines = [PaymentInline]
     search_fields = ['loan_id']
+    autocomplete_fields = ['customer']
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
