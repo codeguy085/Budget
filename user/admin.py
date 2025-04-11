@@ -9,6 +9,7 @@ class LoanInline(admin.TabularInline):
     model = Loan
     readonly_fields = ['loan_link', 'amount', 'monthly_payment', 'term', 'is_completed']
     fields = ['loan_link', 'amount', 'monthly_payment', 'term', 'is_completed']  # Replace loan_id with loan_link
+    extra = 0
 
     def loan_link(self, obj):
         if obj.pk:
