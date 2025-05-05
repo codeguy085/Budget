@@ -10,8 +10,8 @@ class PaymentInline(admin.TabularInline):
 
 @admin.register(Loan)
 class LoanAdmin(admin.ModelAdmin):
-    list_display = ["customer", "amount", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
-    list_display_links = ["customer", "amount", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
+    list_display = ["customer", "amount", "loan_id", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
+    list_display_links = ["customer", "amount", "loan_id", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
     inlines = [PaymentInline]
     search_fields = ['loan_id']
     autocomplete_fields = ['customer']
