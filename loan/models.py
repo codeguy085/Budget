@@ -13,7 +13,7 @@ class Loan(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.loan_id
+        return f"{self.loan_id} {self.is_completed}"
 
     def paid_month(self):
         return self.loan_payments.count()
