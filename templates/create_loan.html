@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{% if loan %}Edit Loan #{{ loan.loan_id }}{% else %}Add New Loan{% endif %} | Budget{% endblock %}
+
+{% block content %}
+<style>
+  .soft-shadow { box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); }
+  .deep-shadow { box-shadow: 0 10px 30px 0 rgba(0, 0, 0, 0.1); }
+</style>
+
+<nav class="flex text-sm text-on-surface-variant gap-2 items-center flex-wrap">
+  <a class="hover:text-primary transition-colors" href="{% url 'loan_list' %}">Loans</a>
+  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+  {% if loan %}
+  <a class="hover:text-primary transition-colors" href="{% url 'loan_detail' loan.id %}">#{{ loan.loan_id }}</a>
+  <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+  <span class="text-on-surface font-bold">Edit</span>
+  {% else %}
+  <span class="text-on-surface font-bold">Add New Loan</span>
+  {% endif %}
+</nav>
+
+<header>
+  {% if loan %}
+  <h2 class="text-3xl font-semibold text-on-surface">Edit Loan <span class="font-mono text-primary">#{{ loan.loan_id }}</span></h2>
+  <p class="text-base text-on-surface-variant mt-1">Update the details of this loan.</p>
+  {% else %}
+  <h2 class="text-3xl font-semibold text-on-surface">Add New Loan</h2>
+  <p class="text-base text-on-surface-variant mt-1">Issue a new loan to an existing customer.</p>
+  {% endif %}
+</header>
+
+<form method="post" action="{% if loan %}{% url 'loan_edit' loan.id %}{% else %}{% url 'loan_create' %}{% endif %}" class="block">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-12 gap-6">
+    <div class="col-span-12 lg:col-span-8 space-y-6">
+      <section class="bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-slate-200">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="material-symbols-outlined text-primary">person</span>
+          <h3 class="text-xl font-semibold text-on-surface">Customer</h3>
+        </div>
+        <div class="space-y-2">
+          <label class="block text-sm text-on-surface-variant" for="id_customer">Select customer</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">person_search</span>
+            <select id="id_customer" name="customer" class="w-full h-[48px] pl-12 pr-10 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all appearance-none {% if errors.customer %}border-error{% endif %}">
+              <option value="">— Select a customer —</option>
+              {% for c in customers %}
+              <option value="{{ c.id }}" {% if data.customer|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>{{ c.get_full_name }}</option>
+              {% endfor %}
+            </select>
+            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+          </div>
+          {% if errors.customer %}<p class="text-error text-xs">{{ errors.customer }}</p>{% endif %}
+          <p class="text-xs text-on-surface-variant">Need a new customer? <a href="{% url 'customer_create' %}" class="text-primary font-semibold hover:underline">Add one first</a>.</p>
+        </div>
+      </section>
+
+      <section class="bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-slate-200">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="material-symbols-outlined text-primary">monetization_on</span>
+          <h3 class="text-xl font-semibold text-on-surface">Loan Details</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label class="block text-sm text-on-surface-variant" for="id_amount">Loan Amount</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">₼</span>
+              <input id="id_amount" name="amount" type="number" min="1" step="1" value="{{ data.amount }}" placeholder="0" class="w-full h-[48px] pl-10 pr-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none text-right font-medium {% if errors.amount %}border-error{% endif %}"/>
+            </div>
+            {% if errors.amount %}<p class="text-error text-xs">{{ errors.amount }}</p>{% endif %}
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm text-on-surface-variant" for="id_monthly_payment">Monthly Payment</label>
+            <div class="relative">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">₼</span>
+              <input id="id_monthly_payment" name="monthly_payment" type="number" min="1" step="1" value="{{ data.monthly_payment }}" placeholder="0" class="w-full h-[48px] pl-10 pr-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none text-right font-medium {% if errors.monthly_payment %}border-error{% endif %}"/>
+            </div>
+            {% if errors.monthly_payment %}<p class="text-error text-xs">{{ errors.monthly_payment }}</p>{% endif %}
+          </div>
+          <div class="space-y-2">
+            <label class="block text-sm text-on-surface-variant" for="id_term">Term (months)</label>
+            <input id="id_term" name="term" type="number" min="1" step="1" value="{{ data.term }}" placeholder="0" class="w-full h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium text-right {% if errors.term %}border-error{% endif %}"/>
+            {% if errors.term %}<p class="text-error text-xs">{{ errors.term }}</p>{% endif %}
+          </div>
+        </div>
+        {% if loan %}
+        <p class="text-xs text-on-surface-variant mt-4">Loan ID <span class="font-mono font-bold">#{{ loan.loan_id }}</span> cannot be changed.{% if loan.paid_month %} {{ loan.paid_month }} payment{{ loan.paid_month|pluralize }} already recorded — reducing the term below this number is not allowed.{% endif %}</p>
+        {% else %}
+        <p class="text-xs text-on-surface-variant mt-4">A unique Loan ID will be assigned automatically.</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="col-span-12 lg:col-span-4">
+      <div class="lg:sticky lg:top-24 space-y-6">
+        <section class="bg-primary text-on-primary rounded-xl p-6 deep-shadow overflow-hidden relative">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+          <div class="relative z-10">
+            <h3 class="text-sm font-bold uppercase tracking-wider opacity-80 mb-6">Live Summary</h3>
+            <div class="space-y-6">
+              <div>
+                <p class="text-xs opacity-80">Monthly Payment</p>
+                <p class="text-4xl font-bold" id="summary-monthly">₼0</p>
+              </div>
+              <div class="h-px bg-white/20"></div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs opacity-80">Total Repayment</p>
+                  <p class="text-xl font-bold" id="summary-total">₼0</p>
+                </div>
+                <div>
+                  <p class="text-xs opacity-80">Revenue</p>
+                  <p class="text-xl font-bold" id="summary-revenue">₼0</p>
+                </div>
+              </div>
+              <div class="h-px bg-white/20"></div>
+              <div>
+                <p class="text-xs opacity-80">Markup</p>
+                <p class="text-xl font-bold" id="summary-markup">0.0%</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 pt-6 border-t border-outline-variant flex justify-end gap-4">
+    <a href="{% if loan %}{% url 'loan_detail' loan.id %}{% else %}{% url 'loan_list' %}{% endif %}" class="px-8 py-3 rounded-lg border border-outline text-on-surface font-bold hover:bg-surface-container transition-colors">Cancel</a>
+    <button type="submit" class="px-10 py-3 rounded-lg bg-primary text-on-primary font-bold hover:opacity-90 transition-all shadow-lg active:scale-95">{% if loan %}Save Changes{% else %}Create Loan{% endif %}</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const amountInput = document.getElementById('id_amount');
+    const monthlyInput = document.getElementById('id_monthly_payment');
+    const termInput = document.getElementById('id_term');
+    const summaryMonthly = document.getElementById('summary-monthly');
+    const summaryTotal = document.getElementById('summary-total');
+    const summaryRevenue = document.getElementById('summary-revenue');
+    const summaryMarkup = document.getElementById('summary-markup');
+
+    const fmt = new Intl.NumberFormat('en-US');
+
+    function update() {
+      const amount = parseFloat(amountInput.value) || 0;
+      const monthly = parseFloat(monthlyInput.value) || 0;
+      const term = parseInt(termInput.value, 10) || 0;
+      const total = monthly * term;
+      const revenue = total - amount;
+      const markup = amount > 0 ? (revenue / amount * 100) : 0;
+      summaryMonthly.textContent = '₼' + fmt.format(monthly);
+      summaryTotal.textContent = '₼' + fmt.format(total);
+      summaryRevenue.textContent = '₼' + fmt.format(revenue);
+      summaryMarkup.textContent = markup.toFixed(1) + '%';
+    }
+
+    [amountInput, monthlyInput, termInput].forEach(el => el.addEventListener('input', update));
+    update();
+  })();
+</script>
+{% endblock %}

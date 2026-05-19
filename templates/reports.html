@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Reports | Budget{% endblock %}
+
+{% block content %}
+<style>
+  .soft-shadow { box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); }
+</style>
+
+<div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
+  <div>
+    <h2 class="text-3xl font-semibold text-on-surface">Reports</h2>
+    <p class="text-base text-on-surface-variant">Financial performance and loan portfolio analytics.</p>
+  </div>
+  <div class="flex items-center gap-3 flex-wrap">
+    <div class="bg-surface-container-low p-1 rounded-lg border border-outline-variant flex items-center">
+      <a href="?period=this_month" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'this_month' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">This Month</a>
+      <a href="?period=last_month" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'last_month' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Last Month</a>
+      <a href="?period=this_year" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'this_year' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">This Year</a>
+      <a href="?period=all_time" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'all_time' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">All Time</a>
+      <button type="button" id="custom-toggle" class="px-4 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1 {% if period == 'custom' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Custom <span class="material-symbols-outlined text-sm">calendar_today</span></button>
+    </div>
+    <a href="{% url 'export_loans_csv' %}" class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
+      <span class="material-symbols-outlined">download</span>
+      Export CSV
+    </a>
+  </div>
+</div>
+
+<form id="custom-range" method="get" class="{% if period != 'custom' %}hidden{% endif %} flex flex-wrap items-end gap-3 bg-surface-container-low p-4 rounded-lg border border-outline-variant">
+  <input type="hidden" name="period" value="custom"/>
+  <div>
+    <label class="block text-xs text-on-surface-variant mb-1" for="start">Start date</label>
+    <input id="start" name="start" type="date" value="{{ custom_start_iso }}" class="h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
+  </div>
+  <div>
+    <label class="block text-xs text-on-surface-variant mb-1" for="end">End date</label>
+    <input id="end" name="end" type="date" value="{{ custom_end_iso }}" class="h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
+  </div>
+  <button type="submit" class="h-10 px-5 bg-primary text-on-primary text-sm font-bold rounded-md hover:opacity-90 transition-opacity">Apply</button>
+  <span class="text-xs text-on-surface-variant ml-2">Showing data from {{ start_date|date:"M j, Y" }} to {{ end_date|date:"M j, Y" }}</span>
+</form>
+
+<section class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-2xl font-semibold text-on-surface">Revenue Over Time</h3>
+    <div class="flex items-center gap-2">
+      <div class="w-3 h-3 rounded-full bg-primary"></div>
+      <span class="text-xs text-on-surface-variant uppercase">Interest Revenue</span>
+    </div>
+  </div>
+  <div class="h-80 relative">
+    <canvas id="revenueChart"></canvas>
+  </div>
+</section>
+
+<section class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
+    <div>
+      <h3 class="text-2xl font-semibold text-on-surface">Monthly Capital Flow</h3>
+      <p class="text-sm text-on-surface-variant">New loans vs payments collected — the gap is your monthly investment.</p>
+    </div>
+    <div class="flex flex-wrap gap-4 text-right">
+      <div>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Deployed</p>
+        <p class="text-lg font-bold text-primary">₼{{ total_deployed|intcomma }}</p>
+      </div>
+      <div>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Collected</p>
+        <p class="text-lg font-bold text-secondary">₼{{ total_collected|intcomma }}</p>
+      </div>
+      <div>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Net Invested</p>
+        <p class="text-lg font-bold {% if net_invested >= 0 %}text-on-surface{% else %}text-secondary{% endif %}">₼{{ net_invested|intcomma }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="flex items-center gap-4 mb-4 text-xs text-on-surface-variant">
+    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-primary"></span>New Loans</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-secondary"></span>Collected</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>Net Investment</div>
+  </div>
+  <div class="h-80 relative">
+    <canvas id="capitalFlowChart"></canvas>
+  </div>
+</section>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider">Payments by Status per Month</h3>
+      <div class="flex gap-4">
+        <div class="flex items-center gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-sm bg-secondary"></div>
+          <span class="text-[10px] font-bold text-on-surface-variant">ON-TIME</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-sm bg-tertiary-fixed-dim"></div>
+          <span class="text-[10px] font-bold text-on-surface-variant">LATE</span>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      {% for r in status_rows %}
+      <div class="space-y-1">
+        <div class="flex justify-between text-[11px] font-bold text-on-surface-variant">
+          <span>{{ r.label }}</span>
+          <span>₼{{ r.total_amount|intcomma }} Total</span>
+        </div>
+        <div class="h-6 w-full flex rounded-md overflow-hidden bg-surface-container">
+          {% if r.has_data %}
+          <div class="h-full bg-secondary" style="width: {{ r.on_time_pct }}%"></div>
+          <div class="h-full bg-tertiary-fixed-dim" style="width: {{ r.late_pct }}%"></div>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-sm text-on-surface-variant text-center py-8">No payment data for this period.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+    <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider mb-6">Payment Activity Heatmap</h3>
+    <div class="grid grid-cols-7 gap-2">
+      {% for cell in heatmap_cells %}
+      {% if cell.intensity == 0 %}
+      <div class="aspect-square bg-primary/5 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      {% elif cell.intensity == 1 %}
+      <div class="aspect-square bg-primary/30 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      {% elif cell.intensity == 2 %}
+      <div class="aspect-square bg-primary/60 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      {% else %}
+      <div class="aspect-square bg-primary rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="mt-6 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] text-on-surface-variant font-bold">LESS</span>
+        <div class="flex gap-1">
+          <div class="w-3 h-3 rounded-sm bg-primary/5"></div>
+          <div class="w-3 h-3 rounded-sm bg-primary/30"></div>
+          <div class="w-3 h-3 rounded-sm bg-primary/60"></div>
+          <div class="w-3 h-3 rounded-sm bg-primary"></div>
+        </div>
+        <span class="text-[10px] text-on-surface-variant font-bold">MORE</span>
+      </div>
+      <span class="text-[10px] text-on-surface-variant italic">Last 28 days collection intensity</span>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-semibold text-on-surface">Top Earning Loans</h3>
+      <a href="{% url 'loan_list' %}" class="text-primary text-sm font-bold hover:underline">View All</a>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="text-left border-b border-slate-100">
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Loan ID</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Customer</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-right">Revenue</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-center">Term</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for row in top_loans %}
+          <tr class="hover:bg-surface-container-low transition-colors">
+            <td class="py-4 font-mono text-sm"><a href="{% url 'loan_detail' row.loan.id %}" class="hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
+            <td class="py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-primary">{{ row.loan.customer.name|first|upper }}{{ row.loan.customer.surname|first|upper }}</div>
+                <a href="{% url 'customer_detail' row.loan.customer.id %}" class="text-sm font-bold hover:text-primary transition-colors">{{ row.loan.customer.get_full_name }}</a>
+              </div>
+            </td>
+            <td class="py-4 text-right font-bold text-on-surface">₼{{ row.revenue|intcomma }}</td>
+            <td class="py-4 text-center text-sm text-on-surface-variant">{{ row.loan.term }}m</td>
+            <td class="py-4">
+              {% if row.status == 'active' %}
+              <span class="px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase rounded">Active</span>
+              {% elif row.status == 'delayed' %}
+              <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded">Delayed</span>
+              {% else %}
+              <span class="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded">Completed</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="py-8 text-center text-on-surface-variant text-sm">No loans in this period.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border-l-4 border-l-error border border-slate-200">
+    <div class="flex items-center gap-2 mb-6 text-error">
+      <span class="material-symbols-outlined">warning</span>
+      <h3 class="text-sm font-bold uppercase tracking-wider">Delayed Watchlist</h3>
+    </div>
+    <div class="space-y-4">
+      {% for entry in watchlist %}
+      {% if entry.severity == 'critical' %}
+      <div class="p-4 rounded-2xl bg-error/5 border border-error/20">
+        <div class="flex justify-between items-start mb-2">
+          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded">CRITICAL</span>
+        </div>
+        <div class="flex justify-between text-xs text-on-surface-variant">
+          <span>{{ entry.late_count }} Late Payments</span>
+          <span class="font-bold text-error">₼{{ entry.at_risk|intcomma }} at risk</span>
+        </div>
+      </div>
+      {% elif entry.severity == 'overdue' %}
+      <div class="p-4 rounded-2xl bg-error/5 border border-error/10">
+        <div class="flex justify-between items-start mb-2">
+          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded">OVERDUE</span>
+        </div>
+        <div class="flex justify-between text-xs text-on-surface-variant">
+          <span>{{ entry.late_count }} Late Payments</span>
+          <span class="font-bold text-error">₼{{ entry.at_risk|intcomma }} at risk</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
+        <div class="flex justify-between items-start mb-2">
+          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
+          <span class="px-2 py-0.5 bg-tertiary text-white text-[10px] font-bold rounded">PENDING</span>
+        </div>
+        <div class="flex justify-between text-xs text-on-surface-variant">
+          <span>{{ entry.late_count }} Late Payment{{ entry.late_count|pluralize }}</span>
+          <span class="font-bold text-on-surface">₼{{ entry.at_risk|intcomma }} at risk</span>
+        </div>
+      </div>
+      {% endif %}
+      {% empty %}
+      <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
+        <span class="material-symbols-outlined text-emerald-600">verified</span>
+        <p class="text-sm text-emerald-700 font-medium mt-1">No active delays.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<footer class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
+    <span class="text-xs text-on-surface-variant font-bold uppercase">Average Loan Size</span>
+    <span class="text-2xl font-semibold text-primary">₼{{ avg_loan_size|intcomma }}</span>
+    <div class="mt-2 text-[11px] text-on-surface-variant">In selected period</div>
+  </div>
+  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
+    <span class="text-xs text-on-surface-variant font-bold uppercase">Average Term</span>
+    <span class="text-2xl font-semibold text-primary">{{ avg_term }} Months</span>
+    <div class="mt-2 text-[11px] text-on-surface-variant">In selected period</div>
+  </div>
+  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
+    <span class="text-xs text-on-surface-variant font-bold uppercase">On-Time Payment Rate</span>
+    <span class="text-2xl font-semibold text-secondary">{{ on_time_rate }}%</span>
+    <div class="mt-2 w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+      <div class="bg-secondary h-full" style="width: {{ on_time_rate }}%"></div>
+    </div>
+  </div>
+  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
+    <span class="text-xs text-on-surface-variant font-bold uppercase">Default Risk</span>
+    <div class="flex items-center gap-2">
+      <span class="text-2xl font-semibold text-{{ risk_class }}">{{ risk_level }}</span>
+    </div>
+    <p class="text-[11px] text-on-surface-variant mt-2 leading-tight">{{ risk_blurb }}</p>
+  </div>
+</footer>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ revenue_chart_data|json_script:"revenue-chart-data" }}
+{{ capital_flow_data|json_script:"capital-flow-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  (function () {
+    const data = JSON.parse(document.getElementById('revenue-chart-data').textContent);
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const peakIdx = data.peakIndex;
+    const colors = data.data.map((_, i) => i === peakIdx ? '#3525cd' : 'rgba(53, 37, 205, 0.15)');
+    const borderColors = data.data.map((_, i) => i === peakIdx ? '#3525cd' : 'rgba(53, 37, 205, 0.3)');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Interest Revenue',
+          data: data.data,
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 1,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => '₼' + ctx.parsed.y.toLocaleString()
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#464555', font: { size: 11 } } },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              color: '#464555',
+              font: { size: 11 },
+              callback: v => '₼' + v.toLocaleString()
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    const customToggle = document.getElementById('custom-toggle');
+    const customRange = document.getElementById('custom-range');
+    if (customToggle && customRange) {
+      customToggle.addEventListener('click', () => {
+        customRange.classList.toggle('hidden');
+      });
+    }
+
+    const flowData = JSON.parse(document.getElementById('capital-flow-data').textContent);
+    const flowCtx = document.getElementById('capitalFlowChart').getContext('2d');
+    new Chart(flowCtx, {
+      type: 'bar',
+      data: {
+        labels: flowData.labels,
+        datasets: [
+          {
+            label: 'New Loans',
+            data: flowData.new_loans,
+            backgroundColor: 'rgba(53, 37, 205, 0.8)',
+            borderRadius: 6,
+            order: 2,
+          },
+          {
+            label: 'Collected',
+            data: flowData.collected,
+            backgroundColor: 'rgba(0, 108, 73, 0.8)',
+            borderRadius: 6,
+            order: 2,
+          },
+          {
+            label: 'Net Investment',
+            data: flowData.gap,
+            type: 'line',
+            borderColor: '#ffb95f',
+            backgroundColor: 'rgba(255, 185, 95, 0.15)',
+            tension: 0.3,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#ffb95f',
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString(),
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#464555', font: { size: 11 } } },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: {
+              color: '#464555',
+              font: { size: 11 },
+              callback: v => '₼' + v.toLocaleString(),
+            },
+          },
+        },
+      },
+    });
+  })();
+</script>
+{% endblock %}

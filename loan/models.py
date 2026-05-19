@@ -1,3 +1,5 @@
+from datetime import date
+
 from django.db import models
 from user.models import Customer
 # Create your models here.
@@ -38,7 +40,7 @@ class Loan(models.Model):
 class Payment(models.Model):
     loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name='loan_payments')
     is_not_delayed = models.BooleanField(default=True)
-    paid_at = models.DateField(auto_now_add=True)
+    paid_at = models.DateField(default=date.today)
 
     def __str__(self):
         return f"{self.loan.loan_id} - {self.paid_at}"

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Loans | Budget{% endblock %}
+
+{% block search_placeholder %}Search by Loan ID or customer…{% endblock %}
+
+{% block topbar_actions %}
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<a href="{% url 'loan_create' %}" class="flex items-center gap-2 bg-primary px-5 py-2.5 rounded-full text-white font-bold hover:bg-primary-container transition-all hover:shadow-lg active:scale-95">
+  <span class="material-symbols-outlined">add</span>
+  <span class="text-sm font-medium">New Loan</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<style>
+  .custom-shadow-soft { box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<section class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-semibold text-on-background">Loans</h1>
+    <p class="text-base text-on-surface-variant">Manage and track loan portfolio.</p>
+  </div>
+  <div class="grid grid-cols-2 md:flex gap-4">
+    <div class="bg-surface custom-shadow-soft rounded-2xl p-4 border border-outline-variant flex flex-col justify-center min-w-[160px]">
+      <span class="text-xs text-on-surface-variant uppercase font-bold tracking-widest">Active Total</span>
+      <span class="text-2xl font-bold text-primary">₼{{ active_remaining_total|intcomma }}</span>
+    </div>
+    <div class="bg-surface custom-shadow-soft rounded-2xl p-4 border border-outline-variant flex flex-col justify-center min-w-[160px]">
+      <span class="text-xs text-on-surface-variant uppercase font-bold tracking-widest">Avg. Yield</span>
+      <span class="text-2xl font-bold text-secondary">{{ avg_yield }}%</span>
+    </div>
+  </div>
+</section>
+
+<section class="bg-white rounded-2xl custom-shadow-soft border border-outline-variant p-4 flex flex-wrap items-center justify-between gap-4">
+  <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 md:pb-0">
+    <button data-filter="all" class="filter-chip px-6 py-2 rounded-full bg-primary text-white font-bold text-sm shadow-md transition-all">All ({{ total_count }})</button>
+    <button data-filter="active" class="filter-chip px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Active ({{ active_count }})</button>
+    <button data-filter="completed" class="filter-chip px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Completed ({{ completed_count }})</button>
+    <button data-filter="delayed" class="filter-chip px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Delayed ({{ delayed_count }})</button>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="relative min-w-[200px]">
+      <select id="customer-filter" class="w-full appearance-none bg-surface-container border border-outline-variant rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-primary focus:outline-none transition-all cursor-pointer">
+        <option value="all">All Customers</option>
+        {% for c in customers %}
+        <option value="{{ c.id }}">{{ c.get_full_name }}</option>
+        {% endfor %}
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+    </div>
+    <div class="relative min-w-[140px]">
+      <select id="year-filter" class="w-full appearance-none bg-surface-container border border-outline-variant rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-primary focus:outline-none transition-all cursor-pointer">
+        <option value="all">All Years</option>
+        {% for y in years %}
+        <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+    </div>
+  </div>
+</section>
+
+<section class="bg-white rounded-2xl custom-shadow-soft border border-outline-variant overflow-hidden flex flex-col">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse min-w-[1200px]">
+      <thead class="sticky top-0 bg-surface-container-low border-b border-outline-variant z-10">
+        <tr>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Loan ID</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Customer</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Amount</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Monthly</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Term</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Progress</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Remaining</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Revenue</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Start Date</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100" id="loan-rows">
+        {% for row in rows %}
+        <tr class="hover:bg-background transition-colors" data-loan-row data-status="{{ row.status }}" data-customer="{{ row.loan.customer.id }}" data-year="{{ row.loan.start|date:'Y' }}" data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}">
+          <td class="px-6 py-5 font-mono text-sm text-on-surface-variant"><a href="{% url 'loan_detail' row.loan.id %}" class="hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
+          <td class="px-6 py-5">
+            <div class="flex items-center gap-3">
+              {% if row.status == 'delayed' %}
+              <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 font-bold flex-shrink-0">{{ row.loan.customer.name|first|upper }}{{ row.loan.customer.surname|first|upper }}</div>
+              {% elif row.status == 'completed' %}
+              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold flex-shrink-0">{{ row.loan.customer.name|first|upper }}{{ row.loan.customer.surname|first|upper }}</div>
+              {% else %}
+              <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold flex-shrink-0">{{ row.loan.customer.name|first|upper }}{{ row.loan.customer.surname|first|upper }}</div>
+              {% endif %}
+              <a href="{% url 'customer_detail' row.loan.customer.id %}" class="font-bold text-on-surface whitespace-nowrap hover:text-primary transition-colors">{{ row.loan.customer.get_full_name }}</a>
+            </div>
+          </td>
+          <td class="px-6 py-5 text-sm font-bold text-right">₼{{ row.loan.amount|intcomma }}</td>
+          <td class="px-6 py-5 text-sm text-on-surface-variant text-right">₼{{ row.loan.monthly_payment|intcomma }}</td>
+          <td class="px-6 py-5 text-sm">{{ row.loan.term }} months</td>
+          <td class="px-6 py-5 min-w-[140px]">
+            <div class="flex flex-col gap-1.5">
+              <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                <div class="{% if row.status == 'delayed' %}bg-tertiary-container{% elif row.status == 'completed' %}bg-on-surface-variant{% else %}bg-primary{% endif %} h-full rounded-full" style="width: {{ row.progress_pct }}%"></div>
+              </div>
+              <span class="text-[11px] font-bold text-on-surface-variant">{{ row.paid_months }} / {{ row.loan.term }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-5 text-sm font-bold text-right">₼{{ row.remaining|intcomma }}</td>
+          <td class="px-6 py-5 text-sm font-bold text-secondary text-right">+₼{{ row.revenue|intcomma }}</td>
+          <td class="px-6 py-5">
+            <div class="flex justify-center">
+              {% if row.status == 'active' %}
+              <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest border border-emerald-100">Active</span>
+              {% elif row.status == 'delayed' %}
+              <span class="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-widest border border-amber-100">Delayed</span>
+              {% else %}
+              <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-widest border border-blue-100">Completed</span>
+              {% endif %}
+            </div>
+          </td>
+          <td class="px-6 py-5 text-sm text-on-surface-variant whitespace-nowrap">{{ row.loan.start|date:"M d, Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="10" class="py-12 text-center text-on-surface-variant text-sm">No loans yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-sm">No loans match the current filter.</div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const rows = document.querySelectorAll('[data-loan-row]');
+    const chips = document.querySelectorAll('.filter-chip');
+    const customerSelect = document.getElementById('customer-filter');
+    const yearSelect = document.getElementById('year-filter');
+    const searchInput = document.getElementById('topbar-search');
+    const noResults = document.getElementById('no-results');
+
+    let activeStatus = 'all';
+    let activeCustomer = 'all';
+    let activeYear = 'all';
+    let activeSearch = '';
+
+    const activeChipClasses = ['bg-primary', 'text-white', 'shadow-md'];
+    const inactiveChipClasses = ['bg-surface-container', 'text-on-surface-variant', 'hover:bg-surface-container-high'];
+
+    function applyFilters() {
+      let visible = 0;
+      rows.forEach(row => {
+        const status = row.dataset.status || '';
+        const customer = row.dataset.customer || '';
+        const year = row.dataset.year || '';
+        const search = row.dataset.search || '';
+
+        const matchesStatus = activeStatus === 'all' || status === activeStatus;
+        const matchesCustomer = activeCustomer === 'all' || customer === activeCustomer;
+        const matchesYear = activeYear === 'all' || year === activeYear;
+        const matchesSearch = !activeSearch || search.indexOf(activeSearch) !== -1;
+
+        const show = matchesStatus && matchesCustomer && matchesYear && matchesSearch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (noResults) noResults.classList.toggle('hidden', visible > 0 || rows.length === 0);
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          activeChipClasses.forEach(cls => c.classList.remove(cls));
+          inactiveChipClasses.forEach(cls => c.classList.add(cls));
+        });
+        inactiveChipClasses.forEach(cls => chip.classList.remove(cls));
+        activeChipClasses.forEach(cls => chip.classList.add(cls));
+        activeStatus = chip.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    if (customerSelect) customerSelect.addEventListener('change', e => { activeCustomer = e.target.value; applyFilters(); });
+    if (yearSelect) yearSelect.addEventListener('change', e => { activeYear = e.target.value; applyFilters(); });
+    if (searchInput) searchInput.addEventListener('input', e => { activeSearch = e.target.value.trim().toLowerCase(); applyFilters(); });
+  })();
+</script>
+{% endblock %}

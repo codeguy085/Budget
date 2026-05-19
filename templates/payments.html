@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Payments | Budget{% endblock %}
+
+{% block search_placeholder %}Search by transaction, customer, or loan ID...{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-1">
+  <h2 class="text-3xl font-semibold text-on-surface">Payments</h2>
+  <p class="text-base text-on-surface-variant">Every recorded payment across all loans</p>
+</div>
+
+<section class="flex flex-wrap items-center gap-3">
+  <button data-filter="all" class="filter-chip px-5 py-2 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md">All ({{ total_count }})</button>
+  <button data-filter="on-time" class="filter-chip px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">On Time ({{ on_time_count }})</button>
+  <button data-filter="late" class="filter-chip px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">Late ({{ late_count }})</button>
+  <div class="ml-auto flex gap-2">
+    <button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container transition-colors text-on-surface-variant">
+      <span class="material-symbols-outlined text-[20px]">filter_list</span>
+      Advanced Filters
+    </button>
+    <button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container transition-colors text-on-surface-variant">
+      <span class="material-symbols-outlined text-[20px]">download</span>
+      Export CSV
+    </button>
+  </div>
+</section>
+
+<div class="bg-white rounded-[24px] shadow-[0_4px_20px_0_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-surface-container-low border-b border-slate-100">
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline">Transaction ID</th>
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline">Customer</th>
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline">Loan ID</th>
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline text-right">Amount</th>
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline text-center">Date</th>
+          <th class="px-6 py-4 text-xs uppercase tracking-wider text-outline">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100" id="payment-rows">
+        {% for row in rows %}
+        <tr class="hover:bg-surface-bright transition-colors" data-payment-row data-filters="{{ row.filter_status }}" data-search="{{ row.payment.loan.customer.get_full_name|lower }} {{ row.payment.loan.loan_id|lower }} txn-{{ row.payment.id }}">
+          <td class="px-6 py-4 font-mono text-sm text-on-surface-variant">TXN-{{ row.payment.id }}</td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              {% if row.filter_status == 'late' %}
+              <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 font-bold flex-shrink-0">{{ row.payment.loan.customer.name|first|upper }}{{ row.payment.loan.customer.surname|first|upper }}</div>
+              {% else %}
+              <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold flex-shrink-0">{{ row.payment.loan.customer.name|first|upper }}{{ row.payment.loan.customer.surname|first|upper }}</div>
+              {% endif %}
+              <a href="{% url 'customer_detail' row.payment.loan.customer.id %}" class="text-base font-bold hover:text-primary transition-colors">{{ row.payment.loan.customer.get_full_name }}</a>
+            </div>
+          </td>
+          <td class="px-6 py-4 font-mono text-sm text-on-surface-variant"><a href="{% url 'loan_detail' row.payment.loan.id %}" class="hover:text-primary transition-colors">{{ row.payment.loan.loan_id }}</a></td>
+          <td class="px-6 py-4 text-right font-bold text-primary">₼{{ row.payment.loan.monthly_payment|intcomma }}</td>
+          <td class="px-6 py-4 text-center text-sm">{{ row.payment.paid_at|date:"d/m/Y" }}</td>
+          <td class="px-6 py-4">
+            {% if row.payment.is_not_delayed %}
+            <span class="px-3 py-1 rounded-full text-xs bg-emerald-50 text-emerald-700 uppercase font-bold">On Time</span>
+            {% else %}
+            <span class="px-3 py-1 rounded-full text-xs bg-amber-50 text-amber-700 uppercase font-bold">Late</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="py-12 text-center text-on-surface-variant text-sm">No payments recorded yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-sm">No payments match the current filter.</div>
+</div>
+{% endblock %}
+
+{% block fab %}
+<a href="/payments/new/" class="fixed bottom-10 right-10 flex items-center gap-2 px-6 py-4 bg-primary text-on-primary rounded-full shadow-[0_10px_30px_0_rgba(53,37,205,0.3)] hover:scale-105 transition-transform active:scale-95 group z-50">
+  <span class="material-symbols-outlined font-bold group-hover:rotate-90 transition-transform">add</span>
+  <span class="text-sm font-bold">Record Payment</span>
+</a>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const rows = document.querySelectorAll('[data-payment-row]');
+    const chips = document.querySelectorAll('.filter-chip');
+    const searchInput = document.getElementById('topbar-search');
+    const noResults = document.getElementById('no-results');
+    let activeFilter = 'all';
+    let activeSearch = '';
+
+    const activeClasses = ['bg-primary', 'text-on-primary', 'shadow-md'];
+    const inactiveClasses = ['bg-surface', 'border', 'border-outline-variant', 'text-on-surface-variant', 'hover:bg-surface-container'];
+
+    function applyFilters() {
+      let visible = 0;
+      rows.forEach(row => {
+        const filters = (row.dataset.filters || '').split(' ');
+        const matchesFilter = activeFilter === 'all' || filters.indexOf(activeFilter) !== -1;
+        const search = row.dataset.search || '';
+        const matchesSearch = !activeSearch || search.indexOf(activeSearch) !== -1;
+        const show = matchesFilter && matchesSearch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (noResults) noResults.classList.toggle('hidden', visible > 0 || rows.length === 0);
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          activeClasses.forEach(cls => c.classList.remove(cls));
+          inactiveClasses.forEach(cls => c.classList.add(cls));
+        });
+        inactiveClasses.forEach(cls => chip.classList.remove(cls));
+        activeClasses.forEach(cls => chip.classList.add(cls));
+        activeFilter = chip.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', e => {
+        activeSearch = e.target.value.trim().toLowerCase();
+        applyFilters();
+      });
+    }
+  })();
+</script>
+{% endblock %}

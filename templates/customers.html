@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Customers | Budget{% endblock %}
+
+{% block search_placeholder %}Search by name or surname...{% endblock %}
+
+{% block topbar_actions %}
+<div class="h-8 w-[1px] bg-outline-variant"></div>
+<a href="{% url 'customer_create' %}" class="bg-primary-container text-white px-5 py-2 rounded-full font-bold text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
+  <span class="material-symbols-outlined text-sm">add</span>
+  Add Customer
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+  <div class="flex justify-between items-end">
+    <div>
+      <h2 class="text-headline-lg font-headline-lg text-on-surface">Customers</h2>
+      <p class="text-body-md text-on-surface-variant">Manage and track your loan clients</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 flex-wrap" id="customer-filters">
+    <button data-filter="all" class="filter-chip px-4 py-2 bg-primary text-white rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
+    <button data-filter="has-active" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active Loans ({{ has_active_count }})</button>
+    <button data-filter="fully-paid" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Fully Paid Off ({{ fully_paid_count }})</button>
+    <button data-filter="new-this-month" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">New This Month ({{ new_this_month_count }})</button>
+  </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full min-w-[1400px] border-collapse text-left">
+      <thead>
+        <tr class="bg-surface-container-low/50 text-on-surface-variant text-label-sm border-b border-slate-100">
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="name">
+            <span class="inline-flex items-center gap-1">Customer<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="active">
+            <span class="inline-flex items-center gap-1">Active Loans<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="loan">
+            <span class="inline-flex items-center gap-1 justify-end">Total Loan (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="paid">
+            <span class="inline-flex items-center gap-1 justify-end">Total Paid (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="remaining">
+            <span class="inline-flex items-center gap-1 justify-end">Remaining (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="revenue">
+            <span class="inline-flex items-center gap-1 justify-end">Revenue (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="monthly">
+            <span class="inline-flex items-center gap-1 justify-end">Monthly (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="created">
+            <span class="inline-flex items-center gap-1">Created<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+          </th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100" id="customer-rows">
+        {% for row in rows %}
+        <tr class="hover:bg-surface-container-low transition-colors group" data-customer-row data-filters="{{ row.data_filters }}" data-name="{{ row.customer.get_full_name|lower }}" data-sort-name="{{ row.customer.get_full_name|lower }}" data-sort-active="{{ row.active_count }}" data-sort-loan="{{ row.total_loan }}" data-sort-paid="{{ row.total_paid }}" data-sort-remaining="{{ row.total_remaining }}" data-sort-revenue="{{ row.total_revenue }}" data-sort-monthly="{{ row.monthly_payment }}" data-sort-created="{{ row.customer.created_at|date:'U' }}">
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              {% if row.status == 'delayed' %}
+              <div class="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 font-bold">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+              {% elif row.status == 'active' %}
+              <div class="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+              {% elif row.status == 'completed' %}
+              <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+              {% else %}
+              <div class="h-10 w-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+              {% endif %}
+              <div>
+                <a href="{% url 'customer_detail' row.customer.id %}" class="font-bold text-on-surface hover:text-primary transition-colors">{{ row.customer.get_full_name }}</a>
+                <div class="text-xs text-on-surface-variant">ID: #C-{{ row.customer.id }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            {% if row.status == 'active' %}
+            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded uppercase border border-emerald-100">{{ row.active_count }} Active</span>
+            {% elif row.status == 'delayed' %}
+            <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded uppercase border border-amber-100">{{ row.active_count }} Active</span>
+            {% elif row.status == 'completed' %}
+            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">Fully Paid</span>
+            {% else %}
+            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">No Loans</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 text-right font-medium">{{ row.total_loan|intcomma }} ₼</td>
+          <td class="px-6 py-4 text-right text-on-surface-variant">{{ row.total_paid|intcomma }} ₼</td>
+          <td class="px-6 py-4 text-right font-bold text-primary">{{ row.total_remaining|intcomma }} ₼</td>
+          <td class="px-6 py-4 text-right font-bold text-secondary">{{ row.total_revenue|intcomma }} ₼</td>
+          <td class="px-6 py-4 text-right">{{ row.monthly_payment|intcomma }} ₼</td>
+          <td class="px-6 py-4 text-on-surface-variant text-sm">{{ row.customer.created_at|naturaltime }}</td>
+          <td class="px-6 py-4">
+            <div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <a href="{% url 'customer_detail' row.customer.id %}" class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">visibility</span></a>
+              <a href="{% url 'customer_edit' row.customer.id %}" class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></a>
+              <a href="/customers/{{ row.customer.id }}/delete/" class="p-1 hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="py-12 text-center text-on-surface-variant text-label-md">No customers yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-label-md">No customers match the current filter.</div>
+</section>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-label-sm font-bold text-on-surface-variant uppercase">Collection Rate</p>
+      <h3 class="text-headline-md font-headline-md text-secondary">{{ collection_rate }}%</h3>
+    </div>
+    <div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+      <span class="material-symbols-outlined">trending_up</span>
+    </div>
+  </div>
+  <div class="p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-label-sm font-bold text-on-surface-variant uppercase">New Loans This Month</p>
+      <h3 class="text-headline-md font-headline-md text-on-surface">{{ new_loans_this_month }}</h3>
+    </div>
+    <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+      <span class="material-symbols-outlined">history_edu</span>
+    </div>
+  </div>
+  <div class="p-6 bg-primary text-white rounded-2xl border border-primary-container shadow-md flex items-center justify-between">
+    <div>
+      <p class="text-label-sm font-bold opacity-80 uppercase">Total Monthly Payment</p>
+      <h3 class="text-headline-md font-headline-md">{{ total_monthly_payment|intcomma }} ₼</h3>
+    </div>
+    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+      <span class="material-symbols-outlined">payments</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    const rows = document.querySelectorAll('[data-customer-row]');
+    const chips = document.querySelectorAll('.filter-chip');
+    const searchInput = document.getElementById('topbar-search');
+    const noResults = document.getElementById('no-results');
+    let activeFilter = 'all';
+    let activeSearch = '';
+
+    const activeClasses = ['bg-primary', 'text-white', 'shadow-sm'];
+    const inactiveClasses = ['bg-surface-container-high', 'text-on-surface-variant', 'border', 'border-outline-variant/30'];
+
+    function applyFilters() {
+      let visible = 0;
+      rows.forEach(row => {
+        const filters = (row.dataset.filters || '').split(' ');
+        const matchesFilter = activeFilter === 'all' || filters.indexOf(activeFilter) !== -1;
+        const name = row.dataset.name || '';
+        const matchesSearch = !activeSearch || name.indexOf(activeSearch) !== -1;
+        const show = matchesFilter && matchesSearch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      if (noResults) noResults.classList.toggle('hidden', visible > 0 || rows.length === 0);
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => {
+          activeClasses.forEach(cls => c.classList.remove(cls));
+          inactiveClasses.forEach(cls => c.classList.add(cls));
+        });
+        inactiveClasses.forEach(cls => chip.classList.remove(cls));
+        activeClasses.forEach(cls => chip.classList.add(cls));
+        activeFilter = chip.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', e => {
+        activeSearch = e.target.value.trim().toLowerCase();
+        applyFilters();
+      });
+    }
+
+    const sortHeaders = document.querySelectorAll('[data-sort-by]');
+    const tbody = document.getElementById('customer-rows');
+    let currentSort = { key: null, direction: 'desc' };
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function sortBy(key) {
+      if (currentSort.key === key) {
+        currentSort.direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
+      } else {
+        currentSort.key = key;
+        currentSort.direction = key === 'name' ? 'asc' : 'desc';
+      }
+      const datasetKey = 'sort' + capitalize(key);
+      const sorted = Array.from(tbody.querySelectorAll('[data-customer-row]')).sort((a, b) => {
+        const aVal = a.dataset[datasetKey] || '';
+        const bVal = b.dataset[datasetKey] || '';
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        let cmp;
+        if (!isNaN(aNum) && !isNaN(bNum) && aVal.trim() !== '' && bVal.trim() !== '') {
+          cmp = aNum - bNum;
+        } else {
+          cmp = aVal.localeCompare(bVal);
+        }
+        return currentSort.direction === 'asc' ? cmp : -cmp;
+      });
+      sorted.forEach(row => tbody.appendChild(row));
+
+      sortHeaders.forEach(th => {
+        const ind = th.querySelector('.sort-indicator');
+        if (!ind) return;
+        if (th.dataset.sortBy === key) {
+          ind.textContent = currentSort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
+          ind.classList.remove('opacity-30');
+          th.classList.add('text-primary');
+        } else {
+          ind.textContent = 'unfold_more';
+          ind.classList.add('opacity-30');
+          th.classList.remove('text-primary');
+        }
+      });
+    }
+
+    sortHeaders.forEach(th => {
+      th.addEventListener('click', () => sortBy(th.dataset.sortBy));
+    });
+  })();
+</script>
+{% endblock %}
