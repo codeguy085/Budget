@@ -10,87 +10,87 @@
 
 <div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
   <div>
-    <h2 class="text-3xl font-semibold text-on-surface">Reports</h2>
-    <p class="text-base text-on-surface-variant">Financial performance and loan portfolio analytics.</p>
+    <h2 class="text-2xl lg:text-3xl font-semibold text-on-surface">Reports</h2>
+    <p class="text-label-md lg:text-base text-on-surface-variant">Financial performance and loan portfolio analytics.</p>
   </div>
-  <div class="flex items-center gap-3 flex-wrap">
-    <div class="bg-surface-container-low p-1 rounded-lg border border-outline-variant flex items-center">
-      <a href="?period=this_month" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'this_month' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">This Month</a>
-      <a href="?period=last_month" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'last_month' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Last Month</a>
-      <a href="?period=this_year" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'this_year' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">This Year</a>
-      <a href="?period=all_time" class="px-4 py-1.5 text-sm rounded-md transition-colors {% if period == 'all_time' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">All Time</a>
-      <button type="button" id="custom-toggle" class="px-4 py-1.5 text-sm rounded-md transition-colors flex items-center gap-1 {% if period == 'custom' %}bg-surface-container-lowest shadow-sm text-primary font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Custom <span class="material-symbols-outlined text-sm">calendar_today</span></button>
+  <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:flex-wrap">
+    <div class="lg:bg-surface-container-low lg:p-1 lg:rounded-lg lg:border lg:border-outline-variant flex items-center gap-2 lg:gap-0 overflow-x-auto hide-scrollbar -mx-4 px-4 lg:mx-0 lg:px-1">
+      <a href="?period=this_month" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">This Month</a>
+      <a href="?period=last_month" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'last_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">Last Month</a>
+      <a href="?period=this_year" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_year' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">This Year</a>
+      <a href="?period=all_time" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'all_time' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">All Time</a>
+      <button type="button" id="custom-toggle" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors flex items-center gap-1 {% if period == 'custom' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">Custom <span class="material-symbols-outlined text-sm">calendar_today</span></button>
     </div>
-    <a href="{% url 'export_loans_csv' %}" class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">
+    <a href="{% url 'export_loans_csv' %}" class="w-full lg:w-auto flex items-center justify-center gap-2 px-5 py-3 lg:py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl lg:rounded-lg text-label-md lg:text-sm font-bold text-primary lg:text-on-surface-variant hover:bg-surface-container-high transition-all">
       <span class="material-symbols-outlined">download</span>
       Export CSV
     </a>
   </div>
 </div>
 
-<form id="custom-range" method="get" class="{% if period != 'custom' %}hidden{% endif %} flex flex-wrap items-end gap-3 bg-surface-container-low p-4 rounded-lg border border-outline-variant">
+<form id="custom-range" method="get" class="{% if period != 'custom' %}hidden{% endif %} flex flex-col sm:flex-row flex-wrap sm:items-end gap-3 bg-surface-container-low p-4 rounded-2xl lg:rounded-lg border border-outline-variant">
   <input type="hidden" name="period" value="custom"/>
-  <div>
+  <div class="flex-1 min-w-0">
     <label class="block text-xs text-on-surface-variant mb-1" for="start">Start date</label>
-    <input id="start" name="start" type="date" value="{{ custom_start_iso }}" class="h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
+    <input id="start" name="start" type="date" value="{{ custom_start_iso }}" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
   </div>
-  <div>
+  <div class="flex-1 min-w-0">
     <label class="block text-xs text-on-surface-variant mb-1" for="end">End date</label>
-    <input id="end" name="end" type="date" value="{{ custom_end_iso }}" class="h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
+    <input id="end" name="end" type="date" value="{{ custom_end_iso }}" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
   </div>
   <button type="submit" class="h-10 px-5 bg-primary text-on-primary text-sm font-bold rounded-md hover:opacity-90 transition-opacity">Apply</button>
-  <span class="text-xs text-on-surface-variant ml-2">Showing data from {{ start_date|date:"M j, Y" }} to {{ end_date|date:"M j, Y" }}</span>
+  <span class="text-xs text-on-surface-variant lg:ml-2">Showing data from {{ start_date|date:"M j, Y" }} to {{ end_date|date:"M j, Y" }}</span>
 </form>
 
-<section class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
-  <div class="flex justify-between items-center mb-6">
-    <h3 class="text-2xl font-semibold text-on-surface">Revenue Over Time</h3>
-    <div class="flex items-center gap-2">
+<section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
+  <div class="flex justify-between items-center mb-6 gap-3">
+    <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Revenue Over Time</h3>
+    <div class="flex items-center gap-2 flex-shrink-0">
       <div class="w-3 h-3 rounded-full bg-primary"></div>
-      <span class="text-xs text-on-surface-variant uppercase">Interest Revenue</span>
+      <span class="text-[10px] lg:text-xs text-on-surface-variant uppercase">Revenue</span>
     </div>
   </div>
-  <div class="h-80 relative">
+  <div class="h-56 lg:h-80 relative">
     <canvas id="revenueChart"></canvas>
   </div>
 </section>
 
-<section class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
+<section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
   <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
     <div>
-      <h3 class="text-2xl font-semibold text-on-surface">Monthly Capital Flow</h3>
-      <p class="text-sm text-on-surface-variant">New loans vs payments collected — the gap is your monthly investment.</p>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Monthly Capital Flow</h3>
+      <p class="text-label-sm lg:text-sm text-on-surface-variant">New loans vs payments collected — the gap is your monthly investment.</p>
     </div>
-    <div class="flex flex-wrap gap-4 text-right">
-      <div>
+    <div class="grid grid-cols-3 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
+      <div class="min-w-0">
         <p class="text-[10px] text-on-surface-variant font-bold uppercase">Deployed</p>
-        <p class="text-lg font-bold text-primary">₼{{ total_deployed|intcomma }}</p>
+        <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ total_deployed|intcomma }}</p>
       </div>
-      <div>
+      <div class="min-w-0">
         <p class="text-[10px] text-on-surface-variant font-bold uppercase">Collected</p>
-        <p class="text-lg font-bold text-secondary">₼{{ total_collected|intcomma }}</p>
+        <p class="text-base lg:text-lg font-bold text-secondary truncate">₼{{ total_collected|intcomma }}</p>
       </div>
-      <div>
+      <div class="min-w-0">
         <p class="text-[10px] text-on-surface-variant font-bold uppercase">Net Invested</p>
-        <p class="text-lg font-bold {% if net_invested >= 0 %}text-on-surface{% else %}text-secondary{% endif %}">₼{{ net_invested|intcomma }}</p>
+        <p class="text-base lg:text-lg font-bold {% if net_invested >= 0 %}text-on-surface{% else %}text-secondary{% endif %} truncate">₼{{ net_invested|intcomma }}</p>
       </div>
     </div>
   </div>
-  <div class="flex items-center gap-4 mb-4 text-xs text-on-surface-variant">
+  <div class="flex flex-wrap items-center gap-3 lg:gap-4 mb-4 text-[10px] lg:text-xs text-on-surface-variant">
     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-primary"></span>New Loans</div>
     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-secondary"></span>Collected</div>
     <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>Net Investment</div>
   </div>
-  <div class="h-80 relative">
+  <div class="h-56 lg:h-80 relative">
     <canvas id="capitalFlowChart"></canvas>
   </div>
 </section>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
-    <div class="flex justify-between items-center mb-6">
-      <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider">Payments by Status per Month</h3>
-      <div class="flex gap-4">
+  <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
+    <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+      <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider">Payments by Status / Month</h3>
+      <div class="flex gap-3 lg:gap-4">
         <div class="flex items-center gap-1.5">
           <div class="w-2.5 h-2.5 rounded-sm bg-secondary"></div>
           <span class="text-[10px] font-bold text-on-surface-variant">ON-TIME</span>
@@ -121,9 +121,9 @@
     </div>
   </div>
 
-  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
-    <h3 class="text-sm font-bold text-on-surface uppercase tracking-wider mb-6">Payment Activity Heatmap</h3>
-    <div class="grid grid-cols-7 gap-2">
+  <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
+    <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider mb-6">Activity Heatmap</h3>
+    <div class="grid grid-cols-7 gap-1.5 lg:gap-2">
       {% for cell in heatmap_cells %}
       {% if cell.intensity == 0 %}
       <div class="aspect-square bg-primary/5 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
@@ -153,12 +153,37 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-  <div class="lg:col-span-2 bg-surface-container-lowest rounded-3xl p-6 soft-shadow border border-slate-200">
-    <div class="flex justify-between items-center mb-6">
-      <h3 class="text-2xl font-semibold text-on-surface">Top Earning Loans</h3>
-      <a href="{% url 'loan_list' %}" class="text-primary text-sm font-bold hover:underline">View All</a>
+  <div class="lg:col-span-2 lg:bg-surface-container-lowest lg:rounded-3xl lg:p-6 lg:soft-shadow lg:border lg:border-slate-200">
+    <div class="flex justify-between items-center mb-4 lg:mb-6 px-1 lg:px-0">
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Top Earning Loans</h3>
+      <a href="{% url 'loan_list' %}" class="text-primary text-label-md lg:text-sm font-bold hover:underline">View All</a>
     </div>
-    <div class="overflow-x-auto">
+
+    <div class="lg:hidden flex flex-col gap-3">
+      {% for row in top_loans %}
+      <a href="{% url 'loan_detail' row.loan.id %}" class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/50 shadow-sm flex items-center justify-between gap-3 active:scale-[0.98] transition-transform">
+        <div class="flex flex-col gap-1 min-w-0">
+          <span class="text-label-sm font-label-sm text-outline font-mono truncate">{{ row.loan.loan_id }}</span>
+          <h4 class="font-bold text-on-surface truncate">{{ row.loan.customer.get_full_name }}</h4>
+          <div class="flex items-center gap-2 flex-wrap">
+            {% if row.status == 'active' %}
+            <span class="bg-secondary-container/30 text-secondary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Active</span>
+            {% elif row.status == 'delayed' %}
+            <span class="bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Delayed</span>
+            {% else %}
+            <span class="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Completed</span>
+            {% endif %}
+            <span class="text-on-surface-variant font-medium text-sm">₼{{ row.revenue|intcomma }}</span>
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-outline flex-shrink-0">chevron_right</span>
+      </a>
+      {% empty %}
+      <p class="py-8 text-center text-on-surface-variant text-label-md">No loans in this period.</p>
+      {% endfor %}
+    </div>
+
+    <div class="hidden lg:block overflow-x-auto">
       <table class="w-full">
         <thead>
           <tr class="text-left border-b border-slate-100">
@@ -199,46 +224,46 @@
     </div>
   </div>
 
-  <div class="bg-surface-container-lowest rounded-3xl p-6 soft-shadow border-l-4 border-l-error border border-slate-200">
-    <div class="flex items-center gap-2 mb-6 text-error">
-      <span class="material-symbols-outlined">warning</span>
-      <h3 class="text-sm font-bold uppercase tracking-wider">Delayed Watchlist</h3>
+  <div class="bg-error-container/20 lg:bg-surface-container-lowest rounded-3xl p-5 lg:p-6 lg:soft-shadow border border-error/20 lg:border-l-4 lg:border-l-error lg:border lg:border-slate-200">
+    <div class="flex items-center gap-2 mb-4 lg:mb-6 text-error">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+      <h3 class="text-label-md lg:text-sm font-bold uppercase tracking-widest lg:tracking-wider">Delayed Watchlist</h3>
     </div>
-    <div class="space-y-4">
+    <div class="space-y-3 lg:space-y-4">
       {% for entry in watchlist %}
       {% if entry.severity == 'critical' %}
-      <div class="p-4 rounded-2xl bg-error/5 border border-error/20">
-        <div class="flex justify-between items-start mb-2">
-          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
-          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded">CRITICAL</span>
+      <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-error/5 border border-error/20 hover:bg-error/10 transition-colors">
+        <div class="flex justify-between items-start mb-2 gap-2">
+          <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">CRITICAL</span>
         </div>
-        <div class="flex justify-between text-xs text-on-surface-variant">
-          <span>{{ entry.late_count }} Late Payments</span>
-          <span class="font-bold text-error">₼{{ entry.at_risk|intcomma }} at risk</span>
+        <div class="flex justify-between text-xs text-on-surface-variant gap-2">
+          <span>{{ entry.late_count }} Late</span>
+          <span class="font-bold text-error truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
         </div>
-      </div>
+      </a>
       {% elif entry.severity == 'overdue' %}
-      <div class="p-4 rounded-2xl bg-error/5 border border-error/10">
-        <div class="flex justify-between items-start mb-2">
-          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
-          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded">OVERDUE</span>
+      <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-error/5 border border-error/10 hover:bg-error/10 transition-colors">
+        <div class="flex justify-between items-start mb-2 gap-2">
+          <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">OVERDUE</span>
         </div>
-        <div class="flex justify-between text-xs text-on-surface-variant">
-          <span>{{ entry.late_count }} Late Payments</span>
-          <span class="font-bold text-error">₼{{ entry.at_risk|intcomma }} at risk</span>
+        <div class="flex justify-between text-xs text-on-surface-variant gap-2">
+          <span>{{ entry.late_count }} Late</span>
+          <span class="font-bold text-error truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
         </div>
-      </div>
+      </a>
       {% else %}
-      <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant">
-        <div class="flex justify-between items-start mb-2">
-          <a href="{% url 'customer_detail' entry.customer.id %}" class="text-sm font-bold text-on-surface hover:text-primary transition-colors">{{ entry.customer.get_full_name }}</a>
-          <span class="px-2 py-0.5 bg-tertiary text-white text-[10px] font-bold rounded">PENDING</span>
+      <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-surface-container-low border border-outline-variant hover:bg-surface-container-high transition-colors">
+        <div class="flex justify-between items-start mb-2 gap-2">
+          <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
+          <span class="px-2 py-0.5 bg-tertiary text-white text-[10px] font-bold rounded flex-shrink-0">PENDING</span>
         </div>
-        <div class="flex justify-between text-xs text-on-surface-variant">
-          <span>{{ entry.late_count }} Late Payment{{ entry.late_count|pluralize }}</span>
-          <span class="font-bold text-on-surface">₼{{ entry.at_risk|intcomma }} at risk</span>
+        <div class="flex justify-between text-xs text-on-surface-variant gap-2">
+          <span>{{ entry.late_count }} Late</span>
+          <span class="font-bold text-on-surface truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
         </div>
-      </div>
+      </a>
       {% endif %}
       {% empty %}
       <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
@@ -250,30 +275,28 @@
   </div>
 </div>
 
-<footer class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
-  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
-    <span class="text-xs text-on-surface-variant font-bold uppercase">Average Loan Size</span>
-    <span class="text-2xl font-semibold text-primary">₼{{ avg_loan_size|intcomma }}</span>
-    <div class="mt-2 text-[11px] text-on-surface-variant">In selected period</div>
+<footer class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 pt-2">
+  <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Avg Loan Size</span>
+    <span class="text-headline-md lg:text-2xl font-semibold text-primary truncate">₼{{ avg_loan_size|intcomma }}</span>
+    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">In period</div>
   </div>
-  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
-    <span class="text-xs text-on-surface-variant font-bold uppercase">Average Term</span>
-    <span class="text-2xl font-semibold text-primary">{{ avg_term }} Months</span>
-    <div class="mt-2 text-[11px] text-on-surface-variant">In selected period</div>
+  <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Avg Term</span>
+    <span class="text-headline-md lg:text-2xl font-semibold text-primary truncate">{{ avg_term }}m</span>
+    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">In period</div>
   </div>
-  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
-    <span class="text-xs text-on-surface-variant font-bold uppercase">On-Time Payment Rate</span>
-    <span class="text-2xl font-semibold text-secondary">{{ on_time_rate }}%</span>
+  <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">On-time Rate</span>
+    <span class="text-headline-md lg:text-2xl font-semibold text-secondary truncate">{{ on_time_rate }}%</span>
     <div class="mt-2 w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
       <div class="bg-secondary h-full" style="width: {{ on_time_rate }}%"></div>
     </div>
   </div>
-  <div class="bg-surface rounded-2xl p-5 border border-outline-variant flex flex-col gap-1">
-    <span class="text-xs text-on-surface-variant font-bold uppercase">Default Risk</span>
-    <div class="flex items-center gap-2">
-      <span class="text-2xl font-semibold text-{{ risk_class }}">{{ risk_level }}</span>
-    </div>
-    <p class="text-[11px] text-on-surface-variant mt-2 leading-tight">{{ risk_blurb }}</p>
+  <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Default Risk</span>
+    <span class="text-headline-md lg:text-2xl font-semibold text-{{ risk_class }} truncate">{{ risk_level }}</span>
+    <p class="text-[10px] lg:text-[11px] text-on-surface-variant mt-2 leading-tight line-clamp-2">{{ risk_blurb }}</p>
   </div>
 </footer>
 {% endblock %}

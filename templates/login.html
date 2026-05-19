@@ -107,125 +107,171 @@
             vertical-align: middle;
         }
         body { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #3525cd 100%); }
     </style>
 </head>
-<body class="bg-background text-on-surface m-0 p-0 overflow-hidden">
-<main class="flex min-h-screen w-full">
-<!-- Left Side: Split Panel -->
+<body class="bg-background text-on-surface m-0 p-0 flex flex-col min-h-screen lg:overflow-hidden">
+
+<!-- Mobile top bar -->
+<header class="lg:hidden flex justify-between items-center w-full px-4 h-14 bg-surface shadow-[0_4px_20px_rgba(0,0,0,0.05)] sticky top-0 z-50">
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+    <span class="font-headline-md text-headline-md font-bold text-primary">Budget</span>
+  </div>
+</header>
+
+<main class="flex-1 flex flex-col lg:flex-row lg:min-h-screen w-full">
+
+<!-- Left Side: Desktop split panel -->
 <section class="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-primary to-primary-container p-16 flex-col justify-between">
-<!-- Decorative Background Element -->
-<div class="absolute inset-0 opacity-10 pointer-events-none">
-<svg height="100%" viewBox="0 0 800 800" width="100%" xmlns="http://www.w3.org/2000/svg">
-<circle cx="400" cy="400" fill="none" r="300" stroke="white" stroke-width="2"></circle>
-<circle cx="400" cy="400" fill="none" r="200" stroke="white" stroke-width="2"></circle>
-<line stroke="white" stroke-width="2" x1="0" x2="800" y1="400" y2="400"></line>
-<line stroke="white" stroke-width="2" x1="400" x2="400" y1="0" y2="800"></line>
-</svg>
-</div>
-<!-- Brand Header -->
-<div class="relative z-10">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-<span class="material-symbols-outlined text-primary text-[32px]" data-icon="account_balance_wallet">account_balance_wallet</span>
-</div>
-<span class="text-white font-headline-md text-headline-md font-extrabold tracking-tight">Budget</span>
-</div>
-</div>
-<!-- Illustration & Tagline -->
-<div class="relative z-10 max-w-md">
-<h1 class="text-white font-display-lg text-display-lg mb-6">Track loans, payments, and revenue with clarity.</h1>
-<p class="text-on-primary-container font-body-lg text-body-lg mb-12">Institutional-grade financial monitoring for professionals who demand precision and real-time insights.</p>
-<!-- Minimal Illustration Component -->
-<div class="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
-<div class="space-y-4">
-<div class="h-2 w-24 bg-white/40 rounded-full"></div>
-<div class="flex items-end gap-2 h-32">
-<div class="w-full bg-secondary-fixed h-[40%] rounded-t-lg"></div>
-<div class="w-full bg-secondary-fixed h-[70%] rounded-t-lg"></div>
-<div class="w-full bg-secondary-fixed h-[55%] rounded-t-lg"></div>
-<div class="w-full bg-secondary-fixed h-[90%] rounded-t-lg"></div>
-<div class="w-full bg-secondary-fixed h-[65%] rounded-t-lg"></div>
-</div>
-</div>
-</div>
-</div>
-<!-- Footer Quote/Social Proof -->
-<div class="relative z-10 flex items-center gap-4 text-on-primary-container/80">
-<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
-<img alt="Executive Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsl0FfXCFmqnL7mkTj0BdeM4n9vHp_MHTfcxoWWHWVIQeVGfbtJj2KbBkxLywfIycJqjbbQFGpGU2vqDQgzEPT11A8bhs0uWwksYH4yszFYj-12ZV0-uUeVe9l3CHliCR4fNo8U4xXdQcuNK0B4SrEuVeXw4jUGaKTuEQ594ggYSbV0l4Jtzca5EX6gUFfNg3XhHVP0edMVPwZFpDIJSAAKXFXONu5y1XTUbV2BSyP9p0zJjlCMSQyGF_unAbC9qj0WOKENyREIMfe"/>
-</div>
-<p class="text-label-md font-label-md">Trusted by 500+ Financial Institutions</p>
-</div>
+  <div class="absolute inset-0 opacity-10 pointer-events-none">
+    <svg height="100%" viewBox="0 0 800 800" width="100%" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="400" cy="400" fill="none" r="300" stroke="white" stroke-width="2"></circle>
+      <circle cx="400" cy="400" fill="none" r="200" stroke="white" stroke-width="2"></circle>
+      <line stroke="white" stroke-width="2" x1="0" x2="800" y1="400" y2="400"></line>
+      <line stroke="white" stroke-width="2" x1="400" x2="400" y1="0" y2="800"></line>
+    </svg>
+  </div>
+  <div class="relative z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
+        <span class="material-symbols-outlined text-primary text-[32px]" data-icon="account_balance_wallet">account_balance_wallet</span>
+      </div>
+      <span class="text-white font-headline-md text-headline-md font-extrabold tracking-tight">Budget</span>
+    </div>
+  </div>
+  <div class="relative z-10 max-w-md">
+    <h1 class="text-white font-display-lg text-display-lg mb-6">Track loans, payments, and revenue with clarity.</h1>
+    <p class="text-on-primary-container font-body-lg text-body-lg mb-12">Institutional-grade financial monitoring for professionals who demand precision and real-time insights.</p>
+    <div class="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl">
+      <div class="space-y-4">
+        <div class="h-2 w-24 bg-white/40 rounded-full"></div>
+        <div class="flex items-end gap-2 h-32">
+          <div class="w-full bg-secondary-fixed h-[40%] rounded-t-lg"></div>
+          <div class="w-full bg-secondary-fixed h-[70%] rounded-t-lg"></div>
+          <div class="w-full bg-secondary-fixed h-[55%] rounded-t-lg"></div>
+          <div class="w-full bg-secondary-fixed h-[90%] rounded-t-lg"></div>
+          <div class="w-full bg-secondary-fixed h-[65%] rounded-t-lg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="relative z-10 flex items-center gap-4 text-on-primary-container/80">
+    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
+      <img alt="Executive Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsl0FfXCFmqnL7mkTj0BdeM4n9vHp_MHTfcxoWWHWVIQeVGfbtJj2KbBkxLywfIycJqjbbQFGpGU2vqDQgzEPT11A8bhs0uWwksYH4yszFYj-12ZV0-uUeVe9l3CHliCR4fNo8U4xXdQcuNK0B4SrEuVeXw4jUGaKTuEQ594ggYSbV0l4Jtzca5EX6gUFfNg3XhHVP0edMVPwZFpDIJSAAKXFXONu5y1XTUbV2BSyP9p0zJjlCMSQyGF_unAbC9qj0WOKENyREIMfe"/>
+    </div>
+    <p class="text-label-md font-label-md">Trusted by 500+ Financial Institutions</p>
+  </div>
 </section>
+
+<!-- Mobile hero -->
+<section class="lg:hidden hero-gradient px-4 py-12 text-on-primary relative overflow-hidden">
+  <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 pointer-events-none">
+    <span class="material-symbols-outlined text-[200px]" data-icon="payments">payments</span>
+  </div>
+  <div class="relative z-10 max-w-md mx-auto">
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile mb-4">Track loans, payments, and revenue with clarity.</h1>
+    <p class="font-body-md text-body-md opacity-90">Institutional-grade financial monitoring for professionals.</p>
+  </div>
+  <div class="relative z-10 mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 shadow-xl max-w-sm mx-auto">
+    <div class="space-y-3">
+      <div class="h-2 w-24 bg-white/40 rounded-full"></div>
+      <div class="flex items-end gap-2 h-24">
+        <div class="w-full bg-secondary-fixed h-[40%] rounded-t-lg"></div>
+        <div class="w-full bg-secondary-fixed h-[70%] rounded-t-lg"></div>
+        <div class="w-full bg-secondary-fixed h-[55%] rounded-t-lg"></div>
+        <div class="w-full bg-secondary-fixed h-[90%] rounded-t-lg"></div>
+        <div class="w-full bg-secondary-fixed h-[65%] rounded-t-lg"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Right Side: Login Form -->
-<section class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-surface">
-<div class="w-full max-w-[400px]">
-<!-- Mobile Logo (Visible only on small screens) -->
-<div class="lg:hidden flex items-center gap-2 mb-12">
-<span class="material-symbols-outlined text-primary text-[28px]" data-icon="account_balance_wallet">account_balance_wallet</span>
-<span class="text-primary font-headline-md text-headline-md font-extrabold">Budget</span>
-</div>
-<div class="mb-10">
-<h2 class="text-on-surface font-headline-lg text-headline-lg mb-2">Welcome back</h2>
-<p class="text-on-surface-variant font-body-md text-body-md">Enter your credentials to access your dashboard.</p>
-</div>
-<form class="space-y-6" method="post" action="">
-{% csrf_token %}
-<input type="hidden" name="next" value="{{ next }}"/>
-{% if form.non_field_errors %}
-<div class="px-4 py-3 rounded-2xl bg-error-container text-on-error-container border border-error/20">
-{% for error in form.non_field_errors %}
-<p class="text-label-md font-label-md">{{ error }}</p>
-{% endfor %}
-</div>
-{% endif %}
-<!-- Username Field -->
-<div class="space-y-2">
-<label class="block text-on-surface font-label-md text-label-md" for="username">Username</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="person">person</span>
-<input class="w-full h-[48px] pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-2xl text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="username" name="username" placeholder="Enter your username" type="text" value="{{ form.username.value|default_if_none:'' }}" required autofocus/>
-</div>
-</div>
-<!-- Password Field -->
-<div class="space-y-2">
-<label class="block text-on-surface font-label-md text-label-md" for="password">Password</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="lock">lock</span>
-<input class="w-full h-[48px] pl-12 pr-12 bg-surface-container-low border border-outline-variant rounded-2xl text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="password" name="password" placeholder="Enter your password" type="password" required/>
-<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" type="button" onclick="(function(b){var i=document.getElementById('password');i.type=i.type==='password'?'text':'password';})()">
-<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
-</button>
-</div>
-</div>
-<!-- Remember & Forgot -->
-<div class="flex items-center justify-between">
-<label class="flex items-center gap-2 cursor-pointer group">
-<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox" name="remember"/>
-<span class="text-on-surface-variant font-label-md text-label-md group-hover:text-on-surface transition-colors">Remember me</span>
-</label>
-<a class="text-primary font-label-md text-label-md font-semibold hover:underline" href="#">Forgot password?</a>
-</div>
-<!-- Sign In Button -->
-<button class="w-full h-[52px] bg-primary-container text-on-primary font-headline-md text-headline-md rounded-2xl hover:bg-primary transition-all shadow-lg active:scale-[0.98]" type="submit">
-                        Sign In
-                    </button>
-</form>
-<!-- Footer Link -->
-<div class="mt-12 text-center">
-<p class="text-on-surface-variant font-label-md text-label-md">
-                        Need help? <a class="text-primary font-bold hover:underline" href="#">Contact admin.</a>
-</p>
-</div>
-<!-- Subtle Decorative Element for Depth -->
-<div class="mt-16 pt-8 border-t border-outline-variant/30 flex justify-between items-center opacity-60">
-<span class="text-label-sm font-label-sm text-on-surface-variant">&copy; 2026 Budget</span>
-<div class="flex gap-4">
-<span class="text-label-sm font-label-sm text-on-surface-variant">Privacy</span>
-<span class="text-label-sm font-label-sm text-on-surface-variant">Terms</span>
-</div>
-</div>
-</div>
+<section class="w-full lg:w-1/2 flex items-start lg:items-center justify-center px-4 lg:p-8 pb-12 lg:pb-0 -mt-6 lg:mt-0 bg-transparent lg:bg-surface">
+  <div class="w-full max-w-[400px] bg-surface-container-lowest lg:bg-transparent rounded-3xl lg:rounded-none p-6 lg:p-0 shadow-[0_4px_20px_rgba(0,0,0,0.05)] lg:shadow-none border border-slate-200 lg:border-0">
+    <div class="mb-8 lg:mb-10">
+      <h2 class="text-on-surface font-headline-md lg:font-headline-lg text-headline-md lg:text-headline-lg mb-2">Welcome back</h2>
+      <p class="text-on-surface-variant font-body-md text-body-md">Enter your credentials to access your dashboard.</p>
+    </div>
+    <form class="space-y-6" method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}"/>
+      {% if form.non_field_errors %}
+      <div class="px-4 py-3 rounded-2xl bg-error-container text-on-error-container border border-error/20">
+        {% for error in form.non_field_errors %}
+        <p class="text-label-md font-label-md">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="space-y-2">
+        <label class="block text-on-surface-variant lg:text-on-surface font-label-md text-label-md ml-1 lg:ml-0" for="username">Username</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="person">person</span>
+          <input class="w-full h-[48px] pl-12 pr-4 bg-surface lg:bg-surface-container-low border border-slate-200 lg:border-outline-variant rounded-xl lg:rounded-2xl text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="username" name="username" placeholder="Enter your username" type="text" value="{{ form.username.value|default_if_none:'' }}" required autofocus/>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <label class="block text-on-surface-variant lg:text-on-surface font-label-md text-label-md ml-1 lg:ml-0" for="password">Password</label>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="lock">lock</span>
+          <input class="w-full h-[48px] pl-12 pr-12 bg-surface lg:bg-surface-container-low border border-slate-200 lg:border-outline-variant rounded-xl lg:rounded-2xl text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" id="password" name="password" placeholder="Enter your password" type="password" required/>
+          <button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" type="button" onclick="(function(b){var i=document.getElementById('password');i.type=i.type==='password'?'text':'password';})()">
+            <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox" name="remember"/>
+          <span class="text-on-surface-variant font-label-md text-label-md group-hover:text-on-surface transition-colors">Remember me</span>
+        </label>
+        <a class="text-primary font-label-md text-label-md font-semibold hover:underline" href="#">Forgot password?</a>
+      </div>
+      <button class="w-full h-[52px] lg:h-[52px] bg-primary lg:bg-primary-container text-on-primary font-headline-md text-headline-md rounded-xl lg:rounded-2xl hover:brightness-110 lg:hover:bg-primary transition-all shadow-md lg:shadow-lg active:scale-[0.98] mt-2" type="submit">
+        Sign In
+      </button>
+    </form>
+
+    <div class="lg:hidden mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-2">
+      <p class="font-label-sm text-label-sm text-on-surface-variant text-center">Trusted by 500+ Financial Institutions</p>
+    </div>
+
+    <div class="hidden lg:block mt-12 text-center">
+      <p class="text-on-surface-variant font-label-md text-label-md">
+        Need help? <a class="text-primary font-bold hover:underline" href="#">Contact admin.</a>
+      </p>
+    </div>
+    <div class="hidden lg:flex mt-16 pt-8 border-t border-outline-variant/30 justify-between items-center opacity-60">
+      <span class="text-label-sm font-label-sm text-on-surface-variant">&copy; 2026 Budget</span>
+      <div class="flex gap-4">
+        <span class="text-label-sm font-label-sm text-on-surface-variant">Privacy</span>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">Terms</span>
+      </div>
+    </div>
+  </div>
 </section>
+
 </main>
+
+<!-- Mobile footer -->
+<footer class="lg:hidden px-4 py-8 bg-surface-container-low border-t border-outline-variant">
+  <div class="max-w-md mx-auto flex flex-col items-center gap-4">
+    <div class="flex items-center gap-2 text-on-surface-variant">
+      <span class="material-symbols-outlined text-[20px]" data-icon="support_agent">support_agent</span>
+      <p class="font-label-md text-label-md">Need help? <a class="text-primary font-semibold" href="#">Contact admin.</a></p>
+    </div>
+    <div class="flex flex-col items-center gap-2">
+      <div class="flex gap-4 font-label-sm text-label-sm text-on-surface-variant opacity-70">
+        <a class="hover:text-primary transition-colors" href="#">Privacy</a>
+        <span>·</span>
+        <a class="hover:text-primary transition-colors" href="#">Terms</a>
+        <span>·</span>
+        <a class="hover:text-primary transition-colors" href="#">Security</a>
+      </div>
+      <p class="font-label-sm text-label-sm text-outline">&copy; 2026 Budget. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
 </body></html>

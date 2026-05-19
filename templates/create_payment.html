@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Record Payment | Budget{% endblock %}
+
+{% block content %}
+<style>.soft-shadow { box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); }</style>
+
+<div class="w-full max-w-3xl mx-auto">
+  <a href="{% url 'loan_detail' loan.id %}" class="inline-flex items-center gap-2 text-primary text-label-md font-bold mb-3 hover:underline">
+    <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    Back to Loan
+  </a>
+  <h1 class="text-2xl lg:text-3xl font-semibold text-on-background">Record Payment</h1>
+</div>
+
+<form method="post" action="{% url 'payment_create' %}" class="w-full max-w-3xl mx-auto lg:bg-surface-container-lowest lg:rounded-2xl lg:soft-shadow lg:border lg:border-outline-variant/30 lg:overflow-hidden">
+  {% csrf_token %}
+  <input type="hidden" name="loan" value="{{ loan.id }}"/>
+
+  <div class="lg:p-8 space-y-6">
+    <section class="bg-surface-container-lowest rounded-2xl p-5 lg:p-6 custom-shadow-soft border border-outline-variant/30 space-y-4">
+      <div class="flex justify-between items-start gap-3">
+        <div class="min-w-0">
+          <span class="text-on-surface-variant text-label-sm font-label-sm uppercase tracking-wider">Customer</span>
+          <p class="text-headline-md font-headline-md text-on-surface mt-1 truncate">{{ loan.customer.get_full_name }}</p>
+          <p class="text-label-md font-label-md text-primary font-mono mt-1 truncate">{{ loan.loan_id }}</p>
+        </div>
+        {% if loan.is_completed %}
+        <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-label-sm font-label-sm uppercase flex-shrink-0">Completed</span>
+        {% else %}
+        <span class="bg-secondary-container/20 text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm uppercase flex-shrink-0">Active Loan</span>
+        {% endif %}
+      </div>
+      <div class="pt-4 border-t border-outline-variant/30">
+        <span class="text-on-surface-variant text-label-sm font-label-sm uppercase tracking-wider">Amount Due</span>
+        <div class="flex items-baseline gap-1 mt-1">
+          <span class="text-on-surface text-headline-lg font-headline-lg">₼{{ loan.monthly_payment|intcomma }}</span>
+          <span class="text-on-surface-variant text-body-md">/ month</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <label class="text-label-md font-label-md text-on-surface-variant ml-1" for="id_paid_at">Payment Date</label>
+        <div class="relative">
+          <input id="id_paid_at" name="paid_at" type="date" value="{{ today_iso }}" class="w-full h-12 px-4 rounded-xl lg:rounded-lg border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none outline-none"/>
+          <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">calendar_today</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center bg-surface-container-low p-4 rounded-2xl lg:rounded-lg border border-outline-variant gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="material-symbols-outlined text-secondary flex-shrink-0">verified</span>
+          <div class="min-w-0">
+            <p class="text-label-md font-label-md text-on-surface">Paid on time</p>
+            <p class="text-[11px] text-on-surface-variant leading-tight">Toggle off if this payment is delayed</p>
+          </div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+          <input id="id_is_not_delayed" name="is_not_delayed" type="checkbox" checked class="sr-only peer"/>
+          <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+        </label>
+      </div>
+    </div>
+
+    <section class="bg-surface-container-high rounded-2xl lg:rounded-xl p-5 space-y-4">
+      <h3 class="text-label-sm font-bold text-primary uppercase tracking-widest">After this payment</h3>
+      <div class="grid grid-cols-1 gap-3">
+        <div class="flex justify-between items-center bg-surface-container-lowest/60 p-3 rounded-lg gap-3">
+          <span class="text-label-md font-label-md text-on-surface-variant">Paid Months</span>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-on-surface-variant line-through text-label-sm">{{ paid_count }}</span>
+            <span class="material-symbols-outlined text-primary text-sm">trending_up</span>
+            <span class="font-bold text-on-surface">{{ paid_count_after }}</span>
+          </div>
+        </div>
+        <div class="flex justify-between items-center bg-surface-container-lowest/60 p-3 rounded-lg gap-3">
+          <span class="text-label-md font-label-md text-on-surface-variant">Remaining Amount</span>
+          <div class="flex items-center gap-2 flex-shrink-0 min-w-0">
+            <span class="text-on-surface-variant line-through text-label-sm truncate">₼{{ remaining|intcomma }}</span>
+            <span class="material-symbols-outlined text-secondary text-sm flex-shrink-0">arrow_downward</span>
+            <span class="font-bold text-on-surface truncate">₼{{ remaining_after|intcomma }}</span>
+          </div>
+        </div>
+        <div class="flex justify-between items-center bg-surface-container-lowest/60 p-3 rounded-lg gap-3">
+          <span class="text-label-md font-label-md text-on-surface-variant">Months Remaining</span>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-on-surface-variant line-through text-label-sm">{{ remaining_months }} mo</span>
+            <span class="material-symbols-outlined text-secondary text-sm">check_circle</span>
+            <span class="font-bold text-on-surface">{{ remaining_months_after }} mo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="flex flex-col-reverse lg:flex-row lg:px-8 lg:py-6 lg:bg-surface-container-low lg:border-t lg:border-outline-variant/30 lg:justify-end gap-3 lg:gap-4 pt-6 lg:pt-6">
+    <a href="{% url 'loan_detail' loan.id %}" class="w-full lg:w-auto h-12 lg:h-auto flex items-center justify-center px-6 lg:py-2.5 text-label-md lg:text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-2xl lg:rounded-full transition-all">Cancel</a>
+    {% if loan.is_completed %}
+    <button type="button" disabled class="w-full lg:w-auto h-14 lg:h-auto flex items-center justify-center px-8 lg:py-2.5 bg-secondary text-on-secondary text-label-md lg:text-sm font-bold rounded-2xl lg:rounded-full shadow-lg shadow-secondary/20 lg:shadow-md opacity-50 cursor-not-allowed gap-2">
+      <span class="material-symbols-outlined text-[20px]">block</span>
+      Loan Already Completed
+    </button>
+    {% else %}
+    <button type="submit" class="w-full lg:w-auto h-14 lg:h-auto flex items-center justify-center px-8 lg:py-2.5 bg-secondary text-on-secondary text-label-md lg:text-sm font-bold rounded-2xl lg:rounded-full shadow-lg shadow-secondary/20 lg:shadow-md hover:brightness-110 active:scale-95 transition-all gap-2">
+      <span class="material-symbols-outlined text-[20px]">check_circle</span>
+      Confirm Payment
+    </button>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

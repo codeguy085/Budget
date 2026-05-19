@@ -6,30 +6,92 @@
 {% block search_placeholder %}Search by name or surname...{% endblock %}
 
 {% block topbar_actions %}
-<div class="h-8 w-[1px] bg-outline-variant"></div>
-<a href="{% url 'customer_create' %}" class="bg-primary-container text-white px-5 py-2 rounded-full font-bold text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
-  <span class="material-symbols-outlined text-sm">add</span>
-  Add Customer
-</a>
+<div class="hidden lg:flex items-center gap-4">
+  <div class="h-8 w-[1px] bg-outline-variant"></div>
+  <a href="{% url 'customer_create' %}" class="bg-primary-container text-white px-5 py-2 rounded-full font-bold text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
+    <span class="material-symbols-outlined text-sm">add</span>
+    Add Customer
+  </a>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-4 lg:gap-6">
   <div class="flex justify-between items-end">
     <div>
-      <h2 class="text-headline-lg font-headline-lg text-on-surface">Customers</h2>
-      <p class="text-body-md text-on-surface-variant">Manage and track your loan clients</p>
+      <h2 class="text-headline-md lg:text-headline-lg font-headline-lg text-on-surface">Customers</h2>
+      <p class="text-label-md lg:text-body-md text-on-surface-variant">Manage and track your loan clients</p>
     </div>
   </div>
-  <div class="flex items-center gap-3 flex-wrap" id="customer-filters">
-    <button data-filter="all" class="filter-chip px-4 py-2 bg-primary text-white rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
-    <button data-filter="has-active" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active Loans ({{ has_active_count }})</button>
-    <button data-filter="fully-paid" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Fully Paid Off ({{ fully_paid_count }})</button>
-    <button data-filter="new-this-month" class="filter-chip px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">New This Month ({{ new_this_month_count }})</button>
+  <div class="lg:hidden relative">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
+    <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search by name..." type="text"/>
+  </div>
+  <div class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0" id="customer-filters">
+    <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
+    <button data-filter="has-active" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active ({{ has_active_count }})</button>
+    <button data-filter="fully-paid" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Fully Paid ({{ fully_paid_count }})</button>
+    <button data-filter="new-this-month" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">New This Month ({{ new_this_month_count }})</button>
   </div>
 </div>
 
-<section class="bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden">
+<section class="lg:hidden space-y-3" id="customer-cards">
+  {% for row in rows %}
+  <a href="{% url 'customer_detail' row.customer.id %}" class="block bg-surface-container-lowest rounded-2xl border border-outline-variant/30 custom-shadow-soft p-4 active:scale-[0.98] transition-transform"
+     data-customer-row
+     data-filters="{{ row.data_filters }}"
+     data-name="{{ row.customer.get_full_name|lower }}">
+    <div class="flex items-start justify-between mb-4 gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        {% if row.status == 'delayed' %}
+        <div class="h-12 w-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-700 font-bold flex-shrink-0">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+        {% elif row.status == 'active' %}
+        <div class="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-bold flex-shrink-0">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+        {% elif row.status == 'completed' %}
+        <div class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold flex-shrink-0">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+        {% else %}
+        <div class="h-12 w-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary font-bold flex-shrink-0">{{ row.customer.name|first|upper }}{{ row.customer.surname|first|upper }}</div>
+        {% endif %}
+        <div class="min-w-0">
+          <h3 class="text-body-md font-semibold text-on-surface truncate">{{ row.customer.get_full_name }}</h3>
+          <p class="text-label-sm text-on-surface-variant">ID: #C-{{ row.customer.id }}</p>
+        </div>
+      </div>
+      {% if row.status == 'active' %}
+      <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{{ row.active_count }} Active</span>
+      {% elif row.status == 'delayed' %}
+      <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">Delayed</span>
+      {% elif row.status == 'completed' %}
+      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">Paid Off</span>
+      {% else %}
+      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">No Loans</span>
+      {% endif %}
+    </div>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="space-y-1">
+        <p class="text-label-sm text-on-surface-variant">Total Loan</p>
+        <p class="text-label-md font-bold text-on-surface">{{ row.total_loan|intcomma }} ₼</p>
+      </div>
+      <div class="space-y-1">
+        <p class="text-label-sm text-on-surface-variant text-right">Remaining</p>
+        <p class="text-label-md font-bold text-primary text-right">{{ row.total_remaining|intcomma }} ₼</p>
+      </div>
+    </div>
+    <div class="flex items-center justify-between pt-3 border-t border-outline-variant/20">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="material-symbols-outlined text-primary text-[20px] flex-shrink-0">payments</span>
+        <span class="text-label-md text-on-surface-variant truncate">{{ row.monthly_payment|intcomma }} ₼ / mo</span>
+      </div>
+      <span class="material-symbols-outlined text-on-surface-variant flex-shrink-0">chevron_right</span>
+    </div>
+  </a>
+  {% empty %}
+  <p class="py-12 text-center text-on-surface-variant text-label-md">No customers yet.</p>
+  {% endfor %}
+  <div id="mobile-no-results" class="hidden py-12 text-center text-on-surface-variant text-label-md">No customers match the current filter.</div>
+</section>
+
+<section class="hidden lg:block bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden">
   <div class="overflow-x-auto">
     <table class="w-full min-w-[1400px] border-collapse text-left">
       <thead>
@@ -117,35 +179,41 @@
   <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-label-md">No customers match the current filter.</div>
 </section>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div class="p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-    <div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+  <div class="p-4 lg:p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+    <div class="min-w-0">
       <p class="text-label-sm font-bold text-on-surface-variant uppercase">Collection Rate</p>
-      <h3 class="text-headline-md font-headline-md text-secondary">{{ collection_rate }}%</h3>
+      <h3 class="text-headline-md font-headline-md text-secondary truncate">{{ collection_rate }}%</h3>
     </div>
-    <div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+    <div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
       <span class="material-symbols-outlined">trending_up</span>
     </div>
   </div>
-  <div class="p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-    <div>
+  <div class="p-4 lg:p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+    <div class="min-w-0">
       <p class="text-label-sm font-bold text-on-surface-variant uppercase">New Loans This Month</p>
-      <h3 class="text-headline-md font-headline-md text-on-surface">{{ new_loans_this_month }}</h3>
+      <h3 class="text-headline-md font-headline-md text-on-surface truncate">{{ new_loans_this_month }}</h3>
     </div>
-    <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+    <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0">
       <span class="material-symbols-outlined">history_edu</span>
     </div>
   </div>
-  <div class="p-6 bg-primary text-white rounded-2xl border border-primary-container shadow-md flex items-center justify-between">
-    <div>
+  <div class="p-4 lg:p-6 bg-primary text-white rounded-2xl border border-primary-container shadow-md flex items-center justify-between gap-3">
+    <div class="min-w-0">
       <p class="text-label-sm font-bold opacity-80 uppercase">Total Monthly Payment</p>
-      <h3 class="text-headline-md font-headline-md">{{ total_monthly_payment|intcomma }} ₼</h3>
+      <h3 class="text-headline-md font-headline-md truncate">{{ total_monthly_payment|intcomma }} ₼</h3>
     </div>
-    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+    <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
       <span class="material-symbols-outlined">payments</span>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block fab %}
+<a href="{% url 'customer_create' %}" class="lg:hidden fixed bottom-24 right-6 w-14 h-14 bg-primary-container text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-all z-50">
+  <span class="material-symbols-outlined text-[28px]">add</span>
+</a>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -153,8 +221,9 @@
   (function () {
     const rows = document.querySelectorAll('[data-customer-row]');
     const chips = document.querySelectorAll('.filter-chip');
-    const searchInput = document.getElementById('topbar-search');
+    const searchInputs = [document.getElementById('topbar-search'), document.getElementById('mobile-search')].filter(Boolean);
     const noResults = document.getElementById('no-results');
+    const mobileNoResults = document.getElementById('mobile-no-results');
     let activeFilter = 'all';
     let activeSearch = '';
 
@@ -162,7 +231,8 @@
     const inactiveClasses = ['bg-surface-container-high', 'text-on-surface-variant', 'border', 'border-outline-variant/30'];
 
     function applyFilters() {
-      let visible = 0;
+      let visibleDesktop = 0;
+      let visibleMobile = 0;
       rows.forEach(row => {
         const filters = (row.dataset.filters || '').split(' ');
         const matchesFilter = activeFilter === 'all' || filters.indexOf(activeFilter) !== -1;
@@ -170,9 +240,13 @@
         const matchesSearch = !activeSearch || name.indexOf(activeSearch) !== -1;
         const show = matchesFilter && matchesSearch;
         row.style.display = show ? '' : 'none';
-        if (show) visible++;
+        if (show) {
+          if (row.tagName === 'TR') visibleDesktop++;
+          else visibleMobile++;
+        }
       });
-      if (noResults) noResults.classList.toggle('hidden', visible > 0 || rows.length === 0);
+      if (noResults) noResults.classList.toggle('hidden', visibleDesktop > 0 || rows.length === 0);
+      if (mobileNoResults) mobileNoResults.classList.toggle('hidden', visibleMobile > 0 || rows.length === 0);
     }
 
     chips.forEach(chip => {
@@ -188,12 +262,13 @@
       });
     });
 
-    if (searchInput) {
-      searchInput.addEventListener('input', e => {
+    searchInputs.forEach(input => {
+      input.addEventListener('input', e => {
         activeSearch = e.target.value.trim().toLowerCase();
+        searchInputs.forEach(other => { if (other !== e.target) other.value = e.target.value; });
         applyFilters();
       });
-    }
+    });
 
     const sortHeaders = document.querySelectorAll('[data-sort-by]');
     const tbody = document.getElementById('customer-rows');

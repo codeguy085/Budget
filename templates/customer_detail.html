@@ -6,84 +6,101 @@
 {% block content %}
 <style>.soft-shadow { box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); }</style>
 
-<nav class="text-sm text-on-surface-variant flex items-center gap-1">
+<nav class="hidden lg:flex text-sm text-on-surface-variant items-center gap-1">
   <a href="{% url 'customer_list' %}" class="hover:text-primary">Customers</a>
   <span class="material-symbols-outlined text-[16px]">chevron_right</span>
   <span class="text-on-surface font-medium">{{ customer.get_full_name }}</span>
 </nav>
 
-<section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-  <div class="flex items-center gap-6">
-    <div class="w-24 h-24 rounded-2xl bg-primary-container text-on-primary flex items-center justify-center text-3xl font-extrabold ring-4 ring-white soft-shadow">{{ customer.name|first|upper }}{{ customer.surname|first|upper }}</div>
-    <div>
-      <h2 class="text-3xl font-semibold text-on-surface mb-1">{{ customer.get_full_name }}</h2>
+<a href="{% url 'customer_list' %}" class="lg:hidden inline-flex items-center gap-2 text-primary text-label-md font-bold">
+  <span class="material-symbols-outlined">arrow_back</span>
+  Customers
+</a>
+
+<section class="bg-white lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 soft-shadow lg:shadow-none border lg:border-0 border-outline-variant/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 lg:gap-6">
+  <div class="flex items-center gap-4 lg:gap-6">
+    <div class="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl bg-primary-container text-on-primary flex items-center justify-center text-2xl lg:text-3xl font-extrabold ring-4 ring-white soft-shadow flex-shrink-0">{{ customer.name|first|upper }}{{ customer.surname|first|upper }}</div>
+    <div class="min-w-0">
+      <h2 class="text-2xl lg:text-3xl font-semibold text-on-surface mb-1 truncate">{{ customer.get_full_name }}</h2>
       <div class="flex items-center gap-4 text-on-surface-variant">
-        <span class="flex items-center gap-1 text-sm">
+        <span class="flex items-center gap-1 text-label-md lg:text-sm">
           <span class="material-symbols-outlined text-[18px]">calendar_today</span>
-          Customer since {{ customer.created_at|date:"M j, Y" }}
+          Since {{ customer.created_at|date:"M j, Y" }}
         </span>
       </div>
     </div>
   </div>
+  <div class="flex lg:hidden gap-3 w-full">
+    <a href="{% url 'customer_edit' customer.id %}" class="flex-1 bg-surface-container-high text-primary font-label-md text-label-md py-3 rounded-xl text-center hover:bg-surface-container-highest transition-colors active:scale-[0.98]">Edit Profile</a>
+    <a href="{% url 'loan_create' %}?customer={{ customer.id }}" class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-3 rounded-xl text-center hover:opacity-90 shadow-md shadow-primary/20 transition-all active:scale-[0.98]">New Loan</a>
+  </div>
 </section>
 
-<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-  <div class="bg-white p-6 rounded-2xl soft-shadow border border-outline-variant/30">
-    <div class="flex justify-between items-start mb-4">
-      <div class="p-3 bg-primary-container/10 rounded-xl text-primary">
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
+  <div class="bg-white p-4 lg:p-6 rounded-2xl soft-shadow border border-outline-variant/30">
+    <div class="flex justify-between items-start mb-2 lg:mb-4 gap-2">
+      <span class="lg:hidden text-on-surface-variant text-label-sm">All Loans</span>
+      <div class="hidden lg:block p-3 bg-primary-container/10 rounded-xl text-primary">
         <span class="material-symbols-outlined">account_balance</span>
       </div>
-      {% if new_loans_this_year %}
-      <span class="text-xs font-bold text-on-surface-variant">+{{ new_loans_this_year }} this year</span>
-      {% endif %}
+      <span class="material-symbols-outlined lg:hidden text-primary text-xl">account_balance</span>
     </div>
-    <p class="text-sm text-on-surface-variant font-medium">All Loans</p>
-    <h3 class="text-2xl font-semibold mt-1">{{ all_loans_count }}</h3>
+    <p class="hidden lg:block text-sm text-on-surface-variant font-medium">All Loans</p>
+    <h3 class="text-headline-md lg:text-2xl font-semibold mt-1 truncate">{{ all_loans_count }}</h3>
+    {% if new_loans_this_year %}
+    <p class="text-secondary text-[10px] font-label-sm mt-1">+{{ new_loans_this_year }} this year</p>
+    {% endif %}
   </div>
-  <div class="bg-white p-6 rounded-2xl soft-shadow border border-outline-variant/30">
-    <div class="flex justify-between items-start mb-4">
-      <div class="p-3 bg-secondary-container/20 text-secondary rounded-xl">
+  <div class="bg-white p-4 lg:p-6 rounded-2xl soft-shadow border border-outline-variant/30">
+    <div class="flex justify-between items-start mb-2 lg:mb-4 gap-2">
+      <span class="lg:hidden text-on-surface-variant text-label-sm">Active Loans</span>
+      <div class="hidden lg:block p-3 bg-secondary-container/20 text-secondary rounded-xl">
         <span class="material-symbols-outlined">pending_actions</span>
       </div>
-      {% if has_active_loans %}
-        {% if has_delays %}
-        <span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold">DELAYED</span>
-        {% else %}
-        <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">ON TRACK</span>
-        {% endif %}
-      {% endif %}
+      <span class="material-symbols-outlined lg:hidden text-secondary text-xl">sync</span>
     </div>
-    <p class="text-sm text-on-surface-variant font-medium">Active Loans</p>
-    <h3 class="text-2xl font-semibold mt-1">{{ active_loans_count }}</h3>
+    <p class="hidden lg:block text-sm text-on-surface-variant font-medium">Active Loans</p>
+    <h3 class="text-headline-md lg:text-2xl font-semibold mt-1 truncate">{{ active_loans_count }}</h3>
+    {% if has_active_loans %}
+      {% if has_delays %}
+      <p class="text-error text-[10px] font-bold uppercase mt-1">Delayed</p>
+      {% else %}
+      <p class="text-secondary text-[10px] font-bold uppercase mt-1">On Track</p>
+      {% endif %}
+    {% endif %}
   </div>
-  <div class="bg-white p-6 rounded-2xl soft-shadow border border-outline-variant/30">
-    <div class="flex justify-between items-start mb-4">
-      <div class="p-3 bg-tertiary-fixed/30 text-tertiary rounded-xl">
+  <div class="bg-white p-4 lg:p-6 rounded-2xl soft-shadow border border-outline-variant/30">
+    <div class="flex justify-between items-start mb-2 lg:mb-4 gap-2">
+      <span class="lg:hidden text-on-surface-variant text-label-sm">Completed</span>
+      <div class="hidden lg:block p-3 bg-tertiary-fixed/30 text-tertiary rounded-xl">
         <span class="material-symbols-outlined">check_circle</span>
       </div>
+      <span class="material-symbols-outlined lg:hidden text-outline text-xl">check_circle</span>
     </div>
-    <p class="text-sm text-on-surface-variant font-medium">Completed Loans</p>
-    <h3 class="text-2xl font-semibold mt-1">{{ completed_loans_count }}</h3>
+    <p class="hidden lg:block text-sm text-on-surface-variant font-medium">Completed Loans</p>
+    <h3 class="text-headline-md lg:text-2xl font-semibold mt-1 truncate">{{ completed_loans_count }}</h3>
   </div>
-  <div class="bg-white p-6 rounded-2xl soft-shadow border border-outline-variant/30 border-l-4 border-l-primary">
-    <div class="flex justify-between items-start mb-4">
-      <div class="p-3 bg-primary-container text-on-primary-container rounded-xl">
+  <div class="bg-white p-4 lg:p-6 rounded-2xl soft-shadow border border-outline-variant/30 lg:border-l-4 lg:border-l-primary">
+    <div class="flex justify-between items-start mb-2 lg:mb-4 gap-2">
+      <span class="lg:hidden text-on-surface-variant text-label-sm">Monthly Pay</span>
+      <div class="hidden lg:block p-3 bg-primary-container text-on-primary-container rounded-xl">
         <span class="material-symbols-outlined">payments</span>
       </div>
+      <span class="material-symbols-outlined lg:hidden text-primary text-xl">payments</span>
     </div>
-    <p class="text-sm text-on-surface-variant font-medium">Active Monthly Payment</p>
-    <h3 class="text-2xl font-semibold mt-1">₼{{ active_monthly|intcomma }}</h3>
+    <p class="hidden lg:block text-sm text-on-surface-variant font-medium">Active Monthly Payment</p>
+    <h3 class="text-lg lg:text-2xl font-semibold mt-1 truncate">₼{{ active_monthly|intcomma }}</h3>
   </div>
 </section>
 
 <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-  <div class="lg:col-span-2 bg-white p-8 rounded-2xl soft-shadow border border-outline-variant/30">
-    <div class="flex justify-between items-center mb-8">
-      <h4 class="text-2xl font-semibold">Financial Summary</h4>
+  <div class="lg:col-span-2 bg-white p-5 lg:p-8 rounded-2xl soft-shadow border border-outline-variant/30">
+    <div class="flex justify-between items-center mb-6 lg:mb-8">
+      <h4 class="text-label-md lg:text-2xl font-semibold uppercase lg:normal-case tracking-wider lg:tracking-normal text-on-surface-variant lg:text-on-surface">Repayment Progress</h4>
     </div>
-    <div class="space-y-6">
+    <div class="space-y-5 lg:space-y-6">
       <div>
-        <div class="flex justify-between text-sm mb-3">
+        <div class="hidden lg:flex justify-between text-sm mb-3">
           <span class="text-secondary font-bold">Paid: ₼{{ total_paid|intcomma }} ({{ paid_pct }}%)</span>
           <span class="text-primary font-bold">Remaining: ₼{{ total_remaining|intcomma }} ({{ remaining_pct }}%)</span>
         </div>
@@ -91,28 +108,38 @@
           <div class="h-full bg-secondary" style="width: {{ paid_pct }}%;"></div>
           <div class="h-full bg-primary" style="width: {{ remaining_pct }}%;"></div>
         </div>
+        <div class="lg:hidden flex justify-between text-label-sm mt-2 gap-2">
+          <div class="flex flex-col min-w-0">
+            <span class="text-secondary font-bold truncate">Paid: ₼{{ total_paid|intcomma }}</span>
+            <span class="text-on-surface-variant text-[10px]">{{ paid_pct }}%</span>
+          </div>
+          <div class="flex flex-col items-end min-w-0">
+            <span class="text-primary font-bold truncate">Remaining: ₼{{ total_remaining|intcomma }}</span>
+            <span class="text-on-surface-variant text-[10px]">{{ remaining_pct }}%</span>
+          </div>
+        </div>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4">
-        <div class="p-4 rounded-xl bg-surface">
-          <p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Loaned</p>
-          <p class="text-lg font-bold">₼{{ total_loaned|intcomma }}</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-6 pt-4 border-t border-outline-variant/30 lg:border-0">
+        <div class="p-3 lg:p-4 rounded-xl bg-surface">
+          <p class="text-[10px] lg:text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Loaned</p>
+          <p class="text-base lg:text-lg font-bold truncate">₼{{ total_loaned|intcomma }}</p>
         </div>
-        <div class="p-4 rounded-xl bg-surface">
-          <p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Paid</p>
-          <p class="text-lg font-bold text-secondary">₼{{ total_paid|intcomma }}</p>
+        <div class="p-3 lg:p-4 rounded-xl bg-surface">
+          <p class="text-[10px] lg:text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Paid</p>
+          <p class="text-base lg:text-lg font-bold text-secondary truncate">₼{{ total_paid|intcomma }}</p>
         </div>
-        <div class="p-4 rounded-xl bg-surface">
-          <p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Remaining</p>
-          <p class="text-lg font-bold text-primary">₼{{ total_remaining|intcomma }}</p>
+        <div class="p-3 lg:p-4 rounded-xl bg-surface">
+          <p class="text-[10px] lg:text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Remaining</p>
+          <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ total_remaining|intcomma }}</p>
         </div>
-        <div class="p-4 rounded-xl bg-surface">
-          <p class="text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Revenue</p>
-          <p class="text-lg font-bold">₼{{ total_revenue|intcomma }}</p>
+        <div class="p-3 lg:p-4 rounded-xl bg-surface">
+          <p class="text-[10px] lg:text-xs text-on-surface-variant mb-1 uppercase tracking-tight">Total Revenue</p>
+          <p class="text-base lg:text-lg font-bold truncate">₼{{ total_revenue|intcomma }}</p>
         </div>
       </div>
     </div>
   </div>
-  <div class="bg-white p-8 rounded-2xl soft-shadow border border-outline-variant/30 flex flex-col items-center justify-center text-center">
+  <div class="hidden lg:flex bg-white p-8 rounded-2xl soft-shadow border border-outline-variant/30 flex-col items-center justify-center text-center">
     <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-8">Loan Composition</h4>
     <div class="relative w-40 h-40 mb-8">
       <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
@@ -146,95 +173,163 @@
   </div>
 </section>
 
-<section class="space-y-6">
-  <div class="flex border-b border-outline-variant gap-8">
-    <button data-tab="loans" class="tab-btn px-2 py-4 text-sm font-bold text-primary border-b-2 border-primary">Loans</button>
-    <button data-tab="payments" class="tab-btn px-2 py-4 text-sm font-medium text-on-surface-variant hover:text-primary transition-colors">Payments</button>
-    <button data-tab="timeline" class="tab-btn px-2 py-4 text-sm font-medium text-on-surface-variant hover:text-primary transition-colors">Timeline</button>
+<section class="space-y-4 lg:space-y-6">
+  <div class="flex border-b border-outline-variant justify-around lg:justify-start lg:gap-8">
+    <button data-tab="loans" class="tab-btn px-2 py-3 lg:py-4 text-label-md lg:text-sm font-bold text-primary border-b-2 border-primary">Loans</button>
+    <button data-tab="payments" class="tab-btn px-2 py-3 lg:py-4 text-label-md lg:text-sm font-medium text-on-surface-variant hover:text-primary transition-colors">Payments</button>
+    <button data-tab="timeline" class="tab-btn px-2 py-3 lg:py-4 text-label-md lg:text-sm font-medium text-on-surface-variant hover:text-primary transition-colors">Timeline</button>
   </div>
 
-  <div data-panel="loans" class="bg-white rounded-2xl overflow-hidden soft-shadow border border-outline-variant/30">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-surface text-on-surface-variant">
-          <tr>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Loan ID</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-right">Amount</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-right">Monthly</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Term</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Paid Months</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-right">Remaining</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Status</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Start Date</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-surface-container-high">
-          {% for row in loan_rows %}
-          <tr class="hover:bg-surface-container-low transition-colors">
-            <td class="px-6 py-5"><a href="{% url 'loan_detail' row.loan.id %}" class="font-bold text-on-surface font-mono hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
-            <td class="px-6 py-5 text-right font-medium">₼{{ row.loan.amount|intcomma }}</td>
-            <td class="px-6 py-5 text-right font-medium">₼{{ row.loan.monthly_payment|intcomma }}</td>
-            <td class="px-6 py-5 text-on-surface-variant">{{ row.loan.term }} months</td>
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-2">
-                <div class="flex-1 h-1.5 w-16 bg-surface-container rounded-full overflow-hidden">
-                  <div class="h-full {% if row.loan.is_completed %}bg-on-surface-variant{% else %}bg-primary{% endif %}" style="width: {{ row.progress_pct }}%;"></div>
+  <div data-panel="loans">
+    <div class="lg:hidden space-y-4">
+      {% for row in loan_rows %}
+      <a href="{% url 'loan_detail' row.loan.id %}" class="block bg-white p-4 rounded-2xl shadow-sm border border-outline-variant/30 {% if row.loan.is_completed %}opacity-75{% endif %} active:scale-[0.98] transition-transform">
+        <div class="flex justify-between items-start mb-3 gap-2">
+          <div class="min-w-0">
+            <span class="text-on-surface-variant text-[10px] font-mono uppercase">{{ row.loan.loan_id }}</span>
+            <h4 class="text-label-md font-semibold truncate">₼{{ row.loan.amount|intcomma }}</h4>
+          </div>
+          {% if row.loan.is_completed %}
+          <span class="bg-surface-container-highest text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full font-bold uppercase flex-shrink-0">Completed</span>
+          {% else %}
+          <span class="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase flex-shrink-0">Active</span>
+          {% endif %}
+        </div>
+        <div class="flex justify-between mb-4 gap-3">
+          <div class="min-w-0">
+            <p class="text-[10px] text-on-surface-variant uppercase">Monthly</p>
+            <p class="text-body-md font-semibold truncate">₼{{ row.loan.monthly_payment|intcomma }}</p>
+          </div>
+          <div class="text-right min-w-0">
+            <p class="text-[10px] text-on-surface-variant uppercase">Remaining</p>
+            <p class="text-body-md font-semibold {% if row.loan.is_completed %}text-on-surface-variant{% else %}text-primary{% endif %} truncate">₼{{ row.remaining_amount|intcomma }}</p>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-[10px] text-on-surface-variant">
+            <span>Progress ({{ row.paid_months }}/{{ row.loan.term }} mo)</span>
+            <span>{{ row.progress_pct }}%</span>
+          </div>
+          <div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+            <div class="h-full {% if row.loan.is_completed %}bg-on-surface-variant{% else %}bg-primary{% endif %}" style="width: {{ row.progress_pct }}%;"></div>
+          </div>
+        </div>
+        <div class="mt-4 pt-3 border-t border-outline-variant/20 flex justify-between items-center">
+          <span class="text-[11px] text-on-surface-variant font-medium">Started {{ row.loan.start|date:"M j, Y" }}</span>
+          <span class="material-symbols-outlined text-primary">chevron_right</span>
+        </div>
+      </a>
+      {% empty %}
+      <p class="py-12 text-center text-on-surface-variant text-label-md">No loans yet for this customer.</p>
+      {% endfor %}
+    </div>
+
+    <div class="hidden lg:block bg-white rounded-2xl overflow-hidden soft-shadow border border-outline-variant/30">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-surface text-on-surface-variant">
+            <tr>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Loan ID</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase text-right">Amount</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase text-right">Monthly</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Term</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Paid Months</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase text-right">Remaining</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Status</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Start Date</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-high">
+            {% for row in loan_rows %}
+            <tr class="hover:bg-surface-container-low transition-colors">
+              <td class="px-6 py-5"><a href="{% url 'loan_detail' row.loan.id %}" class="font-bold text-on-surface font-mono hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
+              <td class="px-6 py-5 text-right font-medium">₼{{ row.loan.amount|intcomma }}</td>
+              <td class="px-6 py-5 text-right font-medium">₼{{ row.loan.monthly_payment|intcomma }}</td>
+              <td class="px-6 py-5 text-on-surface-variant">{{ row.loan.term }} months</td>
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-1.5 w-16 bg-surface-container rounded-full overflow-hidden">
+                    <div class="h-full {% if row.loan.is_completed %}bg-on-surface-variant{% else %}bg-primary{% endif %}" style="width: {{ row.progress_pct }}%;"></div>
+                  </div>
+                  <span class="text-xs">{{ row.paid_months }} / {{ row.loan.term }}</span>
                 </div>
-                <span class="text-xs">{{ row.paid_months }} / {{ row.loan.term }}</span>
-              </div>
-            </td>
-            <td class="px-6 py-5 text-right font-bold {% if row.loan.is_completed %}text-on-surface-variant{% else %}text-primary{% endif %}">₼{{ row.remaining_amount|intcomma }}</td>
-            <td class="px-6 py-5">
-              {% if row.loan.is_completed %}
-              <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Completed</span>
-              {% else %}
-              <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Active</span>
-              {% endif %}
-            </td>
-            <td class="px-6 py-5 text-on-surface-variant text-sm">{{ row.loan.start|date:"M j, Y" }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="8" class="py-12 text-center text-on-surface-variant text-sm">No loans yet for this customer.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+              </td>
+              <td class="px-6 py-5 text-right font-bold {% if row.loan.is_completed %}text-on-surface-variant{% else %}text-primary{% endif %}">₼{{ row.remaining_amount|intcomma }}</td>
+              <td class="px-6 py-5">
+                {% if row.loan.is_completed %}
+                <span class="bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Completed</span>
+                {% else %}
+                <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight">Active</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-5 text-on-surface-variant text-sm">{{ row.loan.start|date:"M j, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="py-12 text-center text-on-surface-variant text-sm">No loans yet for this customer.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div data-panel="payments" class="hidden bg-white rounded-2xl overflow-hidden soft-shadow border border-outline-variant/30">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-surface text-on-surface-variant">
-          <tr>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Date</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Loan ID</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase text-right">Amount</th>
-            <th class="px-6 py-4 text-xs font-bold uppercase">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-surface-container-high">
-          {% for payment in all_payments %}
-          <tr class="hover:bg-surface-container-low transition-colors">
-            <td class="px-6 py-4 text-on-surface text-sm">{{ payment.paid_at|date:"M j, Y" }}</td>
-            <td class="px-6 py-4"><a href="{% url 'loan_detail' payment.loan.id %}" class="font-mono font-bold hover:text-primary transition-colors">{{ payment.loan.loan_id }}</a></td>
-            <td class="px-6 py-4 text-right font-medium">₼{{ payment.loan.monthly_payment|intcomma }}</td>
-            <td class="px-6 py-4">
-              {% if payment.is_not_delayed %}
-              <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase">On Time</span>
-              {% else %}
-              <span class="bg-error-container text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase">Late</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="4" class="py-12 text-center text-on-surface-variant text-sm">No payments yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div data-panel="payments" class="hidden">
+    <div class="lg:hidden space-y-3">
+      {% for payment in all_payments %}
+      <a href="{% url 'loan_detail' payment.loan.id %}" class="flex items-center gap-3 bg-white p-4 rounded-2xl shadow-sm border border-outline-variant/30 active:scale-[0.98] transition-transform">
+        <div class="flex-1 min-w-0">
+          <p class="text-label-md font-semibold text-on-surface">{{ payment.paid_at|date:"M j, Y" }}</p>
+          <p class="text-label-sm text-on-surface-variant font-mono truncate">{{ payment.loan.loan_id }}</p>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="font-bold text-primary">₼{{ payment.loan.monthly_payment|intcomma }}</p>
+          {% if payment.is_not_delayed %}
+          <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase">On Time</span>
+          {% else %}
+          <span class="bg-error-container text-error px-2 py-0.5 rounded text-[10px] font-bold uppercase">Late</span>
+          {% endif %}
+        </div>
+      </a>
+      {% empty %}
+      <p class="py-12 text-center text-on-surface-variant text-label-md">No payments yet.</p>
+      {% endfor %}
+    </div>
+
+    <div class="hidden lg:block bg-white rounded-2xl overflow-hidden soft-shadow border border-outline-variant/30">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-surface text-on-surface-variant">
+            <tr>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Date</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Loan ID</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase text-right">Amount</th>
+              <th class="px-6 py-4 text-xs font-bold uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-surface-container-high">
+            {% for payment in all_payments %}
+            <tr class="hover:bg-surface-container-low transition-colors">
+              <td class="px-6 py-4 text-on-surface text-sm">{{ payment.paid_at|date:"M j, Y" }}</td>
+              <td class="px-6 py-4"><a href="{% url 'loan_detail' payment.loan.id %}" class="font-mono font-bold hover:text-primary transition-colors">{{ payment.loan.loan_id }}</a></td>
+              <td class="px-6 py-4 text-right font-medium">₼{{ payment.loan.monthly_payment|intcomma }}</td>
+              <td class="px-6 py-4">
+                {% if payment.is_not_delayed %}
+                <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase">On Time</span>
+                {% else %}
+                <span class="bg-error-container text-error px-3 py-1 rounded-full text-[10px] font-bold uppercase">Late</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="py-12 text-center text-on-surface-variant text-sm">No payments yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div data-panel="timeline" class="hidden bg-white rounded-2xl p-8 soft-shadow border border-outline-variant/30">
+  <div data-panel="timeline" class="hidden bg-white rounded-2xl p-5 lg:p-8 soft-shadow border border-outline-variant/30">
     {% if events %}
     <div class="relative pl-8 space-y-6">
       <div class="absolute left-3 top-2 bottom-2 w-px bg-outline-variant"></div>

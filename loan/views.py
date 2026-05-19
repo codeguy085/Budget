@@ -142,30 +142,56 @@ def loan_detail(request, pk):
 
 
 @login_required
-@require_POST
 def payment_create(request):
-    loan_id = request.POST.get('loan', '')
+    if request.method == 'POST':
+        loan_id = request.POST.get('loan', '')
+        try:
+            loan = Loan.objects.get(pk=int(loan_id))
+        except (Loan.DoesNotExist, ValueError, TypeError):
+            return redirect('loan_list')
+
+        paid_at = date.today()
+        paid_at_str = request.POST.get('paid_at', '').strip()
+        if paid_at_str:
+            try:
+                paid_at = datetime.strptime(paid_at_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+
+        is_not_delayed = request.POST.get('is_not_delayed') == 'on'
+
+        Payment.objects.create(
+            loan=loan,
+            paid_at=paid_at,
+            is_not_delayed=is_not_delayed,
+        )
+        return redirect('loan_detail', pk=loan.pk)
+
+    loan_id = request.GET.get('loan', '')
     try:
         loan = Loan.objects.get(pk=int(loan_id))
     except (Loan.DoesNotExist, ValueError, TypeError):
         return redirect('loan_list')
 
-    paid_at = date.today()
-    paid_at_str = request.POST.get('paid_at', '').strip()
-    if paid_at_str:
-        try:
-            paid_at = datetime.strptime(paid_at_str, '%Y-%m-%d').date()
-        except ValueError:
-            pass
+    paid_count = loan.paid_month()
+    remaining = loan.remaining_amount()
+    remaining_months = max(loan.term - paid_count, 0)
+    paid_count_after = min(paid_count + 1, loan.term)
+    remaining_after = max(remaining - loan.monthly_payment, 0)
+    remaining_months_after = max(remaining_months - 1, 0)
 
-    is_not_delayed = request.POST.get('is_not_delayed') == 'on'
-
-    Payment.objects.create(
-        loan=loan,
-        paid_at=paid_at,
-        is_not_delayed=is_not_delayed,
-    )
-    return redirect('loan_detail', pk=loan.pk)
+    context = {
+        'active_nav': 'payments',
+        'loan': loan,
+        'paid_count': paid_count,
+        'remaining': remaining,
+        'remaining_months': remaining_months,
+        'paid_count_after': paid_count_after,
+        'remaining_after': remaining_after,
+        'remaining_months_after': remaining_months_after,
+        'today_iso': date.today().isoformat(),
+    }
+    return render(request, 'create_payment.html', context)
 
 
 @login_required
