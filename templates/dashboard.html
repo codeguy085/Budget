@@ -31,15 +31,15 @@
     </div>
   </div>
 
-  <div class="bg-surface-container-lowest p-4 lg:p-6 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-slate-100">
+  <div class="bg-surface-container-lowest p-4 lg:p-6 rounded-3xl lg:rounded-2xl custom-shadow-soft custom-shadow-soft border border-slate-100">
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3 lg:gap-2">
       <div class="p-2 bg-primary-container/10 rounded-lg text-primary self-start lg:order-2 flex-shrink-0">
-        <span class="material-symbols-outlined">folder_shared</span>
+        <span class="material-symbols-outlined">calendar_month</span>
       </div>
       <div class="min-w-0 lg:order-1">
-        <p class="text-on-surface-variant text-label-md mb-1">Active Accounts</p>
-        <h3 class="text-lg lg:text-headline-md font-headline-md font-semibold lg:font-headline-md text-on-surface truncate">{{ active_count }}</h3>
-        <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:block">{{ completed_count }} completed</p>
+        <p class="text-on-surface-variant text-label-md mb-1">Monthly Payments</p>
+        <h3 class="text-lg lg:text-headline-md font-headline-md font-semibold lg:font-headline-md text-on-surface truncate">₼{{ current_month_monthly|intcomma }}</h3>
+        <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:block">Across {{ active_count }} active loan{{ active_count|pluralize }}</p>
       </div>
     </div>
   </div>

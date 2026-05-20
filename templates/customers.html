@@ -27,6 +27,23 @@
     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
     <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search by name..." type="text"/>
   </div>
+  <div class="lg:hidden flex items-center gap-2">
+    <span class="material-symbols-outlined text-on-surface-variant text-[20px]">sort</span>
+    <select id="mobile-sort" class="flex-1 h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+      <option value="name|asc">Name (A → Z)</option>
+      <option value="name|desc">Name (Z → A)</option>
+      <option value="loan|desc">Total Loan (high → low)</option>
+      <option value="loan|asc">Total Loan (low → high)</option>
+      <option value="remaining|desc">Remaining (high → low)</option>
+      <option value="remaining|asc">Remaining (low → high)</option>
+      <option value="paid|desc">Total Paid (high → low)</option>
+      <option value="revenue|desc">Revenue (high → low)</option>
+      <option value="monthly|desc">Monthly (high → low)</option>
+      <option value="active|desc">Active Loans (most)</option>
+      <option value="created|desc">Newest first</option>
+      <option value="created|asc">Oldest first</option>
+    </select>
+  </div>
   <div class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0" id="customer-filters">
     <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
     <button data-filter="has-active" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active ({{ has_active_count }})</button>
@@ -40,7 +57,15 @@
   <a href="{% url 'customer_detail' row.customer.id %}" class="block bg-surface-container-lowest rounded-2xl border border-outline-variant/30 custom-shadow-soft p-4 active:scale-[0.98] transition-transform"
      data-customer-row
      data-filters="{{ row.data_filters }}"
-     data-name="{{ row.customer.get_full_name|lower }}">
+     data-name="{{ row.customer.get_full_name|lower }}"
+     data-sort-name="{{ row.customer.get_full_name|lower }}"
+     data-sort-active="{{ row.active_count }}"
+     data-sort-loan="{{ row.total_loan }}"
+     data-sort-paid="{{ row.total_paid }}"
+     data-sort-remaining="{{ row.total_remaining }}"
+     data-sort-revenue="{{ row.total_revenue }}"
+     data-sort-monthly="{{ row.monthly_payment }}"
+     data-sort-created="{{ row.customer.created_at|date:'U' }}">
     <div class="flex items-start justify-between mb-4 gap-3">
       <div class="flex items-center gap-3 min-w-0">
         {% if row.status == 'delayed' %}
@@ -67,14 +92,18 @@
       <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">No Loans</span>
       {% endif %}
     </div>
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="space-y-1">
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="space-y-1 min-w-0">
         <p class="text-label-sm text-on-surface-variant">Total Loan</p>
-        <p class="text-label-md font-bold text-on-surface">{{ row.total_loan|intcomma }} ₼</p>
+        <p class="text-label-md font-bold text-on-surface truncate">{{ row.total_loan|intcomma }} ₼</p>
       </div>
-      <div class="space-y-1">
-        <p class="text-label-sm text-on-surface-variant text-right">Remaining</p>
-        <p class="text-label-md font-bold text-primary text-right">{{ row.total_remaining|intcomma }} ₼</p>
+      <div class="space-y-1 min-w-0 text-center">
+        <p class="text-label-sm text-on-surface-variant">Remaining</p>
+        <p class="text-label-md font-bold text-primary truncate">{{ row.total_remaining|intcomma }} ₼</p>
+      </div>
+      <div class="space-y-1 min-w-0 text-right">
+        <p class="text-label-sm text-on-surface-variant">Revenue</p>
+        <p class="text-label-md font-bold text-secondary truncate">+{{ row.total_revenue|intcomma }} ₼</p>
       </div>
     </div>
     <div class="flex items-center justify-between pt-3 border-t border-outline-variant/20">
@@ -272,19 +301,16 @@
 
     const sortHeaders = document.querySelectorAll('[data-sort-by]');
     const tbody = document.getElementById('customer-rows');
+    const cardContainer = document.getElementById('customer-cards');
+    const mobileSort = document.getElementById('mobile-sort');
     let currentSort = { key: null, direction: 'desc' };
 
     function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    function sortBy(key) {
-      if (currentSort.key === key) {
-        currentSort.direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
-      } else {
-        currentSort.key = key;
-        currentSort.direction = key === 'name' ? 'asc' : 'desc';
-      }
-      const datasetKey = 'sort' + capitalize(key);
-      const sorted = Array.from(tbody.querySelectorAll('[data-customer-row]')).sort((a, b) => {
+    function sortContainer(container, datasetKey) {
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll('[data-customer-row]'));
+      items.sort((a, b) => {
         const aVal = a.dataset[datasetKey] || '';
         const bVal = b.dataset[datasetKey] || '';
         const aNum = parseFloat(aVal);
@@ -297,12 +323,18 @@
         }
         return currentSort.direction === 'asc' ? cmp : -cmp;
       });
-      sorted.forEach(row => tbody.appendChild(row));
+      items.forEach(item => container.appendChild(item));
+    }
+
+    function applySort() {
+      const datasetKey = 'sort' + capitalize(currentSort.key);
+      sortContainer(tbody, datasetKey);
+      sortContainer(cardContainer, datasetKey);
 
       sortHeaders.forEach(th => {
         const ind = th.querySelector('.sort-indicator');
         if (!ind) return;
-        if (th.dataset.sortBy === key) {
+        if (th.dataset.sortBy === currentSort.key) {
           ind.textContent = currentSort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
           ind.classList.remove('opacity-30');
           th.classList.add('text-primary');
@@ -312,11 +344,37 @@
           th.classList.remove('text-primary');
         }
       });
+
+      if (mobileSort) {
+        const value = currentSort.key + '|' + currentSort.direction;
+        if (Array.from(mobileSort.options).some(o => o.value === value)) {
+          mobileSort.value = value;
+        }
+      }
+    }
+
+    function sortBy(key) {
+      if (currentSort.key === key) {
+        currentSort.direction = currentSort.direction === 'desc' ? 'asc' : 'desc';
+      } else {
+        currentSort.key = key;
+        currentSort.direction = key === 'name' ? 'asc' : 'desc';
+      }
+      applySort();
     }
 
     sortHeaders.forEach(th => {
       th.addEventListener('click', () => sortBy(th.dataset.sortBy));
     });
+
+    if (mobileSort) {
+      mobileSort.addEventListener('change', e => {
+        const [key, direction] = e.target.value.split('|');
+        currentSort.key = key;
+        currentSort.direction = direction;
+        applySort();
+      });
+    }
   })();
 </script>
 {% endblock %}

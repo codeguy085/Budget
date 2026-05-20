@@ -44,6 +44,26 @@
   <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container rounded-xl border-none focus:ring-2 focus:ring-primary text-body-md outline-none" placeholder="Search by Loan ID or customer..." type="text"/>
 </div>
 
+<div class="lg:hidden flex items-center gap-2">
+  <span class="material-symbols-outlined text-on-surface-variant text-[20px]">sort</span>
+  <select id="mobile-sort" class="flex-1 h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+    <option value="start|desc">Newest first</option>
+    <option value="start|asc">Oldest first</option>
+    <option value="amount|desc">Amount (high → low)</option>
+    <option value="amount|asc">Amount (low → high)</option>
+    <option value="monthly|desc">Monthly (high → low)</option>
+    <option value="remaining|desc">Remaining (high → low)</option>
+    <option value="remaining|asc">Remaining (low → high)</option>
+    <option value="revenue|desc">Revenue (high → low)</option>
+    <option value="progress|desc">Progress (most)</option>
+    <option value="progress|asc">Progress (least)</option>
+    <option value="term|desc">Term (longest)</option>
+    <option value="term|asc">Term (shortest)</option>
+    <option value="customer|asc">Customer (A → Z)</option>
+    <option value="id|asc">Loan ID (A → Z)</option>
+  </select>
+</div>
+
 <section class="lg:bg-white lg:rounded-2xl lg:custom-shadow-soft lg:border lg:border-outline-variant lg:p-4 flex flex-wrap items-center justify-between gap-4">
   <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 md:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 w-full lg:w-auto">
     <button data-filter="all" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-primary text-white font-bold text-sm shadow-md transition-all">All ({{ total_count }})</button>
@@ -73,14 +93,23 @@
   </div>
 </section>
 
-<section class="lg:hidden space-y-4">
+<section id="loan-cards" class="lg:hidden space-y-4">
   {% for row in rows %}
   <a href="{% url 'loan_detail' row.loan.id %}" class="block bg-surface-container-lowest p-4 rounded-3xl border {% if row.status == 'delayed' %}border-error-container/50{% else %}border-outline-variant{% endif %} custom-shadow-soft active:scale-[0.98] transition-all"
      data-loan-row
      data-status="{{ row.status }}"
      data-customer="{{ row.loan.customer.id }}"
      data-year="{{ row.loan.start|date:'Y' }}"
-     data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}">
+     data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}"
+     data-sort-id="{{ row.loan.loan_id|lower }}"
+     data-sort-customer="{{ row.loan.customer.get_full_name|lower }}"
+     data-sort-amount="{{ row.loan.amount }}"
+     data-sort-monthly="{{ row.loan.monthly_payment }}"
+     data-sort-term="{{ row.loan.term }}"
+     data-sort-progress="{{ row.progress_pct }}"
+     data-sort-remaining="{{ row.remaining }}"
+     data-sort-revenue="{{ row.revenue }}"
+     data-sort-start="{{ row.loan.start|date:'U' }}">
     <div class="flex justify-between items-start mb-4 gap-3">
       <div class="flex items-center gap-3 min-w-0">
         {% if row.status == 'delayed' %}
@@ -103,14 +132,18 @@
       <span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-label-sm rounded-full flex-shrink-0">Completed</span>
       {% endif %}
     </div>
-    <div class="grid grid-cols-2 gap-y-3 mb-4">
+    <div class="grid grid-cols-3 gap-x-3 gap-y-3 mb-4">
       <div class="min-w-0">
         <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Loan Amount</p>
         <p class="font-label-md font-bold text-on-surface truncate">₼{{ row.loan.amount|intcomma }}</p>
       </div>
-      <div class="text-right min-w-0">
+      <div class="text-center min-w-0">
         <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Monthly</p>
         <p class="font-label-md font-bold {% if row.status == 'delayed' %}text-error{% else %}text-on-surface{% endif %} truncate">₼{{ row.loan.monthly_payment|intcomma }}</p>
+      </div>
+      <div class="text-right min-w-0">
+        <p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Revenue</p>
+        <p class="font-label-md font-bold text-secondary truncate">+₼{{ row.revenue|intcomma }}</p>
       </div>
     </div>
     <div class="space-y-2">
@@ -152,7 +185,7 @@
       </thead>
       <tbody class="divide-y divide-slate-100" id="loan-rows">
         {% for row in rows %}
-        <tr class="hover:bg-background transition-colors" data-loan-row data-status="{{ row.status }}" data-customer="{{ row.loan.customer.id }}" data-year="{{ row.loan.start|date:'Y' }}" data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}">
+        <tr class="hover:bg-background transition-colors" data-loan-row data-status="{{ row.status }}" data-customer="{{ row.loan.customer.id }}" data-year="{{ row.loan.start|date:'Y' }}" data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}" data-sort-id="{{ row.loan.loan_id|lower }}" data-sort-customer="{{ row.loan.customer.get_full_name|lower }}" data-sort-amount="{{ row.loan.amount }}" data-sort-monthly="{{ row.loan.monthly_payment }}" data-sort-term="{{ row.loan.term }}" data-sort-progress="{{ row.progress_pct }}" data-sort-remaining="{{ row.remaining }}" data-sort-revenue="{{ row.revenue }}" data-sort-start="{{ row.loan.start|date:'U' }}">
           <td class="px-6 py-5 font-mono text-sm text-on-surface-variant"><a href="{% url 'loan_detail' row.loan.id %}" class="hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
           <td class="px-6 py-5">
             <div class="flex items-center gap-3">
@@ -274,6 +307,40 @@
         applyFilters();
       });
     });
+
+    const tbody = document.getElementById('loan-rows');
+    const cardContainer = document.getElementById('loan-cards');
+    const mobileSort = document.getElementById('mobile-sort');
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function sortContainer(container, datasetKey, direction) {
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll('[data-loan-row]'));
+      items.sort((a, b) => {
+        const aVal = a.dataset[datasetKey] || '';
+        const bVal = b.dataset[datasetKey] || '';
+        const aNum = parseFloat(aVal);
+        const bNum = parseFloat(bVal);
+        let cmp;
+        if (!isNaN(aNum) && !isNaN(bNum) && aVal.trim() !== '' && bVal.trim() !== '') {
+          cmp = aNum - bNum;
+        } else {
+          cmp = aVal.localeCompare(bVal);
+        }
+        return direction === 'asc' ? cmp : -cmp;
+      });
+      items.forEach(item => container.appendChild(item));
+    }
+
+    if (mobileSort) {
+      mobileSort.addEventListener('change', e => {
+        const [key, direction] = e.target.value.split('|');
+        const datasetKey = 'sort' + capitalize(key);
+        sortContainer(tbody, datasetKey, direction);
+        sortContainer(cardContainer, datasetKey, direction);
+      });
+    }
   })();
 </script>
 {% endblock %}

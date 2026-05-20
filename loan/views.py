@@ -376,11 +376,10 @@ def reports(request):
     chart_months_set = set(chart_months)
 
     revenue_by_month = OrderedDict((m, 0) for m in chart_months)
-    for p in payments_in_range:
-        key = (p.paid_at.year, p.paid_at.month)
-        if key in chart_months_set and p.loan.term > 0:
-            per_month_rev = (p.loan.term * p.loan.monthly_payment - p.loan.amount) / p.loan.term
-            revenue_by_month[key] += per_month_rev
+    for l in loans_in_range:
+        key = (l.start.year, l.start.month)
+        if key in chart_months_set:
+            revenue_by_month[key] += l.revenue()
 
     peak_month_index = None
     if revenue_by_month:
@@ -656,6 +655,7 @@ def dashboard(request):
 
     active_count = len(active_loans)
     completed_count = len(completed_loans)
+    current_month_monthly = sum(l.monthly_payment for l in active_loans)
     total_loans = len(loans)
     total_borrowers = Customer.objects.count()
     new_borrowers_this_month = Customer.objects.filter(created_at__gte=first_of_month).count()
@@ -739,6 +739,7 @@ def dashboard(request):
         'year_profit': year_profit,
         'active_count': active_count,
         'completed_count': completed_count,
+        'current_month_monthly': current_month_monthly,
         'total_loans': total_loans,
         'total_borrowers': total_borrowers,
         'new_borrowers_this_month': new_borrowers_this_month,
