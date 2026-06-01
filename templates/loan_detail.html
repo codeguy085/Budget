@@ -50,7 +50,7 @@
       <span class="lg:hidden bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-label-sm font-label-sm border border-blue-100">Completed</span>
       {% endif %}
       {% if not loan.is_completed %}
-      <button type="button" data-open-payment-modal class="hidden lg:inline-block px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity">Record Payment</button>
+      <button type="button" data-open-payment-modal class="hidden lg:inline-block px-4 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">Record Payment</button>
       {% endif %}
     </div>
   </div>
@@ -231,12 +231,12 @@
         </form>
         {% endif %}
         {% if loan.is_completed %}
-        <button type="button" disabled class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-white rounded-xl font-semibold opacity-50 cursor-not-allowed lg:order-first">
+        <button type="button" disabled class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold opacity-50 cursor-not-allowed lg:order-first">
           <span class="material-symbols-outlined text-[20px]">add_card</span>
           Record Payment
         </button>
         {% else %}
-        <button type="button" data-open-payment-modal class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-white rounded-xl font-semibold hover:opacity-90 transition-opacity lg:order-first">
+        <button type="button" data-open-payment-modal class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold hover:opacity-90 transition-opacity lg:order-first">
           <span class="material-symbols-outlined text-[20px]">add_card</span>
           Record Payment
         </button>
