@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Sign In | Budget</title>
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem('theme');
+      var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (stored === null && preferDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -16,51 +27,51 @@
                         "lg": "960px"
                     },
                     "colors": {
-                        "tertiary": "#684000",
-                        "surface-container": "#eaedff",
-                        "primary-fixed-dim": "#c3c0ff",
-                        "primary-container": "#4f46e5",
-                        "surface-container-low": "#f2f3ff",
-                        "on-error": "#ffffff",
-                        "on-tertiary": "#ffffff",
-                        "surface-bright": "#faf8ff",
-                        "on-tertiary-fixed-variant": "#653e00",
-                        "primary": "#3525cd",
-                        "on-primary-container": "#dad7ff",
-                        "inverse-surface": "#283044",
-                        "on-tertiary-fixed": "#2a1700",
-                        "on-secondary": "#ffffff",
-                        "inverse-primary": "#c3c0ff",
-                        "outline": "#777587",
-                        "on-secondary-container": "#00714d",
-                        "secondary-container": "#6cf8bb",
-                        "on-surface-variant": "#464555",
-                        "on-surface": "#131b2e",
-                        "on-primary": "#ffffff",
-                        "on-tertiary-container": "#ffd4a4",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-highest": "#dae2fd",
-                        "on-primary-fixed": "#0f0069",
-                        "background": "#faf8ff",
-                        "surface": "#faf8ff",
-                        "tertiary-fixed": "#ffddb8",
-                        "tertiary-fixed-dim": "#ffb95f",
-                        "on-secondary-fixed": "#002113",
-                        "on-error-container": "#93000a",
-                        "error-container": "#ffdad6",
-                        "inverse-on-surface": "#eef0ff",
-                        "on-secondary-fixed-variant": "#005236",
-                        "surface-tint": "#4d44e3",
-                        "outline-variant": "#c7c4d8",
-                        "secondary": "#006c49",
-                        "surface-container-high": "#e2e7ff",
-                        "surface-dim": "#d2d9f4",
-                        "on-primary-fixed-variant": "#3323cc",
-                        "error": "#ba1a1a",
-                        "secondary-fixed": "#6ffbbe",
-                        "primary-fixed": "#e2dfff",
-                        "secondary-fixed-dim": "#4edea3",
-                        "on-background": "#131b2e"
+                        "tertiary": "rgb(var(--c-tertiary) / <alpha-value>)",
+                        "surface-container": "rgb(var(--c-surface-container) / <alpha-value>)",
+                        "primary-fixed-dim": "rgb(var(--c-primary-fixed-dim) / <alpha-value>)",
+                        "primary-container": "rgb(var(--c-primary-container) / <alpha-value>)",
+                        "surface-container-low": "rgb(var(--c-surface-container-low) / <alpha-value>)",
+                        "on-error": "rgb(var(--c-on-error) / <alpha-value>)",
+                        "on-tertiary": "rgb(var(--c-on-tertiary) / <alpha-value>)",
+                        "surface-bright": "rgb(var(--c-surface-bright) / <alpha-value>)",
+                        "on-tertiary-fixed-variant": "rgb(var(--c-on-tertiary-fixed-variant) / <alpha-value>)",
+                        "primary": "rgb(var(--c-primary) / <alpha-value>)",
+                        "on-primary-container": "rgb(var(--c-on-primary-container) / <alpha-value>)",
+                        "inverse-surface": "rgb(var(--c-inverse-surface) / <alpha-value>)",
+                        "on-tertiary-fixed": "rgb(var(--c-on-tertiary-fixed) / <alpha-value>)",
+                        "on-secondary": "rgb(var(--c-on-secondary) / <alpha-value>)",
+                        "inverse-primary": "rgb(var(--c-inverse-primary) / <alpha-value>)",
+                        "outline": "rgb(var(--c-outline) / <alpha-value>)",
+                        "on-secondary-container": "rgb(var(--c-on-secondary-container) / <alpha-value>)",
+                        "secondary-container": "rgb(var(--c-secondary-container) / <alpha-value>)",
+                        "on-surface-variant": "rgb(var(--c-on-surface-variant) / <alpha-value>)",
+                        "on-surface": "rgb(var(--c-on-surface) / <alpha-value>)",
+                        "on-primary": "rgb(var(--c-on-primary) / <alpha-value>)",
+                        "on-tertiary-container": "rgb(var(--c-on-tertiary-container) / <alpha-value>)",
+                        "surface-container-lowest": "rgb(var(--c-surface-container-lowest) / <alpha-value>)",
+                        "surface-container-highest": "rgb(var(--c-surface-container-highest) / <alpha-value>)",
+                        "on-primary-fixed": "rgb(var(--c-on-primary-fixed) / <alpha-value>)",
+                        "background": "rgb(var(--c-background) / <alpha-value>)",
+                        "surface": "rgb(var(--c-surface) / <alpha-value>)",
+                        "tertiary-fixed": "rgb(var(--c-tertiary-fixed) / <alpha-value>)",
+                        "tertiary-fixed-dim": "rgb(var(--c-tertiary-fixed-dim) / <alpha-value>)",
+                        "on-secondary-fixed": "rgb(var(--c-on-secondary-fixed) / <alpha-value>)",
+                        "on-error-container": "rgb(var(--c-on-error-container) / <alpha-value>)",
+                        "error-container": "rgb(var(--c-error-container) / <alpha-value>)",
+                        "inverse-on-surface": "rgb(var(--c-inverse-on-surface) / <alpha-value>)",
+                        "on-secondary-fixed-variant": "rgb(var(--c-on-secondary-fixed-variant) / <alpha-value>)",
+                        "surface-tint": "rgb(var(--c-surface-tint) / <alpha-value>)",
+                        "outline-variant": "rgb(var(--c-outline-variant) / <alpha-value>)",
+                        "secondary": "rgb(var(--c-secondary) / <alpha-value>)",
+                        "surface-container-high": "rgb(var(--c-surface-container-high) / <alpha-value>)",
+                        "surface-dim": "rgb(var(--c-surface-dim) / <alpha-value>)",
+                        "on-primary-fixed-variant": "rgb(var(--c-on-primary-fixed-variant) / <alpha-value>)",
+                        "error": "rgb(var(--c-error) / <alpha-value>)",
+                        "secondary-fixed": "rgb(var(--c-secondary-fixed) / <alpha-value>)",
+                        "primary-fixed": "rgb(var(--c-primary-fixed) / <alpha-value>)",
+                        "secondary-fixed-dim": "rgb(var(--c-secondary-fixed-dim) / <alpha-value>)",
+                        "on-background": "rgb(var(--c-on-background) / <alpha-value>)"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -105,12 +116,108 @@
         }
     </script>
 <style>
+        :root {
+          --c-background: 250 248 255;
+          --c-surface: 250 248 255;
+          --c-surface-bright: 250 248 255;
+          --c-surface-dim: 210 217 244;
+          --c-surface-container-lowest: 255 255 255;
+          --c-surface-container-low: 242 243 255;
+          --c-surface-container: 234 237 255;
+          --c-surface-container-high: 226 231 255;
+          --c-surface-container-highest: 218 226 253;
+          --c-on-background: 19 27 46;
+          --c-on-surface: 19 27 46;
+          --c-on-surface-variant: 70 69 85;
+          --c-outline: 119 117 135;
+          --c-outline-variant: 199 196 216;
+          --c-primary: 53 37 205;
+          --c-on-primary: 255 255 255;
+          --c-primary-container: 79 70 229;
+          --c-on-primary-container: 218 215 255;
+          --c-primary-fixed: 226 223 255;
+          --c-primary-fixed-dim: 195 192 255;
+          --c-on-primary-fixed: 15 0 105;
+          --c-on-primary-fixed-variant: 51 35 204;
+          --c-secondary: 0 108 73;
+          --c-on-secondary: 255 255 255;
+          --c-secondary-container: 108 248 187;
+          --c-on-secondary-container: 0 113 77;
+          --c-secondary-fixed: 111 251 190;
+          --c-secondary-fixed-dim: 78 222 163;
+          --c-on-secondary-fixed: 0 33 19;
+          --c-on-secondary-fixed-variant: 0 82 54;
+          --c-tertiary: 104 64 0;
+          --c-on-tertiary: 255 255 255;
+          --c-tertiary-container: 136 85 0;
+          --c-on-tertiary-container: 255 212 164;
+          --c-tertiary-fixed: 255 221 184;
+          --c-tertiary-fixed-dim: 255 185 95;
+          --c-on-tertiary-fixed: 42 23 0;
+          --c-on-tertiary-fixed-variant: 101 62 0;
+          --c-error: 186 26 26;
+          --c-on-error: 255 255 255;
+          --c-error-container: 255 218 214;
+          --c-on-error-container: 147 0 10;
+          --c-inverse-primary: 195 192 255;
+          --c-inverse-surface: 40 48 68;
+          --c-inverse-on-surface: 238 240 255;
+          --c-surface-tint: 77 68 227;
+        }
+        .dark {
+          --c-background: 14 22 38;
+          --c-surface: 14 22 38;
+          --c-surface-bright: 53 60 82;
+          --c-surface-dim: 14 22 38;
+          --c-surface-container-lowest: 8 14 28;
+          --c-surface-container-low: 22 30 48;
+          --c-surface-container: 26 34 56;
+          --c-surface-container-high: 37 44 67;
+          --c-surface-container-highest: 48 55 78;
+          --c-on-background: 227 226 233;
+          --c-on-surface: 227 226 233;
+          --c-on-surface-variant: 199 196 216;
+          --c-outline: 145 143 163;
+          --c-outline-variant: 70 69 85;
+          --c-primary: 195 192 255;
+          --c-on-primary: 15 0 105;
+          --c-primary-container: 51 35 204;
+          --c-on-primary-container: 218 215 255;
+          --c-secondary: 78 222 163;
+          --c-on-secondary: 0 56 36;
+          --c-secondary-container: 0 82 54;
+          --c-on-secondary-container: 111 251 190;
+          --c-tertiary: 255 185 95;
+          --c-on-tertiary: 67 44 0;
+          --c-tertiary-container: 77 44 0;
+          --c-on-tertiary-container: 255 221 184;
+          --c-error: 255 180 171;
+          --c-on-error: 105 0 5;
+          --c-error-container: 147 0 10;
+          --c-on-error-container: 255 218 214;
+          --c-inverse-primary: 53 37 205;
+          --c-inverse-surface: 227 226 233;
+          --c-inverse-on-surface: 40 48 68;
+          --c-surface-tint: 195 192 255;
+        }
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
         body { font-family: 'Inter', sans-serif; }
         .hero-gradient { background: linear-gradient(135deg, #4f46e5 0%, #3525cd 100%); }
+        .dark .hero-gradient { background: linear-gradient(135deg, #3323cc 0%, #1f1880 100%); }
+
+        /* Dark-mode overrides for hardcoded utility colors */
+        .dark .bg-white { background-color: rgb(var(--c-surface-container-low)); }
+        .dark .border-white { border-color: rgb(var(--c-outline-variant)); }
+        .dark .bg-slate-50 { background-color: rgb(var(--c-surface-container)); }
+        .dark .bg-slate-100 { background-color: rgb(var(--c-surface-container-high)); }
+        .dark .bg-slate-200 { background-color: rgb(var(--c-surface-container-highest)); }
+        .dark .border-slate-50,
+        .dark .border-slate-100,
+        .dark .border-slate-200 { border-color: rgb(var(--c-outline-variant)); }
+        .dark body { color-scheme: dark; }
     </style>
 </head>
 <body class="bg-background text-on-surface m-0 p-0 flex flex-col min-h-screen lg:overflow-hidden">

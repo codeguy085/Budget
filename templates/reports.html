@@ -307,49 +307,146 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   (function () {
-    const data = JSON.parse(document.getElementById('revenue-chart-data').textContent);
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    const peakIdx = data.peakIndex;
-    const colors = data.data.map((_, i) => i === peakIdx ? '#3525cd' : 'rgba(53, 37, 205, 0.15)');
-    const borderColors = data.data.map((_, i) => i === peakIdx ? '#3525cd' : 'rgba(53, 37, 205, 0.3)');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.labels,
-        datasets: [{
-          label: 'Interest Revenue',
-          data: data.data,
-          backgroundColor: colors,
-          borderColor: borderColors,
-          borderWidth: 1,
-          borderRadius: 8,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => '₼' + ctx.parsed.y.toLocaleString()
+    function themeColors() {
+      const isDark = document.documentElement.classList.contains('dark');
+      return isDark ? {
+        primary: '#c3c0ff',
+        primaryRgb: '195, 192, 255',
+        primaryFaint: 'rgba(195, 192, 255, 0.28)',
+        primaryFaintBorder: 'rgba(195, 192, 255, 0.55)',
+        secondary: '#4edea3',
+        secondaryRgb: '78, 222, 163',
+        tertiary: '#ffb95f',
+        tickColor: '#c7c4d8',
+        gridColor: 'rgba(199, 196, 216, 0.12)',
+      } : {
+        primary: '#3525cd',
+        primaryRgb: '53, 37, 205',
+        primaryFaint: 'rgba(53, 37, 205, 0.15)',
+        primaryFaintBorder: 'rgba(53, 37, 205, 0.3)',
+        secondary: '#006c49',
+        secondaryRgb: '0, 108, 73',
+        tertiary: '#ffb95f',
+        tickColor: '#464555',
+        gridColor: '#f1f5f9',
+      };
+    }
+
+    let revenueChart = null;
+    let flowChart = null;
+
+    function buildRevenueChart() {
+      const data = JSON.parse(document.getElementById('revenue-chart-data').textContent);
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+      const t = themeColors();
+      const peakIdx = data.peakIndex;
+      const colors = data.data.map((_, i) => i === peakIdx ? t.primary : t.primaryFaint);
+      const borderColors = data.data.map((_, i) => i === peakIdx ? t.primary : t.primaryFaintBorder);
+      revenueChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Interest Revenue',
+            data: data.data,
+            backgroundColor: colors,
+            borderColor: borderColors,
+            borderWidth: 1,
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => '₼' + ctx.parsed.y.toLocaleString()
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: t.tickColor, font: { size: 11 } } },
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.tickColor,
+                font: { size: 11 },
+                callback: v => '₼' + v.toLocaleString()
+              },
+              beginAtZero: true
             }
           }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#464555', font: { size: 11 } } },
-          y: {
-            grid: { color: '#f1f5f9' },
-            ticks: {
-              color: '#464555',
-              font: { size: 11 },
-              callback: v => '₼' + v.toLocaleString()
-            },
-            beginAtZero: true
-          }
         }
-      }
-    });
+      });
+    }
+
+    function buildFlowChart() {
+      const flowData = JSON.parse(document.getElementById('capital-flow-data').textContent);
+      const flowCtx = document.getElementById('capitalFlowChart').getContext('2d');
+      const t = themeColors();
+      flowChart = new Chart(flowCtx, {
+        type: 'bar',
+        data: {
+          labels: flowData.labels,
+          datasets: [
+            {
+              label: 'New Loans',
+              data: flowData.new_loans,
+              backgroundColor: 'rgba(' + t.primaryRgb + ', 0.8)',
+              borderRadius: 6,
+              order: 2,
+            },
+            {
+              label: 'Collected',
+              data: flowData.collected,
+              backgroundColor: 'rgba(' + t.secondaryRgb + ', 0.8)',
+              borderRadius: 6,
+              order: 2,
+            },
+            {
+              label: 'Net Investment',
+              data: flowData.gap,
+              type: 'line',
+              borderColor: t.tertiary,
+              backgroundColor: 'rgba(255, 185, 95, 0.15)',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: t.tertiary,
+              order: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString(),
+              },
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: t.tickColor, font: { size: 11 } } },
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.tickColor,
+                font: { size: 11 },
+                callback: v => '₼' + v.toLocaleString(),
+              },
+            },
+          },
+        },
+      });
+    }
+
+    buildRevenueChart();
+    buildFlowChart();
 
     const customToggle = document.getElementById('custom-toggle');
     const customRange = document.getElementById('custom-range');
@@ -359,65 +456,18 @@
       });
     }
 
-    const flowData = JSON.parse(document.getElementById('capital-flow-data').textContent);
-    const flowCtx = document.getElementById('capitalFlowChart').getContext('2d');
-    new Chart(flowCtx, {
-      type: 'bar',
-      data: {
-        labels: flowData.labels,
-        datasets: [
-          {
-            label: 'New Loans',
-            data: flowData.new_loans,
-            backgroundColor: 'rgba(53, 37, 205, 0.8)',
-            borderRadius: 6,
-            order: 2,
-          },
-          {
-            label: 'Collected',
-            data: flowData.collected,
-            backgroundColor: 'rgba(0, 108, 73, 0.8)',
-            borderRadius: 6,
-            order: 2,
-          },
-          {
-            label: 'Net Investment',
-            data: flowData.gap,
-            type: 'line',
-            borderColor: '#ffb95f',
-            backgroundColor: 'rgba(255, 185, 95, 0.15)',
-            tension: 0.3,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointBackgroundColor: '#ffb95f',
-            order: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString(),
-            },
-          },
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: '#464555', font: { size: 11 } } },
-          y: {
-            grid: { color: '#f1f5f9' },
-            ticks: {
-              color: '#464555',
-              font: { size: 11 },
-              callback: v => '₼' + v.toLocaleString(),
-            },
-          },
-        },
-      },
+    const themeObserver = new MutationObserver(function (mutations) {
+      for (const m of mutations) {
+        if (m.attributeName === 'class') {
+          if (revenueChart) revenueChart.destroy();
+          if (flowChart) flowChart.destroy();
+          buildRevenueChart();
+          buildFlowChart();
+          break;
+        }
+      }
     });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   })();
 </script>
 {% endblock %}

@@ -225,69 +225,104 @@
 <script>
   (function () {
     const data = JSON.parse(document.getElementById('cash-flow-data').textContent);
-    const ctx = document.getElementById('cashFlowChart').getContext('2d');
-    const grad = ctx.createLinearGradient(0, 0, 0, 300);
-    grad.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
-    grad.addColorStop(1, 'rgba(79, 70, 229, 0)');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: data.labels,
-        datasets: [
-          {
-            label: 'Paid',
-            data: data.paid,
-            borderColor: '#3525cd',
-            backgroundColor: grad,
-            fill: true,
-            tension: 0.35,
-            borderWidth: 3,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-          },
-          {
-            label: 'Expected',
-            data: data.expected,
-            borderColor: '#ffb95f',
-            backgroundColor: 'transparent',
-            borderDash: [5, 5],
-            tension: 0.35,
-            borderWidth: 3,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (ctx) {
-                return ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString();
+    let chart = null;
+
+    function themeColors() {
+      const isDark = document.documentElement.classList.contains('dark');
+      return isDark ? {
+        primary: '#c3c0ff',
+        primaryRgb: '195, 192, 255',
+        tertiary: '#ffb95f',
+        tickColor: '#c7c4d8',
+        gridColor: 'rgba(199, 196, 216, 0.12)',
+      } : {
+        primary: '#3525cd',
+        primaryRgb: '79, 70, 229',
+        tertiary: '#ffb95f',
+        tickColor: '#464555',
+        gridColor: '#f1f5f9',
+      };
+    }
+
+    function build() {
+      const ctx = document.getElementById('cashFlowChart').getContext('2d');
+      const t = themeColors();
+      const grad = ctx.createLinearGradient(0, 0, 0, 300);
+      grad.addColorStop(0, 'rgba(' + t.primaryRgb + ', 0.25)');
+      grad.addColorStop(1, 'rgba(' + t.primaryRgb + ', 0)');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'Paid',
+              data: data.paid,
+              borderColor: t.primary,
+              backgroundColor: grad,
+              fill: true,
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+            },
+            {
+              label: 'Expected',
+              data: data.expected,
+              borderColor: t.tertiary,
+              backgroundColor: 'transparent',
+              borderDash: [5, 5],
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (ctx) {
+                  return ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString();
+                }
               }
             }
-          }
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: '#464555', font: { size: 11 } }
           },
-          y: {
-            grid: { color: '#f1f5f9' },
-            ticks: {
-              color: '#464555',
-              font: { size: 11 },
-              callback: function (v) { return '₼' + v.toLocaleString(); }
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: t.tickColor, font: { size: 11 } }
             },
-            beginAtZero: true,
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.tickColor,
+                font: { size: 11 },
+                callback: function (v) { return '₼' + v.toLocaleString(); }
+              },
+              beginAtZero: true,
+            }
           }
+        }
+      });
+    }
+
+    build();
+
+    const themeObserver = new MutationObserver(function (mutations) {
+      for (const m of mutations) {
+        if (m.attributeName === 'class') {
+          if (chart) chart.destroy();
+          build();
+          break;
         }
       }
     });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   })();
 </script>
 {% endblock %}

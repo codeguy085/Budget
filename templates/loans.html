@@ -68,7 +68,7 @@
 
 <section class="lg:bg-white lg:rounded-2xl lg:custom-shadow-soft lg:border lg:border-outline-variant lg:p-4 flex flex-wrap items-center justify-between gap-4">
   <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar pb-1 md:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0 w-full lg:w-auto">
-    <button data-filter="all" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-primary text-white font-bold text-sm shadow-md transition-all">All ({{ total_count }})</button>
+    <button data-filter="all" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-primary text-on-primary font-bold text-sm shadow-md transition-all">All ({{ total_count }})</button>
     <button data-filter="active" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Active ({{ active_count }})</button>
     <button data-filter="completed" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Completed ({{ completed_count }})</button>
     <button data-filter="delayed" class="filter-chip whitespace-nowrap px-6 py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-bold text-sm transition-all">Delayed ({{ delayed_count }})</button>
@@ -330,7 +330,7 @@
     let activeYear = 'all';
     let activeSearch = '';
 
-    const activeChipClasses = ['bg-primary', 'text-white', 'shadow-md'];
+    const activeChipClasses = ['bg-primary', 'text-on-primary', 'shadow-md'];
     const inactiveChipClasses = ['bg-surface-container', 'text-on-surface-variant', 'hover:bg-surface-container-high'];
 
     function applyFilters() {

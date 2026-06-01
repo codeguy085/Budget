@@ -45,7 +45,7 @@
     </select>
   </div>
   <div class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0" id="customer-filters">
-    <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
+    <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-on-primary rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
     <button data-filter="has-active" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active ({{ has_active_count }})</button>
     <button data-filter="fully-paid" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Fully Paid ({{ fully_paid_count }})</button>
     <button data-filter="new-this-month" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">New This Month ({{ new_this_month_count }})</button>
@@ -256,7 +256,7 @@
     let activeFilter = 'all';
     let activeSearch = '';
 
-    const activeClasses = ['bg-primary', 'text-white', 'shadow-sm'];
+    const activeClasses = ['bg-primary', 'text-on-primary', 'shadow-sm'];
     const inactiveClasses = ['bg-surface-container-high', 'text-on-surface-variant', 'border', 'border-outline-variant/30'];
 
     function applyFilters() {

@@ -1,9 +1,20 @@
 {% load humanize %}<!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>{% block title %}Budget{% endblock %}</title>
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem('theme');
+      var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (stored === 'dark' || (stored === null && preferDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
@@ -15,53 +26,53 @@
             lg: "960px"
           },
           colors: {
-            "on-surface-variant": "#464555",
-            "on-secondary-container": "#00714d",
-            "outline-variant": "#c7c4d8",
-            "surface": "#faf8ff",
-            "surface-container": "#eaedff",
-            "inverse-primary": "#c3c0ff",
-            "surface-dim": "#d2d9f4",
-            "surface-variant": "#dae2fd",
-            "on-primary-fixed": "#0f0069",
-            "tertiary-container": "#885500",
-            "on-error-container": "#93000a",
-            "on-background": "#131b2e",
-            "tertiary-fixed": "#ffddb8",
-            "secondary-fixed": "#6ffbbe",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-low": "#f2f3ff",
-            "on-tertiary-container": "#ffd4a4",
-            "secondary-fixed-dim": "#4edea3",
-            "surface-bright": "#faf8ff",
-            "primary": "#3525cd",
-            "on-tertiary": "#ffffff",
-            "inverse-on-surface": "#eef0ff",
-            "primary-container": "#4f46e5",
-            "surface-container-highest": "#dae2fd",
-            "primary-fixed-dim": "#c3c0ff",
-            "secondary": "#006c49",
-            "surface-tint": "#4d44e3",
-            "on-primary": "#ffffff",
-            "on-tertiary-fixed": "#2a1700",
-            "on-error": "#ffffff",
-            "inverse-surface": "#283044",
-            "tertiary": "#684000",
-            "error": "#ba1a1a",
-            "primary-fixed": "#e2dfff",
-            "on-secondary-fixed": "#002113",
-            "on-secondary": "#ffffff",
-            "on-tertiary-fixed-variant": "#653e00",
-            "error-container": "#ffdad6",
-            "on-primary-container": "#dad7ff",
-            "outline": "#777587",
-            "on-primary-fixed-variant": "#3323cc",
-            "surface-container-high": "#e2e7ff",
-            "background": "#faf8ff",
-            "on-surface": "#131b2e",
-            "on-secondary-fixed-variant": "#005236",
-            "tertiary-fixed-dim": "#ffb95f",
-            "secondary-container": "#6cf8bb"
+            "on-surface-variant": "rgb(var(--c-on-surface-variant) / <alpha-value>)",
+            "on-secondary-container": "rgb(var(--c-on-secondary-container) / <alpha-value>)",
+            "outline-variant": "rgb(var(--c-outline-variant) / <alpha-value>)",
+            "surface": "rgb(var(--c-surface) / <alpha-value>)",
+            "surface-container": "rgb(var(--c-surface-container) / <alpha-value>)",
+            "inverse-primary": "rgb(var(--c-inverse-primary) / <alpha-value>)",
+            "surface-dim": "rgb(var(--c-surface-dim) / <alpha-value>)",
+            "surface-variant": "rgb(var(--c-surface-variant) / <alpha-value>)",
+            "on-primary-fixed": "rgb(var(--c-on-primary-fixed) / <alpha-value>)",
+            "tertiary-container": "rgb(var(--c-tertiary-container) / <alpha-value>)",
+            "on-error-container": "rgb(var(--c-on-error-container) / <alpha-value>)",
+            "on-background": "rgb(var(--c-on-background) / <alpha-value>)",
+            "tertiary-fixed": "rgb(var(--c-tertiary-fixed) / <alpha-value>)",
+            "secondary-fixed": "rgb(var(--c-secondary-fixed) / <alpha-value>)",
+            "surface-container-lowest": "rgb(var(--c-surface-container-lowest) / <alpha-value>)",
+            "surface-container-low": "rgb(var(--c-surface-container-low) / <alpha-value>)",
+            "on-tertiary-container": "rgb(var(--c-on-tertiary-container) / <alpha-value>)",
+            "secondary-fixed-dim": "rgb(var(--c-secondary-fixed-dim) / <alpha-value>)",
+            "surface-bright": "rgb(var(--c-surface-bright) / <alpha-value>)",
+            "primary": "rgb(var(--c-primary) / <alpha-value>)",
+            "on-tertiary": "rgb(var(--c-on-tertiary) / <alpha-value>)",
+            "inverse-on-surface": "rgb(var(--c-inverse-on-surface) / <alpha-value>)",
+            "primary-container": "rgb(var(--c-primary-container) / <alpha-value>)",
+            "surface-container-highest": "rgb(var(--c-surface-container-highest) / <alpha-value>)",
+            "primary-fixed-dim": "rgb(var(--c-primary-fixed-dim) / <alpha-value>)",
+            "secondary": "rgb(var(--c-secondary) / <alpha-value>)",
+            "surface-tint": "rgb(var(--c-surface-tint) / <alpha-value>)",
+            "on-primary": "rgb(var(--c-on-primary) / <alpha-value>)",
+            "on-tertiary-fixed": "rgb(var(--c-on-tertiary-fixed) / <alpha-value>)",
+            "on-error": "rgb(var(--c-on-error) / <alpha-value>)",
+            "inverse-surface": "rgb(var(--c-inverse-surface) / <alpha-value>)",
+            "tertiary": "rgb(var(--c-tertiary) / <alpha-value>)",
+            "error": "rgb(var(--c-error) / <alpha-value>)",
+            "primary-fixed": "rgb(var(--c-primary-fixed) / <alpha-value>)",
+            "on-secondary-fixed": "rgb(var(--c-on-secondary-fixed) / <alpha-value>)",
+            "on-secondary": "rgb(var(--c-on-secondary) / <alpha-value>)",
+            "on-tertiary-fixed-variant": "rgb(var(--c-on-tertiary-fixed-variant) / <alpha-value>)",
+            "error-container": "rgb(var(--c-error-container) / <alpha-value>)",
+            "on-primary-container": "rgb(var(--c-on-primary-container) / <alpha-value>)",
+            "outline": "rgb(var(--c-outline) / <alpha-value>)",
+            "on-primary-fixed-variant": "rgb(var(--c-on-primary-fixed-variant) / <alpha-value>)",
+            "surface-container-high": "rgb(var(--c-surface-container-high) / <alpha-value>)",
+            "background": "rgb(var(--c-background) / <alpha-value>)",
+            "on-surface": "rgb(var(--c-on-surface) / <alpha-value>)",
+            "on-secondary-fixed-variant": "rgb(var(--c-on-secondary-fixed-variant) / <alpha-value>)",
+            "tertiary-fixed-dim": "rgb(var(--c-tertiary-fixed-dim) / <alpha-value>)",
+            "secondary-container": "rgb(var(--c-secondary-container) / <alpha-value>)"
           },
           borderRadius: {
             "DEFAULT": "0.25rem",
@@ -93,6 +104,92 @@
     }
   </script>
 <style>
+    :root {
+      --c-background: 250 248 255;
+      --c-surface: 250 248 255;
+      --c-surface-bright: 250 248 255;
+      --c-surface-dim: 210 217 244;
+      --c-surface-variant: 218 226 253;
+      --c-surface-container-lowest: 255 255 255;
+      --c-surface-container-low: 242 243 255;
+      --c-surface-container: 234 237 255;
+      --c-surface-container-high: 226 231 255;
+      --c-surface-container-highest: 218 226 253;
+      --c-on-background: 19 27 46;
+      --c-on-surface: 19 27 46;
+      --c-on-surface-variant: 70 69 85;
+      --c-outline: 119 117 135;
+      --c-outline-variant: 199 196 216;
+      --c-primary: 53 37 205;
+      --c-on-primary: 255 255 255;
+      --c-primary-container: 79 70 229;
+      --c-on-primary-container: 218 215 255;
+      --c-primary-fixed: 226 223 255;
+      --c-primary-fixed-dim: 195 192 255;
+      --c-on-primary-fixed: 15 0 105;
+      --c-on-primary-fixed-variant: 51 35 204;
+      --c-secondary: 0 108 73;
+      --c-on-secondary: 255 255 255;
+      --c-secondary-container: 108 248 187;
+      --c-on-secondary-container: 0 113 77;
+      --c-secondary-fixed: 111 251 190;
+      --c-secondary-fixed-dim: 78 222 163;
+      --c-on-secondary-fixed: 0 33 19;
+      --c-on-secondary-fixed-variant: 0 82 54;
+      --c-tertiary: 104 64 0;
+      --c-on-tertiary: 255 255 255;
+      --c-tertiary-container: 136 85 0;
+      --c-on-tertiary-container: 255 212 164;
+      --c-tertiary-fixed: 255 221 184;
+      --c-tertiary-fixed-dim: 255 185 95;
+      --c-on-tertiary-fixed: 42 23 0;
+      --c-on-tertiary-fixed-variant: 101 62 0;
+      --c-error: 186 26 26;
+      --c-on-error: 255 255 255;
+      --c-error-container: 255 218 214;
+      --c-on-error-container: 147 0 10;
+      --c-inverse-primary: 195 192 255;
+      --c-inverse-surface: 40 48 68;
+      --c-inverse-on-surface: 238 240 255;
+      --c-surface-tint: 77 68 227;
+    }
+    .dark {
+      --c-background: 14 22 38;
+      --c-surface: 14 22 38;
+      --c-surface-bright: 53 60 82;
+      --c-surface-dim: 14 22 38;
+      --c-surface-variant: 70 69 85;
+      --c-surface-container-lowest: 8 14 28;
+      --c-surface-container-low: 22 30 48;
+      --c-surface-container: 26 34 56;
+      --c-surface-container-high: 37 44 67;
+      --c-surface-container-highest: 48 55 78;
+      --c-on-background: 227 226 233;
+      --c-on-surface: 227 226 233;
+      --c-on-surface-variant: 199 196 216;
+      --c-outline: 145 143 163;
+      --c-outline-variant: 70 69 85;
+      --c-primary: 195 192 255;
+      --c-on-primary: 15 0 105;
+      --c-primary-container: 51 35 204;
+      --c-on-primary-container: 218 215 255;
+      --c-secondary: 78 222 163;
+      --c-on-secondary: 0 56 36;
+      --c-secondary-container: 0 82 54;
+      --c-on-secondary-container: 111 251 190;
+      --c-tertiary: 255 185 95;
+      --c-on-tertiary: 67 44 0;
+      --c-tertiary-container: 77 44 0;
+      --c-on-tertiary-container: 255 221 184;
+      --c-error: 255 180 171;
+      --c-on-error: 105 0 5;
+      --c-error-container: 147 0 10;
+      --c-on-error-container: 255 218 214;
+      --c-inverse-primary: 53 37 205;
+      --c-inverse-surface: 227 226 233;
+      --c-inverse-on-surface: 40 48 68;
+      --c-surface-tint: 195 192 255;
+    }
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       display: inline-block;
@@ -101,8 +198,58 @@
     .custom-shadow-soft {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
+    .dark .custom-shadow-soft {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Dark-mode overrides for hardcoded utility colors */
+    .dark .bg-white,
+    .dark .sm\:bg-white,
+    .dark .md\:bg-white,
+    .dark .lg\:bg-white { background-color: rgb(var(--c-surface-container-low)); }
+    .dark .border-white,
+    .dark .lg\:border-white { border-color: rgb(var(--c-outline-variant)); }
+    .dark .ring-white { --tw-ring-color: rgb(var(--c-outline-variant)); }
+
+    .dark .bg-slate-50 { background-color: rgb(var(--c-surface-container)); }
+    .dark .bg-slate-100 { background-color: rgb(var(--c-surface-container-high)); }
+    .dark .bg-slate-200 { background-color: rgb(var(--c-surface-container-highest)); }
+    .dark .text-slate-500,
+    .dark .text-slate-600 { color: rgb(var(--c-on-surface-variant)); }
+    .dark .border-slate-50,
+    .dark .border-slate-100,
+    .dark .border-slate-200,
+    .dark .lg\:border-slate-100,
+    .dark .lg\:border-slate-200 { border-color: rgb(var(--c-outline-variant)); }
+    .dark .divide-slate-50 > :not([hidden]) ~ :not([hidden]),
+    .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: rgb(var(--c-outline-variant)); }
+    .dark .hover\:bg-slate-50:hover { background-color: rgb(var(--c-surface-container)); }
+    .dark .hover\:bg-slate-100:hover { background-color: rgb(var(--c-surface-container-high)); }
+
+    .dark .bg-emerald-50 { background-color: rgba(78, 222, 163, 0.12); }
+    .dark .bg-emerald-500 { background-color: #4edea3; }
+    .dark .text-emerald-600,
+    .dark .text-emerald-700 { color: #6ffbbe; }
+    .dark .border-emerald-100 { border-color: rgba(78, 222, 163, 0.3); }
+
+    .dark .bg-amber-50 { background-color: rgba(255, 185, 95, 0.15); }
+    .dark .bg-amber-500 { background-color: #ffb95f; }
+    .dark .text-amber-700 { color: #ffd4a4; }
+    .dark .border-amber-100 { border-color: rgba(255, 185, 95, 0.3); }
+
+    .dark .bg-blue-50 { background-color: rgba(195, 192, 255, 0.15); }
+    .dark .text-blue-700 { color: #c3c0ff; }
+    .dark .border-blue-100 { border-color: rgba(195, 192, 255, 0.3); }
+
+    .dark .bg-red-50 { background-color: rgba(255, 180, 171, 0.12); }
+    .dark .bg-red-100 { background-color: rgba(255, 180, 171, 0.2); }
+    .dark .hover\:bg-red-100:hover { background-color: rgba(255, 180, 171, 0.25); }
+    .dark .text-red-700 { color: #ffb4ab; }
+
+    /* Tighter on-surface elevation for cards in dark mode */
+    .dark body { color-scheme: dark; }
   </style>
 {% block extra_head %}{% endblock %}
 </head>
@@ -156,6 +303,11 @@
         <p class="text-xs text-on-surface-variant">{% if request.user.is_superuser %}Administrator{% else %}Account{% endif %}</p>
       </div>
     </div>
+    <button type="button" data-theme-toggle class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-lg transition-colors">
+      <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+      <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+      <span class="text-label-md font-label-md"><span class="dark:hidden">Dark mode</span><span class="hidden dark:inline">Light mode</span></span>
+    </button>
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors">
@@ -180,6 +332,10 @@
   <div class="flex items-center gap-2 lg:gap-4">
     <button class="lg:hidden hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors">
       <span class="material-symbols-outlined">search</span>
+    </button>
+    <button type="button" data-theme-toggle class="lg:hidden hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors" aria-label="Toggle theme">
+      <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+      <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
     </button>
     <button class="hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors relative">
       <span class="material-symbols-outlined">notifications</span>
@@ -222,5 +378,15 @@
 </nav>
 
 {% block extra_scripts %}{% endblock %}
+<script>
+  (function () {
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var isDark = document.documentElement.classList.toggle('dark');
+        try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (e) {}
+      });
+    });
+  })();
+</script>
 </body>
 </html>
