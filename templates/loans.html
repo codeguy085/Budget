@@ -44,9 +44,11 @@
   <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container rounded-xl border-none focus:ring-2 focus:ring-primary text-body-md outline-none" placeholder="Search by Loan ID or customer..." type="text"/>
 </div>
 
-<div class="lg:hidden flex items-center gap-2">
+<div class="flex items-center gap-2 lg:max-w-[280px]">
   <span class="material-symbols-outlined text-on-surface-variant text-[20px]">sort</span>
   <select id="mobile-sort" class="flex-1 h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+    <option value="due|asc">Next payment (soonest)</option>
+    <option value="due|desc">Next payment (latest)</option>
     <option value="start|desc">Newest first</option>
     <option value="start|asc">Oldest first</option>
     <option value="amount|desc">Amount (high → low)</option>
@@ -109,7 +111,8 @@
      data-sort-progress="{{ row.progress_pct }}"
      data-sort-remaining="{{ row.remaining }}"
      data-sort-revenue="{{ row.revenue }}"
-     data-sort-start="{{ row.loan.start|date:'U' }}">
+     data-sort-start="{{ row.loan.start|date:'U' }}"
+     data-sort-due="{{ row.days_sort_key }}">
     <div class="flex justify-between items-start mb-4 gap-3">
       <div class="flex items-center gap-3 min-w-0">
         {% if row.status == 'delayed' %}
@@ -124,13 +127,28 @@
           <p class="font-label-sm text-outline font-mono truncate">{{ row.loan.loan_id }}</p>
         </div>
       </div>
-      {% if row.status == 'active' %}
-      <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm rounded-full flex-shrink-0">Active</span>
-      {% elif row.status == 'delayed' %}
-      <span class="px-3 py-1 bg-error-container text-on-error-container text-label-sm rounded-full flex-shrink-0">Delayed</span>
-      {% else %}
-      <span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-label-sm rounded-full flex-shrink-0">Completed</span>
-      {% endif %}
+      <div class="flex flex-col items-end gap-1.5 flex-shrink-0">
+        {% if row.status == 'active' %}
+        <span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm rounded-full">Active</span>
+        {% elif row.status == 'delayed' %}
+        <span class="px-3 py-1 bg-error-container text-on-error-container text-label-sm rounded-full">Delayed</span>
+        {% else %}
+        <span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant text-label-sm rounded-full">Completed</span>
+        {% endif %}
+        {% if row.status != 'completed' %}
+          {% if row.paid_this_month %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider border border-emerald-100">
+            <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            Paid
+          </span>
+          {% else %}
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider border border-amber-100">
+            <span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+            Due
+          </span>
+          {% endif %}
+        {% endif %}
+      </div>
     </div>
     <div class="grid grid-cols-3 gap-x-3 gap-y-3 mb-4">
       <div class="min-w-0">
@@ -158,6 +176,23 @@
         <p class="text-[11px] text-outline italic">Remaining Balance</p>
         <p class="text-label-sm font-bold {% if row.status == 'delayed' %}text-error{% else %}text-primary{% endif %} truncate">₼{{ row.remaining|intcomma }}</p>
       </div>
+      {% if row.days_until_next is not None %}
+      <div class="flex justify-between gap-2 pt-2 border-t border-outline-variant/20">
+        <p class="text-[11px] text-outline italic flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">event</span>
+          Next Payment
+        </p>
+        {% if row.days_until_next < 0 %}
+        <p class="text-label-sm font-bold text-error whitespace-nowrap">{{ row.days_until_next|stringformat:"d"|cut:"-" }} days overdue</p>
+        {% elif row.days_until_next == 0 %}
+        <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">Due today</p>
+        {% elif row.days_until_next <= 7 %}
+        <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">in {{ row.days_until_next }} day{{ row.days_until_next|pluralize }}</p>
+        {% else %}
+        <p class="text-label-sm font-bold text-on-surface whitespace-nowrap">in {{ row.days_until_next }} days</p>
+        {% endif %}
+      </div>
+      {% endif %}
     </div>
   </a>
   {% empty %}
@@ -180,12 +215,14 @@
           <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Remaining</th>
           <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Revenue</th>
           <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Status</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">This Month</th>
+          <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Next Payment</th>
           <th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Start Date</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100" id="loan-rows">
         {% for row in rows %}
-        <tr class="hover:bg-background transition-colors" data-loan-row data-status="{{ row.status }}" data-customer="{{ row.loan.customer.id }}" data-year="{{ row.loan.start|date:'Y' }}" data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}" data-sort-id="{{ row.loan.loan_id|lower }}" data-sort-customer="{{ row.loan.customer.get_full_name|lower }}" data-sort-amount="{{ row.loan.amount }}" data-sort-monthly="{{ row.loan.monthly_payment }}" data-sort-term="{{ row.loan.term }}" data-sort-progress="{{ row.progress_pct }}" data-sort-remaining="{{ row.remaining }}" data-sort-revenue="{{ row.revenue }}" data-sort-start="{{ row.loan.start|date:'U' }}">
+        <tr class="hover:bg-background transition-colors" data-loan-row data-status="{{ row.status }}" data-customer="{{ row.loan.customer.id }}" data-year="{{ row.loan.start|date:'Y' }}" data-search="{{ row.loan.loan_id|lower }} {{ row.loan.customer.get_full_name|lower }}" data-sort-id="{{ row.loan.loan_id|lower }}" data-sort-customer="{{ row.loan.customer.get_full_name|lower }}" data-sort-amount="{{ row.loan.amount }}" data-sort-monthly="{{ row.loan.monthly_payment }}" data-sort-term="{{ row.loan.term }}" data-sort-progress="{{ row.progress_pct }}" data-sort-remaining="{{ row.remaining }}" data-sort-revenue="{{ row.revenue }}" data-sort-start="{{ row.loan.start|date:'U' }}" data-sort-due="{{ row.days_sort_key }}">
           <td class="px-6 py-5 font-mono text-sm text-on-surface-variant"><a href="{% url 'loan_detail' row.loan.id %}" class="hover:text-primary transition-colors">{{ row.loan.loan_id }}</a></td>
           <td class="px-6 py-5">
             <div class="flex items-center gap-3">
@@ -223,10 +260,46 @@
               {% endif %}
             </div>
           </td>
+          <td class="px-6 py-5">
+            <div class="flex justify-center">
+              {% if row.status == 'completed' %}
+              <span class="text-on-surface-variant text-sm">—</span>
+              {% elif row.paid_this_month %}
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest border border-emerald-100" title="Payment recorded this month">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                Paid
+              </span>
+              {% else %}
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-widest border border-amber-100" title="No payment recorded this month yet">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                Due
+              </span>
+              {% endif %}
+            </div>
+          </td>
+          <td class="px-6 py-5">
+            <div class="flex flex-col items-center text-center">
+              {% if row.days_until_next is None %}
+              <span class="text-on-surface-variant text-sm">—</span>
+              {% elif row.days_until_next < 0 %}
+              <span class="text-sm font-bold text-error whitespace-nowrap">{{ row.days_until_next|stringformat:"d"|cut:"-" }} days overdue</span>
+              <span class="text-[10px] text-on-surface-variant whitespace-nowrap">Due {{ row.next_due_date|date:"M j" }}</span>
+              {% elif row.days_until_next == 0 %}
+              <span class="text-sm font-bold text-amber-700 whitespace-nowrap">Due today</span>
+              <span class="text-[10px] text-on-surface-variant whitespace-nowrap">{{ row.next_due_date|date:"M j" }}</span>
+              {% elif row.days_until_next <= 7 %}
+              <span class="text-sm font-bold text-amber-700 whitespace-nowrap">in {{ row.days_until_next }} day{{ row.days_until_next|pluralize }}</span>
+              <span class="text-[10px] text-on-surface-variant whitespace-nowrap">{{ row.next_due_date|date:"M j" }}</span>
+              {% else %}
+              <span class="text-sm font-bold text-on-surface whitespace-nowrap">in {{ row.days_until_next }} days</span>
+              <span class="text-[10px] text-on-surface-variant whitespace-nowrap">{{ row.next_due_date|date:"M j" }}</span>
+              {% endif %}
+            </div>
+          </td>
           <td class="px-6 py-5 text-sm text-on-surface-variant whitespace-nowrap">{{ row.loan.start|date:"M d, Y" }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="10" class="py-12 text-center text-on-surface-variant text-sm">No loans yet.</td></tr>
+        <tr><td colspan="12" class="py-12 text-center text-on-surface-variant text-sm">No loans yet.</td></tr>
         {% endfor %}
       </tbody>
     </table>

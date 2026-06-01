@@ -16,19 +16,30 @@
   <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search by customer or loan..." type="text"/>
 </div>
 
-<section class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0">
-  <button data-filter="all" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md">All ({{ total_count }})</button>
-  <button data-filter="on-time" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">On Time ({{ on_time_count }})</button>
-  <button data-filter="late" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">Late ({{ late_count }})</button>
-  <div class="hidden lg:flex ml-auto gap-2">
-    <button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container transition-colors text-on-surface-variant">
-      <span class="material-symbols-outlined text-[20px]">filter_list</span>
-      Advanced Filters
-    </button>
-    <button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg text-sm hover:bg-surface-container transition-colors text-on-surface-variant">
-      <span class="material-symbols-outlined text-[20px]">download</span>
-      Export CSV
-    </button>
+<section class="flex flex-col lg:flex-row lg:items-center lg:flex-wrap gap-3">
+  <div class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0">
+    <button data-filter="all" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md">All ({{ total_count }})</button>
+    <button data-filter="on-time" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">On Time ({{ on_time_count }})</button>
+    <button data-filter="late" class="filter-chip whitespace-nowrap px-5 py-2 rounded-full bg-surface border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors text-sm">Late ({{ late_count }})</button>
+  </div>
+  <div class="flex flex-col sm:flex-row lg:flex-row gap-2 lg:gap-3 lg:ml-auto lg:flex-wrap lg:items-center">
+    <div class="relative lg:min-w-[200px]">
+      <select id="payment-customer-filter" class="w-full h-11 lg:h-auto appearance-none bg-surface-container-lowest lg:bg-surface-container border border-outline-variant rounded-xl lg:rounded-lg pl-4 pr-9 lg:px-4 lg:py-2.5 text-label-md lg:text-sm font-medium focus:ring-2 focus:ring-primary focus:outline-none transition-all cursor-pointer">
+        <option value="all">All Customers</option>
+        {% for c in customers %}
+        <option value="{{ c.id }}">{{ c.get_full_name }}</option>
+        {% endfor %}
+      </select>
+      <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[20px]">expand_more</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <input id="payment-date-from" type="date" class="flex-1 min-w-0 h-11 lg:h-auto px-3 lg:px-4 lg:py-2.5 bg-surface-container-lowest lg:bg-surface-container border border-outline-variant rounded-xl lg:rounded-lg text-label-md lg:text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all" aria-label="From date"/>
+      <span class="text-on-surface-variant text-label-sm">to</span>
+      <input id="payment-date-to" type="date" class="flex-1 min-w-0 h-11 lg:h-auto px-3 lg:px-4 lg:py-2.5 bg-surface-container-lowest lg:bg-surface-container border border-outline-variant rounded-xl lg:rounded-lg text-label-md lg:text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all" aria-label="To date"/>
+      <button id="payment-filter-reset" type="button" class="flex-shrink-0 h-11 lg:h-auto px-3 lg:px-3 lg:py-2 rounded-xl lg:rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" title="Reset date range">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
   </div>
 </section>
 
@@ -37,6 +48,8 @@
   <a href="{% url 'loan_detail' row.payment.loan.id %}" class="block bg-surface-container-lowest p-5 rounded-3xl custom-shadow-soft border border-slate-100 active:scale-[0.98] transition-transform"
      data-payment-row
      data-filters="{{ row.filter_status }}"
+     data-customer="{{ row.payment.loan.customer.id }}"
+     data-date="{{ row.payment.paid_at|date:'Y-m-d' }}"
      data-search="{{ row.payment.loan.customer.get_full_name|lower }} {{ row.payment.loan.loan_id|lower }} txn-{{ row.payment.id }}">
     <div class="flex justify-between items-start mb-4 gap-3">
       <div class="flex items-center gap-3 min-w-0">
@@ -92,7 +105,7 @@
       </thead>
       <tbody class="divide-y divide-slate-100" id="payment-rows">
         {% for row in rows %}
-        <tr class="hover:bg-surface-bright transition-colors" data-payment-row data-filters="{{ row.filter_status }}" data-search="{{ row.payment.loan.customer.get_full_name|lower }} {{ row.payment.loan.loan_id|lower }} txn-{{ row.payment.id }}">
+        <tr class="hover:bg-surface-bright transition-colors" data-payment-row data-filters="{{ row.filter_status }}" data-customer="{{ row.payment.loan.customer.id }}" data-date="{{ row.payment.paid_at|date:'Y-m-d' }}" data-search="{{ row.payment.loan.customer.get_full_name|lower }} {{ row.payment.loan.loan_id|lower }} txn-{{ row.payment.id }}">
           <td class="px-6 py-4 font-mono text-sm text-on-surface-variant">TXN-{{ row.payment.id }}</td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-3">
@@ -138,10 +151,17 @@
     const rows = document.querySelectorAll('[data-payment-row]');
     const chips = document.querySelectorAll('.filter-chip');
     const searchInputs = [document.getElementById('topbar-search'), document.getElementById('mobile-search')].filter(Boolean);
+    const customerSelect = document.getElementById('payment-customer-filter');
+    const dateFromInput = document.getElementById('payment-date-from');
+    const dateToInput = document.getElementById('payment-date-to');
+    const resetBtn = document.getElementById('payment-filter-reset');
     const noResults = document.getElementById('no-results');
     const mobileNoResults = document.getElementById('mobile-no-results');
     let activeFilter = 'all';
     let activeSearch = '';
+    let activeCustomer = 'all';
+    let activeFrom = '';
+    let activeTo = '';
 
     const activeClasses = ['bg-primary', 'text-on-primary', 'shadow-md'];
     const inactiveClasses = ['bg-surface', 'border', 'border-outline-variant', 'text-on-surface-variant', 'hover:bg-surface-container'];
@@ -154,7 +174,12 @@
         const matchesFilter = activeFilter === 'all' || filters.indexOf(activeFilter) !== -1;
         const search = row.dataset.search || '';
         const matchesSearch = !activeSearch || search.indexOf(activeSearch) !== -1;
-        const show = matchesFilter && matchesSearch;
+        const customer = row.dataset.customer || '';
+        const matchesCustomer = activeCustomer === 'all' || customer === activeCustomer;
+        const dateStr = row.dataset.date || '';
+        const matchesFrom = !activeFrom || dateStr >= activeFrom;
+        const matchesTo = !activeTo || dateStr <= activeTo;
+        const show = matchesFilter && matchesSearch && matchesCustomer && matchesFrom && matchesTo;
         row.style.display = show ? '' : 'none';
         if (show) {
           if (row.tagName === 'TR') visibleDesktop++;
@@ -185,6 +210,33 @@
         applyFilters();
       });
     });
+
+    if (customerSelect) {
+      customerSelect.addEventListener('change', e => {
+        activeCustomer = e.target.value;
+        applyFilters();
+      });
+    }
+    if (dateFromInput) {
+      dateFromInput.addEventListener('change', e => {
+        activeFrom = e.target.value;
+        applyFilters();
+      });
+    }
+    if (dateToInput) {
+      dateToInput.addEventListener('change', e => {
+        activeTo = e.target.value;
+        applyFilters();
+      });
+    }
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (customerSelect) { customerSelect.value = 'all'; activeCustomer = 'all'; }
+        if (dateFromInput) { dateFromInput.value = ''; activeFrom = ''; }
+        if (dateToInput) { dateToInput.value = ''; activeTo = ''; }
+        applyFilters();
+      });
+    }
   })();
 </script>
 {% endblock %}

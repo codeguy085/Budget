@@ -297,6 +297,7 @@ def loan_form(request, pk=None):
 
 @login_required
 def loan_list(request):
+    today = date.today()
     loans = list(
         Loan.objects
         .select_related('customer')
@@ -320,6 +321,20 @@ def loan_list(request):
         revenue = l.revenue()
         progress_pct = round(paid * 100 / l.term, 1) if l.term else 0
 
+        paid_this_month = any(
+            p.paid_at.year == today.year and p.paid_at.month == today.month
+            for p in l.loan_payments.all()
+        )
+
+        if l.is_completed or paid >= l.term:
+            next_due_date = None
+            days_until_next = None
+            days_sort_key = 999999
+        else:
+            next_due_date = _add_months(l.start.date(), paid + 1)
+            days_until_next = (next_due_date - today).days
+            days_sort_key = days_until_next
+
         if not l.is_completed:
             active_remaining_total += remaining
 
@@ -333,6 +348,10 @@ def loan_list(request):
             'remaining': remaining,
             'revenue': revenue,
             'progress_pct': progress_pct,
+            'paid_this_month': paid_this_month,
+            'next_due_date': next_due_date,
+            'days_until_next': days_until_next,
+            'days_sort_key': days_sort_key,
         })
 
     avg_yield = round(sum(yield_ratios) * 100 / len(yield_ratios), 1) if yield_ratios else 0
@@ -623,6 +642,7 @@ def payment_list(request):
         'total_count': len(rows),
         'on_time_count': on_time_count,
         'late_count': late_count,
+        'customers': Customer.objects.order_by('name', 'surname'),
     }
     return render(request, 'payments.html', context)
 
