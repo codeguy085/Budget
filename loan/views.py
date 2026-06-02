@@ -391,7 +391,7 @@ def reports(request):
         .filter(paid_at__gte=start_date, paid_at__lte=end_date)
     )
 
-    chart_months = _months_in_range(start_date, end_date, max_months=12)
+    chart_months = _months_in_range(start_date, end_date, max_months=24)
     chart_months_set = set(chart_months)
 
     revenue_by_month = OrderedDict((m, 0) for m in chart_months)
