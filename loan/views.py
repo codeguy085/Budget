@@ -527,10 +527,11 @@ def reports(request):
         risk_blurb = f'{late_count_in_range} late of {total_payments_in_range} payments.'
 
     revenue_chart_data = {
-        'labels': [date(y, m, 1).strftime('%b %y') for (y, m) in chart_months],
+        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
         'data': [int(round(revenue_by_month[m])) for m in chart_months],
         'peakIndex': peak_month_index,
     }
+    total_revenue_in_range = int(round(sum(revenue_by_month.values())))
 
     new_loans_by_month = OrderedDict((m, 0) for m in chart_months)
     collected_by_month = OrderedDict((m, 0) for m in chart_months)
@@ -549,7 +550,7 @@ def reports(request):
     net_invested = total_deployed - total_collected
 
     capital_flow_data = {
-        'labels': [date(y, m, 1).strftime('%b %y') for (y, m) in chart_months],
+        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
         'new_loans': [new_loans_by_month[m] for m in chart_months],
         'collected': [collected_by_month[m] for m in chart_months],
         'gap': [gap_by_month[m] for m in chart_months],
@@ -564,6 +565,7 @@ def reports(request):
         'custom_end_iso': end_date.isoformat(),
         'revenue_chart_data': revenue_chart_data,
         'capital_flow_data': capital_flow_data,
+        'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,
         'total_collected': total_collected,
         'net_invested': net_invested,
@@ -744,7 +746,7 @@ def dashboard(request):
             if key in months_set:
                 expected_by_month[key] += l.monthly_payment
 
-    month_labels = [date(y, m, 1).strftime('%b %y') for (y, m) in months]
+    month_labels = [date(y, m, 1).strftime('%b') for (y, m) in months]
     cash_flow_data = {
         'labels': month_labels,
         'paid': list(paid_by_month.values()),
