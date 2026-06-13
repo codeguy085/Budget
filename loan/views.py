@@ -1,9 +1,12 @@
 import calendar
 import csv
+import urllib.request
+import xml.etree.ElementTree as ET
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,6 +17,35 @@ from .models import Investment, Loan, Payment, Transfer
 
 
 CURRENCIES = ('AZN', 'USD', 'EUR')
+
+FALLBACK_RATES = {'AZN': 1.0, 'USD': 1.7, 'EUR': 1.84}
+
+
+def _exchange_rates():
+    """Return {currency: AZN per 1 unit}. Fetches from cbar.az and caches for an hour."""
+    cached = cache.get('exchange_rates')
+    if cached:
+        return cached
+    rates = dict(FALLBACK_RATES)
+    try:
+        url = 'https://www.cbar.az/currencies/' + date.today().strftime('%d.%m.%Y') + '.xml'
+        req = urllib.request.Request(url, headers={'User-Agent': 'Budget-App/1.0'})
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = resp.read()
+        root = ET.fromstring(data)
+        for valute in root.iter('Valute'):
+            code = valute.get('Code')
+            if code in ('USD', 'EUR'):
+                value = (valute.findtext('Value') or '').replace(',', '.')
+                nominal = (valute.findtext('Nominal') or '1').replace(',', '.')
+                try:
+                    rates[code] = float(value) / float(nominal or '1')
+                except (ValueError, ZeroDivisionError):
+                    pass
+        cache.set('exchange_rates', rates, 60 * 60)
+    except Exception:
+        cache.set('exchange_rates', rates, 5 * 60)
+    return rates
 
 
 def _available_cash():
@@ -857,6 +889,15 @@ def dashboard(request):
         'recent_investments': Investment.objects.all()[:5],
         'recent_transfers': Transfer.objects.all()[:5],
     }
+    cash = context['available_cash']
+    rates = _exchange_rates()
+    context['exchange_rates'] = rates
+    context['total_portfolio_azn'] = int(round(
+        remaining_balance
+        + cash['AZN']
+        + cash['USD'] * rates.get('USD', FALLBACK_RATES['USD'])
+        + cash['EUR'] * rates.get('EUR', FALLBACK_RATES['EUR'])
+    ))
     return render(request, 'dashboard.html', context)
 
 
@@ -933,6 +974,7 @@ def transfer_create(request):
     to_currency = request.POST.get('to_currency', '').strip().upper()
     from_amount_str = request.POST.get('from_amount', '').strip()
     rate_str = request.POST.get('rate', '').strip()
+    rate_mode = request.POST.get('rate_mode', 'direct').strip().lower()
     transferred_at_str = request.POST.get('transferred_at', '').strip()
     note = request.POST.get('note', '').strip()
 
@@ -949,11 +991,16 @@ def transfer_create(request):
         return redirect('dashboard')
 
     try:
-        rate = float(rate_str)
+        rate_input = float(rate_str)
     except (ValueError, TypeError):
         return redirect('dashboard')
-    if rate <= 0:
+    if rate_input <= 0:
         return redirect('dashboard')
+
+    if rate_mode == 'reverse':
+        rate = 1 / rate_input
+    else:
+        rate = rate_input
 
     to_amount = int(round(from_amount * rate))
     if to_amount <= 0:

@@ -39,7 +39,7 @@
   </div>
 </section>
 
-<section class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+<section class="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
   <div class="bg-surface-container-lowest p-4 lg:p-6 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-slate-100">
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3 lg:gap-2">
       <div class="p-2 bg-primary/10 rounded-lg text-primary self-start lg:order-2 flex-shrink-0">
@@ -88,6 +88,19 @@
         <p class="text-on-surface-variant text-label-md mb-1">Total Borrowers</p>
         <h3 class="text-lg lg:text-headline-md font-headline-md font-semibold lg:font-headline-md text-on-surface truncate">{{ total_borrowers }}</h3>
         <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:block">{{ new_borrowers_this_month }} new this month</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-2 lg:col-span-1 bg-surface-container-lowest p-4 lg:p-6 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-slate-100">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3 lg:gap-2">
+      <div class="p-2 bg-primary/10 rounded-lg text-primary self-start lg:order-2 flex-shrink-0">
+        <span class="material-symbols-outlined">account_balance</span>
+      </div>
+      <div class="min-w-0 lg:order-1">
+        <p class="text-on-surface-variant text-label-md mb-1">Total Portfolio</p>
+        <h3 class="text-lg lg:text-headline-md font-headline-md font-semibold lg:font-headline-md text-on-surface truncate">₼{{ total_portfolio_azn|intcomma }}</h3>
+        <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:block">USD {{ exchange_rates.USD|floatformat:2 }} · EUR {{ exchange_rates.EUR|floatformat:2 }}</p>
       </div>
     </div>
   </div>
@@ -392,8 +405,17 @@
         </div>
         <div class="grid grid-cols-3 gap-3">
           <div class="space-y-2 col-span-2">
-            <label class="text-label-md font-label-md text-on-surface-variant" for="t_rate">Rate (1 from = X to)</label>
+            <label class="text-label-md font-label-md text-on-surface-variant">Rate</label>
+            <div class="flex gap-1 bg-surface-container rounded-lg p-1">
+              <button type="button" data-rate-mode="direct" class="rate-mode-btn flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold bg-surface-container-lowest text-primary shadow-sm">
+                1 <span data-from-code>AZN</span> → <span data-to-code>USD</span>
+              </button>
+              <button type="button" data-rate-mode="reverse" class="rate-mode-btn flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold text-on-surface-variant">
+                1 <span data-to-code>USD</span> → <span data-from-code>AZN</span>
+              </button>
+            </div>
             <input id="t_rate" name="rate" type="number" min="0.0001" step="0.0001" required placeholder="e.g. 0.5882" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+            <input type="hidden" id="t_rate_mode" name="rate_mode" value="direct"/>
           </div>
           <div class="space-y-2">
             <label class="text-label-md font-label-md text-on-surface-variant" for="t_to_currency">To</label>
@@ -637,6 +659,15 @@
     const toCur = document.getElementById('t_to_currency');
     const fromCur = document.getElementById('t_from_currency');
     const preview = document.getElementById('t_receive_preview');
+    const rateMode = document.getElementById('t_rate_mode');
+    const modeButtons = document.querySelectorAll('.rate-mode-btn');
+
+    function refreshCurrencyLabels() {
+      const fromCode = fromCur ? fromCur.value : '';
+      const toCode = toCur ? toCur.value : '';
+      document.querySelectorAll('[data-from-code]').forEach(el => el.textContent = fromCode);
+      document.querySelectorAll('[data-to-code]').forEach(el => el.textContent = toCode);
+    }
 
     function updateTransferPreview() {
       if (!preview) return;
@@ -648,8 +679,32 @@
       }
       const target = toCur ? toCur.value : 'USD';
       const sym = symbols[target] || '';
-      preview.textContent = sym + Math.round(a * r).toLocaleString();
+      const mode = rateMode ? rateMode.value : 'direct';
+      const toAmount = mode === 'reverse' ? a / r : a * r;
+      if (!isFinite(toAmount) || toAmount <= 0) {
+        preview.textContent = '—';
+        return;
+      }
+      preview.textContent = sym + Math.round(toAmount).toLocaleString();
     }
+
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.rateMode;
+        if (rateMode) rateMode.value = mode;
+        modeButtons.forEach(b => {
+          if (b === btn) {
+            b.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+            b.classList.remove('text-on-surface-variant');
+          } else {
+            b.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+            b.classList.add('text-on-surface-variant');
+          }
+        });
+        if (rate) rate.value = '';
+        updateTransferPreview();
+      });
+    });
 
     [fromAmt, rate, toCur, fromCur].forEach(el => {
       if (el) el.addEventListener('input', updateTransferPreview);
@@ -662,11 +717,14 @@
           const others = ['AZN', 'USD', 'EUR'].filter(c => c !== fromCur.value);
           toCur.value = others[0];
         }
+        refreshCurrencyLabels();
         updateTransferPreview();
       }
       fromCur.addEventListener('change', syncCurrencyOptions);
       toCur.addEventListener('change', syncCurrencyOptions);
     }
+
+    refreshCurrencyLabels();
   })();
 </script>
 {% endblock %}
