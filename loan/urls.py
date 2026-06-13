@@ -10,6 +10,8 @@ from .views import (
     payment_create,
     reports,
     export_loans_csv,
+    investment_create,
+    transfer_create,
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path("payments/new/", payment_create, name="payment_create"),
     path("reports/", reports, name="reports"),
     path("reports/export.csv", export_loans_csv, name="export_loans_csv"),
+    path("investments/new/", investment_create, name="investment_create"),
+    path("transfers/new/", transfer_create, name="transfer_create"),
 ]

@@ -4,6 +4,37 @@
 {% block title %}Dashboard | Budget{% endblock %}
 
 {% block content %}
+<section class="bg-primary text-on-primary rounded-3xl lg:rounded-2xl p-5 lg:p-6 custom-shadow-soft">
+  <div class="flex items-baseline justify-between gap-3 mb-4">
+    <p class="text-on-primary/80 text-label-md uppercase tracking-wider font-bold">Available Cash</p>
+    <p class="text-on-primary/70 text-label-sm hidden sm:block">Capital not deployed in active loans</p>
+  </div>
+  <div class="grid grid-cols-3 gap-3 lg:gap-6">
+    <div class="min-w-0">
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">AZN</p>
+      <p class="text-xl lg:text-3xl font-bold mt-1 truncate">₼{{ available_cash.AZN|intcomma }}</p>
+    </div>
+    <div class="min-w-0">
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">USD</p>
+      <p class="text-xl lg:text-3xl font-bold mt-1 truncate">${{ available_cash.USD|intcomma }}</p>
+    </div>
+    <div class="min-w-0">
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">EUR</p>
+      <p class="text-xl lg:text-3xl font-bold mt-1 truncate">€{{ available_cash.EUR|intcomma }}</p>
+    </div>
+  </div>
+  <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-5">
+    <button type="button" data-open-investment-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary text-primary rounded-xl font-bold text-label-md hover:opacity-90 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">add</span>
+      Add Investment
+    </button>
+    <button type="button" data-open-transfer-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary/15 text-on-primary border border-on-primary/30 rounded-xl font-bold text-label-md hover:bg-on-primary/25 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">swap_horiz</span>
+      Transfer
+    </button>
+  </div>
+</section>
+
 <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
   <div class="bg-surface-container-lowest p-4 lg:p-6 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-slate-100">
     <div class="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3 lg:gap-2">
@@ -210,6 +241,166 @@
     </div>
   </div>
 </section>
+
+<div id="investment-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
+  <div class="bg-surface-container-lowest w-full lg:max-w-[480px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
+    <div class="px-5 pt-5 pb-4 lg:px-8 lg:pt-7 lg:pb-5 border-b border-outline-variant/30">
+      <div class="flex justify-between items-start mb-2">
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">Add Investment</h2>
+        <button type="button" data-close-investment-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p class="text-label-md text-on-surface-variant">Adds capital to your available cash pool.</p>
+    </div>
+
+    <form method="post" action="{% url 'investment_create' %}" class="contents">
+      {% csrf_token %}
+      <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-4 overflow-y-auto">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-2 col-span-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="inv_amount">Amount</label>
+            <input id="inv_amount" name="amount" type="number" min="1" required placeholder="e.g. 10000" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="inv_currency">Currency</label>
+            <select id="inv_currency" name="currency" class="w-full h-12 px-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+              <option value="AZN">₼ AZN</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+            </select>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="inv_added_at">Date</label>
+          <input id="inv_added_at" name="added_at" type="date" value="{{ today_iso }}" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="inv_note">Note (optional)</label>
+          <input id="inv_note" name="note" type="text" maxlength="200" placeholder="Source or memo" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+      </div>
+      <div class="px-5 py-4 lg:px-8 lg:py-5 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-5">
+        <button type="button" data-close-investment-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">savings</span>
+          Add Investment
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="transfer-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
+  <div class="bg-surface-container-lowest w-full lg:max-w-[520px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
+    <div class="px-5 pt-5 pb-4 lg:px-8 lg:pt-7 lg:pb-5 border-b border-outline-variant/30">
+      <div class="flex justify-between items-start mb-2">
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">Transfer Between Currencies</h2>
+        <button type="button" data-close-transfer-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p class="text-label-md text-on-surface-variant">Enter the exchange rate you used.</p>
+    </div>
+
+    <form method="post" action="{% url 'transfer_create' %}" class="contents">
+      {% csrf_token %}
+      <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-4 overflow-y-auto">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-2 col-span-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="t_from_amount">From amount</label>
+            <input id="t_from_amount" name="from_amount" type="number" min="1" required placeholder="e.g. 1000" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="t_from_currency">From</label>
+            <select id="t_from_currency" name="from_currency" class="w-full h-12 px-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+              <option value="AZN">₼ AZN</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-center text-on-surface-variant">
+          <span class="material-symbols-outlined">arrow_downward</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-2 col-span-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="t_rate">Rate (1 from = X to)</label>
+            <input id="t_rate" name="rate" type="number" min="0.0001" step="0.0001" required placeholder="e.g. 0.5882" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="t_to_currency">To</label>
+            <select id="t_to_currency" name="to_currency" class="w-full h-12 px-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="AZN">₼ AZN</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-surface-container/50 border border-outline-variant/50 rounded-xl p-4 flex justify-between items-center">
+          <span class="text-label-md text-on-surface-variant">You will receive</span>
+          <span class="text-headline-md font-headline-md font-bold text-primary" id="t_receive_preview">—</span>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="t_transferred_at">Date</label>
+          <input id="t_transferred_at" name="transferred_at" type="date" value="{{ today_iso }}" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="t_note">Note (optional)</label>
+          <input id="t_note" name="note" type="text" maxlength="200" placeholder="Memo" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+      </div>
+      <div class="px-5 py-4 lg:px-8 lg:py-5 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-5">
+        <button type="button" data-close-transfer-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">swap_horiz</span>
+          Transfer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if recent_investments or recent_transfers %}
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+  {% if recent_investments %}
+  <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
+    <h2 class="text-headline-md font-headline-md text-on-surface mb-6">Recent Investments</h2>
+    <div class="space-y-3">
+      {% for inv in recent_investments %}
+      <div class="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low">
+        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+          <span class="material-symbols-outlined">savings</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-on-surface">{{ inv.symbol }}{{ inv.amount|intcomma }} <span class="text-label-sm text-on-surface-variant font-normal">{{ inv.currency }}</span></p>
+          <p class="text-label-sm text-on-surface-variant truncate">{{ inv.added_at|date:"M j, Y" }}{% if inv.note %} · {{ inv.note }}{% endif %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  {% if recent_transfers %}
+  <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
+    <h2 class="text-headline-md font-headline-md text-on-surface mb-6">Recent Transfers</h2>
+    <div class="space-y-3">
+      {% for t in recent_transfers %}
+      <div class="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low">
+        <div class="w-10 h-10 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary flex-shrink-0">
+          <span class="material-symbols-outlined">swap_horiz</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-on-surface truncate">{{ t.from_symbol }}{{ t.from_amount|intcomma }} {{ t.from_currency }} → {{ t.to_symbol }}{{ t.to_amount|intcomma }} {{ t.to_currency }}</p>
+          <p class="text-label-sm text-on-surface-variant truncate">{{ t.transferred_at|date:"M j, Y" }} · rate {{ t.rate }}{% if t.note %} · {{ t.note }}{% endif %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
 {% endblock %}
 
 {% block fab %}
@@ -323,6 +514,77 @@
       }
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  })();
+</script>
+<script>
+  (function () {
+    function bindModal(modalId, openSelector, closeSelector, onOpen) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      function open() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        if (onOpen) onOpen();
+      }
+      function close() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+      }
+      document.querySelectorAll(openSelector).forEach(b => b.addEventListener('click', open));
+      document.querySelectorAll(closeSelector).forEach(b => b.addEventListener('click', close));
+      modal.addEventListener('click', e => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) close(); });
+    }
+
+    bindModal('investment-modal', '[data-open-investment-modal]', '[data-close-investment-modal]', function () {
+      const amount = document.getElementById('inv_amount');
+      if (amount) setTimeout(() => amount.focus(), 50);
+    });
+
+    bindModal('transfer-modal', '[data-open-transfer-modal]', '[data-close-transfer-modal]', function () {
+      const amount = document.getElementById('t_from_amount');
+      if (amount) setTimeout(() => amount.focus(), 50);
+      updateTransferPreview();
+    });
+
+    const symbols = { AZN: '₼', USD: '$', EUR: '€' };
+    const fromAmt = document.getElementById('t_from_amount');
+    const rate = document.getElementById('t_rate');
+    const toCur = document.getElementById('t_to_currency');
+    const fromCur = document.getElementById('t_from_currency');
+    const preview = document.getElementById('t_receive_preview');
+
+    function updateTransferPreview() {
+      if (!preview) return;
+      const a = parseFloat(fromAmt && fromAmt.value);
+      const r = parseFloat(rate && rate.value);
+      if (!isFinite(a) || !isFinite(r) || a <= 0 || r <= 0) {
+        preview.textContent = '—';
+        return;
+      }
+      const target = toCur ? toCur.value : 'USD';
+      const sym = symbols[target] || '';
+      preview.textContent = sym + Math.round(a * r).toLocaleString();
+    }
+
+    [fromAmt, rate, toCur, fromCur].forEach(el => {
+      if (el) el.addEventListener('input', updateTransferPreview);
+      if (el) el.addEventListener('change', updateTransferPreview);
+    });
+
+    if (fromCur && toCur) {
+      function syncCurrencyOptions() {
+        if (fromCur.value === toCur.value) {
+          const others = ['AZN', 'USD', 'EUR'].filter(c => c !== fromCur.value);
+          toCur.value = others[0];
+        }
+        updateTransferPreview();
+      }
+      fromCur.addEventListener('change', syncCurrencyOptions);
+      toCur.addEventListener('change', syncCurrencyOptions);
+    }
   })();
 </script>
 {% endblock %}

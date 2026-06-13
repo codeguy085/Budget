@@ -4,12 +4,37 @@ from collections import OrderedDict
 from datetime import date, datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from user.models import Customer
-from .models import Loan, Payment
+from .models import Investment, Loan, Payment, Transfer
+
+
+CURRENCIES = ('AZN', 'USD', 'EUR')
+
+
+def _available_cash():
+    balances = {c: 0 for c in CURRENCIES}
+
+    for row in Investment.objects.values('currency').annotate(s=Sum('amount')):
+        if row['currency'] in balances:
+            balances[row['currency']] += row['s'] or 0
+
+    deployed = Loan.objects.aggregate(s=Sum('amount'))['s'] or 0
+    collected = Payment.objects.aggregate(s=Sum('loan__monthly_payment'))['s'] or 0
+    balances['AZN'] += collected - deployed
+
+    for row in Transfer.objects.values('from_currency').annotate(s=Sum('from_amount')):
+        if row['from_currency'] in balances:
+            balances[row['from_currency']] -= row['s'] or 0
+    for row in Transfer.objects.values('to_currency').annotate(s=Sum('to_amount')):
+        if row['to_currency'] in balances:
+            balances[row['to_currency']] += row['s'] or 0
+
+    return balances
 
 
 def _months_in_range(start_date, end_date, max_months=12):
@@ -559,6 +584,46 @@ def reports(request):
     total_collected = sum(collected_by_month.values())
     net_invested = total_deployed - total_collected
 
+    # Available cash trend per currency at end of each chart month
+    cash_events = []
+    for inv in Investment.objects.all():
+        cash_events.append((inv.added_at, inv.currency, inv.amount))
+    for l in Loan.objects.all():
+        cash_events.append((l.start.date(), 'AZN', -l.amount))
+    for p in Payment.objects.select_related('loan').all():
+        cash_events.append((p.paid_at, 'AZN', p.loan.monthly_payment))
+    for t in Transfer.objects.all():
+        cash_events.append((t.transferred_at, t.from_currency, -t.from_amount))
+        cash_events.append((t.transferred_at, t.to_currency, t.to_amount))
+    cash_events.sort(key=lambda e: e[0])
+
+    running = {'AZN': 0, 'USD': 0, 'EUR': 0}
+    azn_series, usd_series, eur_series = [], [], []
+    ev_idx = 0
+    for (y, m) in chart_months:
+        last_day = calendar.monthrange(y, m)[1]
+        month_end = date(y, m, last_day)
+        while ev_idx < len(cash_events) and cash_events[ev_idx][0] <= month_end:
+            _, cur, delta = cash_events[ev_idx]
+            if cur in running:
+                running[cur] += delta
+            ev_idx += 1
+        azn_series.append(running['AZN'])
+        usd_series.append(running['USD'])
+        eur_series.append(running['EUR'])
+
+    cash_balance_data = {
+        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
+        'azn': azn_series,
+        'usd': usd_series,
+        'eur': eur_series,
+    }
+    period_end_balances = {
+        'AZN': azn_series[-1] if azn_series else 0,
+        'USD': usd_series[-1] if usd_series else 0,
+        'EUR': eur_series[-1] if eur_series else 0,
+    }
+
     capital_flow_data = {
         'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
         'new_loans': [new_loans_by_month[m] for m in chart_months],
@@ -575,6 +640,8 @@ def reports(request):
         'custom_end_iso': end_date.isoformat(),
         'revenue_chart_data': revenue_chart_data,
         'capital_flow_data': capital_flow_data,
+        'cash_balance_data': cash_balance_data,
+        'period_end_balances': period_end_balances,
         'chart_months_count': len(chart_months),
         'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,
@@ -785,5 +852,94 @@ def dashboard(request):
         'top_customers': top_customers,
         'recent_payments': recent_payments,
         'cash_flow_data': cash_flow_data,
+        'available_cash': _available_cash(),
+        'today_iso': today.isoformat(),
+        'recent_investments': Investment.objects.all()[:5],
+        'recent_transfers': Transfer.objects.all()[:5],
     }
     return render(request, 'dashboard.html', context)
+
+
+@login_required
+@require_POST
+def investment_create(request):
+    amount_str = request.POST.get('amount', '').strip()
+    added_at_str = request.POST.get('added_at', '').strip()
+    currency = request.POST.get('currency', 'AZN').strip().upper()
+    note = request.POST.get('note', '').strip()
+
+    try:
+        amount = int(amount_str)
+    except (ValueError, TypeError):
+        return redirect('dashboard')
+    if amount <= 0:
+        return redirect('dashboard')
+    if currency not in CURRENCIES:
+        currency = 'AZN'
+
+    added_at = date.today()
+    if added_at_str:
+        try:
+            added_at = datetime.strptime(added_at_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    Investment.objects.create(
+        amount=amount,
+        currency=currency,
+        added_at=added_at,
+        note=note[:200],
+    )
+    return redirect('dashboard')
+
+
+@login_required
+@require_POST
+def transfer_create(request):
+    from_currency = request.POST.get('from_currency', '').strip().upper()
+    to_currency = request.POST.get('to_currency', '').strip().upper()
+    from_amount_str = request.POST.get('from_amount', '').strip()
+    rate_str = request.POST.get('rate', '').strip()
+    transferred_at_str = request.POST.get('transferred_at', '').strip()
+    note = request.POST.get('note', '').strip()
+
+    if from_currency not in CURRENCIES or to_currency not in CURRENCIES:
+        return redirect('dashboard')
+    if from_currency == to_currency:
+        return redirect('dashboard')
+
+    try:
+        from_amount = int(from_amount_str)
+    except (ValueError, TypeError):
+        return redirect('dashboard')
+    if from_amount <= 0:
+        return redirect('dashboard')
+
+    try:
+        rate = float(rate_str)
+    except (ValueError, TypeError):
+        return redirect('dashboard')
+    if rate <= 0:
+        return redirect('dashboard')
+
+    to_amount = int(round(from_amount * rate))
+    if to_amount <= 0:
+        return redirect('dashboard')
+
+    transferred_at = date.today()
+    if transferred_at_str:
+        try:
+            transferred_at = datetime.strptime(transferred_at_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    Transfer.objects.create(
+        from_currency=from_currency,
+        to_currency=to_currency,
+        from_amount=from_amount,
+        to_amount=to_amount,
+        rate=rate,
+        transferred_at=transferred_at,
+        note=note[:200],
+    )
+    return redirect('dashboard')

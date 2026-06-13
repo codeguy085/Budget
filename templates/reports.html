@@ -90,6 +90,39 @@
   </div>
 </section>
 
+<section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+    <div>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Available Cash Over Time</h3>
+      <p class="text-label-sm lg:text-sm text-on-surface-variant">Month-end balance per currency.</p>
+    </div>
+    <div class="grid grid-cols-3 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
+      <div class="min-w-0">
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">AZN</p>
+        <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ period_end_balances.AZN|intcomma }}</p>
+      </div>
+      <div class="min-w-0">
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">USD</p>
+        <p class="text-base lg:text-lg font-bold text-secondary truncate">${{ period_end_balances.USD|intcomma }}</p>
+      </div>
+      <div class="min-w-0">
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">EUR</p>
+        <p class="text-base lg:text-lg font-bold text-tertiary-fixed-dim truncate">€{{ period_end_balances.EUR|intcomma }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-wrap items-center gap-3 lg:gap-4 mb-4 text-[10px] lg:text-xs text-on-surface-variant">
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-primary"></span>AZN</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-secondary"></span>USD</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>EUR</div>
+  </div>
+  <div class="h-56 lg:h-80 overflow-x-auto hide-scrollbar">
+    <div class="h-full relative" style="width: max(100%, calc({{ chart_months_count }} * 100% / 18));">
+      <canvas id="cashBalanceChart"></canvas>
+    </div>
+  </div>
+</section>
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
@@ -308,6 +341,7 @@
 {% block extra_scripts %}
 {{ revenue_chart_data|json_script:"revenue-chart-data" }}
 {{ capital_flow_data|json_script:"capital-flow-data" }}
+{{ cash_balance_data|json_script:"cash-balance-data" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   (function () {
@@ -338,6 +372,7 @@
 
     let revenueChart = null;
     let flowChart = null;
+    let cashChart = null;
 
     function buildRevenueChart() {
       const data = JSON.parse(document.getElementById('revenue-chart-data').textContent);
@@ -449,8 +484,82 @@
       });
     }
 
+    function buildCashChart() {
+      const data = JSON.parse(document.getElementById('cash-balance-data').textContent);
+      const ctx = document.getElementById('cashBalanceChart').getContext('2d');
+      const t = themeColors();
+      cashChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'AZN',
+              data: data.azn,
+              borderColor: t.primary,
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: t.primary,
+            },
+            {
+              label: 'USD',
+              data: data.usd,
+              borderColor: t.secondary,
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: t.secondary,
+            },
+            {
+              label: 'EUR',
+              data: data.eur,
+              borderColor: t.tertiary,
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: t.tertiary,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const sym = ctx.dataset.label === 'AZN' ? '₼' : ctx.dataset.label === 'USD' ? '$' : '€';
+                  return ctx.dataset.label + ': ' + sym + ctx.parsed.y.toLocaleString();
+                },
+              },
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: t.tickColor, font: { size: 11 } } },
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.tickColor,
+                font: { size: 11 },
+                callback: v => v.toLocaleString(),
+              },
+            },
+          },
+        },
+      });
+    }
+
     buildRevenueChart();
     buildFlowChart();
+    buildCashChart();
 
     const customToggle = document.getElementById('custom-toggle');
     const customRange = document.getElementById('custom-range');
@@ -465,8 +574,10 @@
         if (m.attributeName === 'class') {
           if (revenueChart) revenueChart.destroy();
           if (flowChart) flowChart.destroy();
+          if (cashChart) cashChart.destroy();
           buildRevenueChart();
           buildFlowChart();
+          buildCashChart();
           break;
         }
       }

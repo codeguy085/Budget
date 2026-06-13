@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Loan, Payment
+from .models import Investment, Loan, Payment, Transfer
 # Register your models here.
 
 class PaymentInline(admin.TabularInline):
@@ -29,3 +29,19 @@ class PaymentAdmin(admin.ModelAdmin):
     @admin.display(description="Customer")
     def customer(self, obj):
         return obj.loan.customer
+
+
+@admin.register(Investment)
+class InvestmentAdmin(admin.ModelAdmin):
+    list_display = ["amount", "currency", "added_at", "note", "created_at"]
+    list_filter = ["currency", "added_at"]
+    search_fields = ["note"]
+    ordering = ["-added_at", "-id"]
+
+
+@admin.register(Transfer)
+class TransferAdmin(admin.ModelAdmin):
+    list_display = ["from_currency", "from_amount", "to_currency", "to_amount", "rate", "transferred_at", "note"]
+    list_filter = ["from_currency", "to_currency", "transferred_at"]
+    search_fields = ["note"]
+    ordering = ["-transferred_at", "-id"]
