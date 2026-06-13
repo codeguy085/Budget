@@ -384,6 +384,8 @@ def reports(request):
         if first_loan:
             start_date = first_loan.start.date()
         chart_max_months = 360
+    elif period == 'custom':
+        chart_max_months = 360
     else:
         chart_max_months = 24
 
