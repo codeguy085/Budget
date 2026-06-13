@@ -379,6 +379,14 @@ def reports(request):
     today = date.today()
     period, start_date, end_date = _resolve_period(request, today)
 
+    if period == 'all_time':
+        first_loan = Loan.objects.order_by('start').first()
+        if first_loan:
+            start_date = first_loan.start.date()
+        chart_max_months = 360
+    else:
+        chart_max_months = 24
+
     loans_in_range = list(
         Loan.objects
         .select_related('customer')
@@ -391,7 +399,7 @@ def reports(request):
         .filter(paid_at__gte=start_date, paid_at__lte=end_date)
     )
 
-    chart_months = _months_in_range(start_date, end_date, max_months=24)
+    chart_months = _months_in_range(start_date, end_date, max_months=chart_max_months)
     chart_months_set = set(chart_months)
 
     revenue_by_month = OrderedDict((m, 0) for m in chart_months)
@@ -565,6 +573,7 @@ def reports(request):
         'custom_end_iso': end_date.isoformat(),
         'revenue_chart_data': revenue_chart_data,
         'capital_flow_data': capital_flow_data,
+        'chart_months_count': len(chart_months),
         'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,
         'total_collected': total_collected,
