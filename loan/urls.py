@@ -13,6 +13,7 @@ from .views import (
     investment_create,
     cashout_create,
     transfer_create,
+    refresh_exchange_rates,
 )
 
 urlpatterns = [
@@ -29,4 +30,5 @@ urlpatterns = [
     path("investments/new/", investment_create, name="investment_create"),
     path("investments/cashout/", cashout_create, name="cashout_create"),
     path("transfers/new/", transfer_create, name="transfer_create"),
+    path("rates/refresh/", refresh_exchange_rates, name="refresh_exchange_rates"),
 ]

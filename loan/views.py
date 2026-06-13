@@ -1,5 +1,7 @@
 import calendar
 import csv
+import json
+import logging
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
@@ -16,35 +18,82 @@ from user.models import Customer
 from .models import Investment, Loan, Payment, Transfer
 
 
+logger = logging.getLogger(__name__)
+
 CURRENCIES = ('AZN', 'USD', 'EUR')
 
 FALLBACK_RATES = {'AZN': 1.0, 'USD': 1.7, 'EUR': 1.84}
+RATE_CACHE_KEY = 'exchange_rates'
 
 
-def _exchange_rates():
-    """Return {currency: AZN per 1 unit}. Fetches from cbar.az and caches for an hour."""
-    cached = cache.get('exchange_rates')
-    if cached:
-        return cached
-    rates = dict(FALLBACK_RATES)
+def _try_cbar():
+    today = date.today()
+    for days_back in range(6):
+        d = today - timedelta(days=days_back)
+        url = 'https://www.cbar.az/currencies/' + d.strftime('%d.%m.%Y') + '.xml'
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Budget-App/1.0'})
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = resp.read()
+            root = ET.fromstring(data)
+            parsed = {'AZN': 1.0}
+            for valute in root.iter('Valute'):
+                code = valute.get('Code')
+                if code in ('USD', 'EUR'):
+                    value = (valute.findtext('Value') or '').replace(',', '.')
+                    nominal = (valute.findtext('Nominal') or '1').replace(',', '.')
+                    try:
+                        parsed[code] = float(value) / float(nominal or '1')
+                    except (ValueError, ZeroDivisionError):
+                        pass
+            if parsed.get('USD', 0) > 0 and parsed.get('EUR', 0) > 0:
+                logger.info('Exchange rates fetched from cbar.az for %s: %s', d, parsed)
+                return parsed
+            logger.warning('cbar.az returned no USD/EUR for %s', d)
+        except Exception as exc:
+            logger.warning('cbar.az fetch failed for %s: %s', d, exc)
+    return None
+
+
+def _try_open_er_api():
+    url = 'https://open.er-api.com/v6/latest/USD'
     try:
-        url = 'https://www.cbar.az/currencies/' + date.today().strftime('%d.%m.%Y') + '.xml'
         req = urllib.request.Request(url, headers={'User-Agent': 'Budget-App/1.0'})
-        with urllib.request.urlopen(req, timeout=4) as resp:
-            data = resp.read()
-        root = ET.fromstring(data)
-        for valute in root.iter('Valute'):
-            code = valute.get('Code')
-            if code in ('USD', 'EUR'):
-                value = (valute.findtext('Value') or '').replace(',', '.')
-                nominal = (valute.findtext('Nominal') or '1').replace(',', '.')
-                try:
-                    rates[code] = float(value) / float(nominal or '1')
-                except (ValueError, ZeroDivisionError):
-                    pass
-        cache.set('exchange_rates', rates, 60 * 60)
-    except Exception:
-        cache.set('exchange_rates', rates, 5 * 60)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        if data.get('result') != 'success':
+            logger.warning('open.er-api returned non-success: %s', data.get('result'))
+            return None
+        rates_block = data.get('rates') or {}
+        usd_to_azn = rates_block.get('AZN')
+        usd_to_eur = rates_block.get('EUR')
+        if usd_to_azn and usd_to_eur and float(usd_to_eur) > 0:
+            result = {
+                'AZN': 1.0,
+                'USD': float(usd_to_azn),
+                'EUR': float(usd_to_azn) / float(usd_to_eur),
+            }
+            logger.info('Exchange rates fetched from open.er-api: %s', result)
+            return result
+        logger.warning('open.er-api missing AZN/EUR rates: %s', rates_block)
+    except Exception as exc:
+        logger.warning('open.er-api fetch failed: %s', exc)
+    return None
+
+
+def _exchange_rates(force_refresh=False):
+    """Return {currency: AZN per 1 unit}. Tries cbar.az, then open.er-api.com, then fallback."""
+    if not force_refresh:
+        cached = cache.get(RATE_CACHE_KEY)
+        if cached:
+            return cached
+    rates = _try_cbar() or _try_open_er_api()
+    if rates is None:
+        logger.warning('All exchange-rate sources failed; using FALLBACK_RATES')
+        rates = dict(FALLBACK_RATES)
+        cache.set(RATE_CACHE_KEY, rates, 5 * 60)
+    else:
+        cache.set(RATE_CACHE_KEY, rates, 60 * 60)
     return rates
 
 
@@ -931,6 +980,13 @@ def investment_create(request):
         added_at=added_at,
         note=note[:200],
     )
+    return redirect('dashboard')
+
+
+@login_required
+def refresh_exchange_rates(request):
+    cache.delete(RATE_CACHE_KEY)
+    _exchange_rates(force_refresh=True)
     return redirect('dashboard')
 
 

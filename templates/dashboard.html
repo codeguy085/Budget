@@ -100,7 +100,12 @@
       <div class="min-w-0 lg:order-1">
         <p class="text-on-surface-variant text-label-md mb-1">Total Portfolio</p>
         <h3 class="text-lg lg:text-headline-md font-headline-md font-semibold lg:font-headline-md text-on-surface truncate">₼{{ total_portfolio_azn|intcomma }}</h3>
-        <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:block">USD {{ exchange_rates.USD|floatformat:2 }} · EUR {{ exchange_rates.EUR|floatformat:2 }}</p>
+        <p class="text-label-sm text-on-surface-variant mt-2 hidden lg:flex items-center gap-1">
+          <span>USD {{ exchange_rates.USD|floatformat:2 }} · EUR {{ exchange_rates.EUR|floatformat:2 }}</span>
+          <a href="{% url 'refresh_exchange_rates' %}" class="text-primary hover:underline ml-1" title="Refresh rates from cbar.az">
+            <span class="material-symbols-outlined text-[14px]">refresh</span>
+          </a>
+        </p>
       </div>
     </div>
   </div>
