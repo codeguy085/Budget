@@ -895,6 +895,39 @@ def investment_create(request):
 
 @login_required
 @require_POST
+def cashout_create(request):
+    amount_str = request.POST.get('amount', '').strip()
+    added_at_str = request.POST.get('added_at', '').strip()
+    currency = request.POST.get('currency', 'AZN').strip().upper()
+    note = request.POST.get('note', '').strip()
+
+    try:
+        amount = int(amount_str)
+    except (ValueError, TypeError):
+        return redirect('dashboard')
+    if amount <= 0:
+        return redirect('dashboard')
+    if currency not in CURRENCIES:
+        currency = 'AZN'
+
+    added_at = date.today()
+    if added_at_str:
+        try:
+            added_at = datetime.strptime(added_at_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    Investment.objects.create(
+        amount=-amount,
+        currency=currency,
+        added_at=added_at,
+        note=note[:200],
+    )
+    return redirect('dashboard')
+
+
+@login_required
+@require_POST
 def transfer_create(request):
     from_currency = request.POST.get('from_currency', '').strip().upper()
     to_currency = request.POST.get('to_currency', '').strip().upper()

@@ -28,6 +28,10 @@
       <span class="material-symbols-outlined">add</span>
       Add Investment
     </button>
+    <button type="button" data-open-cashout-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary/15 text-on-primary border border-on-primary/30 rounded-xl font-bold text-label-md hover:bg-on-primary/25 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">arrow_outward</span>
+      Cash Out
+    </button>
     <button type="button" data-open-transfer-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary/15 text-on-primary border border-on-primary/30 rounded-xl font-bold text-label-md hover:bg-on-primary/25 active:scale-95 transition-all">
       <span class="material-symbols-outlined">swap_horiz</span>
       Transfer
@@ -291,6 +295,69 @@
   </div>
 </div>
 
+<div id="cashout-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
+  <div class="bg-surface-container-lowest w-full lg:max-w-[480px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
+    <div class="px-5 pt-5 pb-4 lg:px-8 lg:pt-7 lg:pb-5 border-b border-outline-variant/30">
+      <div class="flex justify-between items-start mb-2">
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">Cash Out</h2>
+        <button type="button" data-close-cashout-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p class="text-label-md text-on-surface-variant">Withdraws capital from your available cash pool.</p>
+    </div>
+
+    <form method="post" action="{% url 'cashout_create' %}" class="contents">
+      {% csrf_token %}
+      <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-4 overflow-y-auto">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-2 col-span-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="co_amount">Amount</label>
+            <input id="co_amount" name="amount" type="number" min="1" required placeholder="e.g. 1000" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="co_currency">Currency</label>
+            <select id="co_currency" name="currency" class="w-full h-12 px-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+              <option value="AZN">₼ AZN</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+            </select>
+          </div>
+        </div>
+        <div class="bg-surface-container/50 border border-outline-variant/50 rounded-xl p-4 space-y-2 text-label-sm text-on-surface-variant">
+          <div class="flex justify-between gap-2">
+            <span>AZN balance</span>
+            <span class="font-bold text-on-surface">₼{{ available_cash.AZN|intcomma }}</span>
+          </div>
+          <div class="flex justify-between gap-2">
+            <span>USD balance</span>
+            <span class="font-bold text-on-surface">${{ available_cash.USD|intcomma }}</span>
+          </div>
+          <div class="flex justify-between gap-2">
+            <span>EUR balance</span>
+            <span class="font-bold text-on-surface">€{{ available_cash.EUR|intcomma }}</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="co_added_at">Date</label>
+          <input id="co_added_at" name="added_at" type="date" value="{{ today_iso }}" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="co_note">Note (optional)</label>
+          <input id="co_note" name="note" type="text" maxlength="200" placeholder="Reason or memo" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+      </div>
+      <div class="px-5 py-4 lg:px-8 lg:py-5 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-5">
+        <button type="button" data-close-cashout-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-error text-on-error text-sm font-bold shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">arrow_outward</span>
+          Cash Out
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="transfer-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
   <div class="bg-surface-container-lowest w-full lg:max-w-[520px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
     <div class="px-5 pt-5 pb-4 lg:px-8 lg:pt-7 lg:pb-5 border-b border-outline-variant/30">
@@ -365,17 +432,27 @@
 <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
   {% if recent_investments %}
   <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
-    <h2 class="text-headline-md font-headline-md text-on-surface mb-6">Recent Investments</h2>
+    <h2 class="text-headline-md font-headline-md text-on-surface mb-6">Recent Cash Movements</h2>
     <div class="space-y-3">
       {% for inv in recent_investments %}
       <div class="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low">
+        {% if inv.amount < 0 %}
+        <div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center text-error flex-shrink-0">
+          <span class="material-symbols-outlined">arrow_outward</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-error">−{{ inv.symbol }}{{ inv.amount|intcomma|cut:"-" }} <span class="text-label-sm text-on-surface-variant font-normal">{{ inv.currency }}</span></p>
+          <p class="text-label-sm text-on-surface-variant truncate">Cash out · {{ inv.added_at|date:"M j, Y" }}{% if inv.note %} · {{ inv.note }}{% endif %}</p>
+        </div>
+        {% else %}
         <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
           <span class="material-symbols-outlined">savings</span>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="font-bold text-on-surface">{{ inv.symbol }}{{ inv.amount|intcomma }} <span class="text-label-sm text-on-surface-variant font-normal">{{ inv.currency }}</span></p>
-          <p class="text-label-sm text-on-surface-variant truncate">{{ inv.added_at|date:"M j, Y" }}{% if inv.note %} · {{ inv.note }}{% endif %}</p>
+          <p class="font-bold text-on-surface">+{{ inv.symbol }}{{ inv.amount|intcomma }} <span class="text-label-sm text-on-surface-variant font-normal">{{ inv.currency }}</span></p>
+          <p class="text-label-sm text-on-surface-variant truncate">Investment · {{ inv.added_at|date:"M j, Y" }}{% if inv.note %} · {{ inv.note }}{% endif %}</p>
         </div>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -540,6 +617,11 @@
 
     bindModal('investment-modal', '[data-open-investment-modal]', '[data-close-investment-modal]', function () {
       const amount = document.getElementById('inv_amount');
+      if (amount) setTimeout(() => amount.focus(), 50);
+    });
+
+    bindModal('cashout-modal', '[data-open-cashout-modal]', '[data-close-cashout-modal]', function () {
+      const amount = document.getElementById('co_amount');
       if (amount) setTimeout(() => amount.focus(), 50);
     });
 
