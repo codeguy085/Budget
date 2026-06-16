@@ -1,6 +1,8 @@
 from datetime import date
 
 from django.db import models
+from django.utils import timezone
+
 from user.models import Customer
 # Create your models here.
 
@@ -11,7 +13,7 @@ class Loan(models.Model):
     term = models.IntegerField()
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="loans")
     is_completed = models.BooleanField(default=False)
-    start = models.DateTimeField(auto_now_add=True)
+    start = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):

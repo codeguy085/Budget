@@ -320,6 +320,7 @@ def loan_form(request, pk=None):
             'amount': request.POST.get('amount', '').strip(),
             'monthly_payment': request.POST.get('monthly_payment', '').strip(),
             'term': request.POST.get('term', '').strip(),
+            'start': request.POST.get('start', '').strip(),
         }
 
         customer = None
@@ -355,6 +356,16 @@ def loan_form(request, pk=None):
         except (ValueError, TypeError):
             errors['term'] = 'Enter a valid term.'
 
+        start_value = None
+        if data['start']:
+            try:
+                start_value = datetime.strptime(data['start'], '%Y-%m-%d')
+                from django.utils import timezone as _tz
+                if _tz.is_naive(start_value):
+                    start_value = _tz.make_aware(start_value)
+            except ValueError:
+                errors['start'] = 'Enter a valid start date.'
+
         if loan is not None and term_int is not None:
             paid = loan.paid_month()
             if term_int < paid:
@@ -367,12 +378,15 @@ def loan_form(request, pk=None):
                     amount=amount_int,
                     monthly_payment=monthly_int,
                     term=term_int,
+                    **({'start': start_value} if start_value else {}),
                 )
             else:
                 loan.customer = customer
                 loan.amount = amount_int
                 loan.monthly_payment = monthly_int
                 loan.term = term_int
+                if start_value:
+                    loan.start = start_value
                 loan.save()
             return redirect('loan_detail', pk=loan.pk)
     elif loan is not None:
@@ -381,6 +395,7 @@ def loan_form(request, pk=None):
             'amount': str(loan.amount),
             'monthly_payment': str(loan.monthly_payment),
             'term': str(loan.term),
+            'start': loan.start.date().isoformat() if loan.start else '',
         }
     else:
         data = {
@@ -388,6 +403,7 @@ def loan_form(request, pk=None):
             'amount': '',
             'monthly_payment': '',
             'term': '',
+            'start': date.today().isoformat(),
         }
 
     customers = Customer.objects.order_by('name', 'surname')

@@ -85,6 +85,12 @@
             <input id="id_term" name="term" type="number" min="1" step="1" value="{{ data.term }}" placeholder="0" class="w-full h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium text-right {% if errors.term %}border-error{% endif %}"/>
             {% if errors.term %}<p class="text-error text-xs">{{ errors.term }}</p>{% endif %}
           </div>
+          <div class="space-y-2 md:col-span-3">
+            <label class="block text-sm text-on-surface-variant" for="id_start">Start Date</label>
+            <input id="id_start" name="start" type="date" value="{{ data.start }}" class="w-full md:w-auto h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium {% if errors.start %}border-error{% endif %}"/>
+            {% if errors.start %}<p class="text-error text-xs">{{ errors.start }}</p>{% endif %}
+            <p class="text-xs text-on-surface-variant">Defaults to today. The first payment is due one month after this date.</p>
+          </div>
         </div>
         {% if loan %}
         <p class="text-xs text-on-surface-variant mt-4">Loan ID <span class="font-mono font-bold">#{{ loan.loan_id }}</span> cannot be changed.{% if loan.paid_month %} {{ loan.paid_month }} payment{{ loan.paid_month|pluralize }} already recorded — reducing the term below this number is not allowed.{% endif %}</p>
