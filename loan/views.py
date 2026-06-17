@@ -501,6 +501,10 @@ def reports(request):
     today = date.today()
     period, start_date, end_date = _resolve_period(request, today)
 
+    view_mode = request.GET.get('view', 'monthly').strip().lower()
+    if view_mode not in ('monthly', 'yearly'):
+        view_mode = 'monthly'
+
     if period == 'all_time':
         first_loan = Loan.objects.order_by('start').first()
         if first_loan:
@@ -523,25 +527,50 @@ def reports(request):
         .filter(paid_at__gte=start_date, paid_at__lte=end_date)
     )
 
-    chart_months = _months_in_range(start_date, end_date, max_months=chart_max_months)
-    chart_months_set = set(chart_months)
+    if view_mode == 'yearly':
+        chart_periods = list(range(start_date.year, end_date.year + 1))
 
-    revenue_by_month = OrderedDict((m, 0) for m in chart_months)
+        def period_key_for(d):
+            return d.year
+
+        def period_end_date(p):
+            return date(p, 12, 31)
+
+        def period_label_for(p):
+            return str(p)
+    else:
+        chart_periods = _months_in_range(start_date, end_date, max_months=chart_max_months)
+
+        def period_key_for(d):
+            return (d.year, d.month)
+
+        def period_end_date(p):
+            y, m = p
+            last_day = calendar.monthrange(y, m)[1]
+            return date(y, m, last_day)
+
+        def period_label_for(p):
+            y, m = p
+            return date(y, m, 1).strftime('%b')
+
+    chart_periods_set = set(chart_periods)
+
+    revenue_by_period = OrderedDict((p, 0) for p in chart_periods)
     for l in loans_in_range:
-        key = (l.start.year, l.start.month)
-        if key in chart_months_set:
-            revenue_by_month[key] += l.revenue()
+        key = period_key_for(l.start)
+        if key in chart_periods_set:
+            revenue_by_period[key] += l.revenue()
 
     peak_month_index = None
-    if revenue_by_month:
-        max_rev = max(revenue_by_month.values())
+    if revenue_by_period:
+        max_rev = max(revenue_by_period.values())
         if max_rev > 0:
-            for i, (m, v) in enumerate(revenue_by_month.items()):
+            for i, (m, v) in enumerate(revenue_by_period.items()):
                 if v == max_rev:
                     peak_month_index = i
                     break
 
-    status_chart_months = chart_months[-6:] if len(chart_months) >= 6 else chart_months
+    status_chart_months = _months_in_range(start_date, end_date, max_months=6)
     status_months_set = set(status_chart_months)
     status_data = OrderedDict((m, {'on_time': 0, 'late': 0, 'total_amount': 0}) for m in status_chart_months)
     for p in payments_in_range:
@@ -658,30 +687,31 @@ def reports(request):
         risk_class = 'error'
         risk_blurb = f'{late_count_in_range} late of {total_payments_in_range} payments.'
 
+    period_labels = [period_label_for(p) for p in chart_periods]
+
     revenue_chart_data = {
-        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
-        'data': [int(round(revenue_by_month[m])) for m in chart_months],
+        'labels': period_labels,
+        'data': [int(round(revenue_by_period[m])) for m in chart_periods],
         'peakIndex': peak_month_index,
     }
-    total_revenue_in_range = int(round(sum(revenue_by_month.values())))
+    total_revenue_in_range = int(round(sum(revenue_by_period.values())))
 
-    new_loans_by_month = OrderedDict((m, 0) for m in chart_months)
-    collected_by_month = OrderedDict((m, 0) for m in chart_months)
+    new_loans_by_period = OrderedDict((p, 0) for p in chart_periods)
+    collected_by_period = OrderedDict((p, 0) for p in chart_periods)
     for l in loans_in_range:
-        key = (l.start.year, l.start.month)
-        if key in chart_months_set:
-            new_loans_by_month[key] += l.amount
+        key = period_key_for(l.start)
+        if key in chart_periods_set:
+            new_loans_by_period[key] += l.amount
     for p in payments_in_range:
-        key = (p.paid_at.year, p.paid_at.month)
-        if key in chart_months_set:
-            collected_by_month[key] += p.loan.monthly_payment
-    gap_by_month = {m: new_loans_by_month[m] - collected_by_month[m] for m in chart_months}
+        key = period_key_for(p.paid_at)
+        if key in chart_periods_set:
+            collected_by_period[key] += p.loan.monthly_payment
 
-    total_deployed = sum(new_loans_by_month.values())
-    total_collected = sum(collected_by_month.values())
+    total_deployed = sum(new_loans_by_period.values())
+    total_collected = sum(collected_by_period.values())
     net_invested = total_deployed - total_collected
 
-    # Available cash trend per currency at end of each chart month
+    # Available cash trend per currency at end of each chart period
     cash_events = []
     for inv in Investment.objects.all():
         cash_events.append((inv.added_at, inv.currency, inv.amount))
@@ -697,10 +727,9 @@ def reports(request):
     running = {'AZN': 0, 'USD': 0, 'EUR': 0}
     azn_series, usd_series, eur_series = [], [], []
     ev_idx = 0
-    for (y, m) in chart_months:
-        last_day = calendar.monthrange(y, m)[1]
-        month_end = date(y, m, last_day)
-        while ev_idx < len(cash_events) and cash_events[ev_idx][0] <= month_end:
+    for period_p in chart_periods:
+        period_end = period_end_date(period_p)
+        while ev_idx < len(cash_events) and cash_events[ev_idx][0] <= period_end:
             _, cur, delta = cash_events[ev_idx]
             if cur in running:
                 running[cur] += delta
@@ -710,7 +739,7 @@ def reports(request):
         eur_series.append(running['EUR'])
 
     cash_balance_data = {
-        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
+        'labels': period_labels,
         'azn': azn_series,
         'usd': usd_series,
         'eur': eur_series,
@@ -722,15 +751,16 @@ def reports(request):
     }
 
     capital_flow_data = {
-        'labels': [date(y, m, 1).strftime('%b') for (y, m) in chart_months],
-        'new_loans': [new_loans_by_month[m] for m in chart_months],
-        'collected': [collected_by_month[m] for m in chart_months],
-        'gap': [gap_by_month[m] for m in chart_months],
+        'labels': period_labels,
+        'new_loans': [new_loans_by_period[p] for p in chart_periods],
+        'collected': [collected_by_period[p] for p in chart_periods],
+        'gap': [new_loans_by_period[p] - collected_by_period[p] for p in chart_periods],
     }
 
     context = {
         'active_nav': 'reports',
         'period': period,
+        'view_mode': view_mode,
         'start_date': start_date,
         'end_date': end_date,
         'custom_start_iso': start_date.isoformat(),
@@ -739,7 +769,7 @@ def reports(request):
         'capital_flow_data': capital_flow_data,
         'cash_balance_data': cash_balance_data,
         'period_end_balances': period_end_balances,
-        'chart_months_count': len(chart_months),
+        'chart_months_count': len(chart_periods),
         'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,
         'total_collected': total_collected,
