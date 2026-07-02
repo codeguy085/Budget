@@ -177,20 +177,23 @@
         <p class="text-label-sm font-bold {% if row.status == 'delayed' %}text-error{% else %}text-primary{% endif %} truncate">₼{{ row.remaining|intcomma }}</p>
       </div>
       {% if row.days_until_next is not None %}
-      <div class="flex justify-between gap-2 pt-2 border-t border-outline-variant/20">
+      <div class="flex justify-between items-start gap-2 pt-2 border-t border-outline-variant/20">
         <p class="text-[11px] text-outline italic flex items-center gap-1">
           <span class="material-symbols-outlined text-[14px]">event</span>
           Next Payment
         </p>
-        {% if row.days_until_next < 0 %}
-        <p class="text-label-sm font-bold text-error whitespace-nowrap">{{ row.days_until_next|stringformat:"d"|cut:"-" }} days overdue</p>
-        {% elif row.days_until_next == 0 %}
-        <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">Due today</p>
-        {% elif row.days_until_next <= 7 %}
-        <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">in {{ row.days_until_next }} day{{ row.days_until_next|pluralize }}</p>
-        {% else %}
-        <p class="text-label-sm font-bold text-on-surface whitespace-nowrap">in {{ row.days_until_next }} days</p>
-        {% endif %}
+        <div class="text-right min-w-0">
+          {% if row.days_until_next < 0 %}
+          <p class="text-label-sm font-bold text-error whitespace-nowrap">{{ row.days_until_next|stringformat:"d"|cut:"-" }} days overdue</p>
+          {% elif row.days_until_next == 0 %}
+          <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">Due today</p>
+          {% elif row.days_until_next <= 7 %}
+          <p class="text-label-sm font-bold text-amber-700 whitespace-nowrap">in {{ row.days_until_next }} day{{ row.days_until_next|pluralize }}</p>
+          {% else %}
+          <p class="text-label-sm font-bold text-on-surface whitespace-nowrap">in {{ row.days_until_next }} days</p>
+          {% endif %}
+          <p class="text-[10px] text-on-surface-variant whitespace-nowrap">{{ row.next_due_date|date:"M j, Y" }}</p>
+        </div>
       </div>
       {% endif %}
     </div>
