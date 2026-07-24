@@ -1,0 +1,1089 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: az\n"
+"MIME-Version: 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Base / navigation
+msgid "Loan Management"
+msgstr "Kredit İdarəetməsi"
+
+msgid "Dashboard"
+msgstr "İdarə paneli"
+
+msgid "Customers"
+msgstr "Müştərilər"
+
+msgid "Loans"
+msgstr "Kreditlər"
+
+msgid "Payments"
+msgstr "Ödənişlər"
+
+msgid "Reports"
+msgstr "Hesabatlar"
+
+msgid "Settings"
+msgstr "Parametrlər"
+
+msgid "Administrator"
+msgstr "Administrator"
+
+msgid "Account"
+msgstr "Hesab"
+
+msgid "Dark mode"
+msgstr "Qaranlıq rejim"
+
+msgid "Light mode"
+msgstr "İşıqlı rejim"
+
+msgid "Sign out"
+msgstr "Çıxış"
+
+msgid "Search loans, customers..."
+msgstr "Kredit, müştəri axtar..."
+
+# Dashboard
+msgid "Available Cash"
+msgstr "Mövcud vəsait"
+
+msgid "Capital not deployed in active loans"
+msgstr "Aktiv kreditlərə yatırılmamış kapital"
+
+msgid "Add Investment"
+msgstr "İnvestisiya əlavə et"
+
+msgid "Cash Out"
+msgstr "Nağdlaşdır"
+
+msgid "Transfer"
+msgstr "Köçürmə"
+
+msgid "Remaining Balance"
+msgstr "Qalıq borc"
+
+msgid "Interest Profit"
+msgstr "Faiz gəliri"
+
+msgid "Monthly Payments"
+msgstr "Aylıq ödənişlər"
+
+msgid "Total Borrowers"
+msgstr "Ümumi borcalanlar"
+
+msgid "Total Portfolio"
+msgstr "Ümumi portfel"
+
+#, python-format
+msgid "Across %(counter)s active loan"
+msgid_plural "Across %(counter)s active loans"
+msgstr[0] "%(counter)s aktiv kredit üzrə"
+msgstr[1] "%(counter)s aktiv kredit üzrə"
+
+#, python-format
+msgid "₼%(profit)s in %(yr)s"
+msgstr "%(yr)s-də ₼%(profit)s"
+
+#, python-format
+msgid "%(n)s new this month"
+msgstr "Bu ay %(n)s yeni"
+
+# Common actions & labels
+msgid "Add Customer"
+msgstr "Müştəri əlavə et"
+
+msgid "Add New Loan"
+msgstr "Yeni kredit əlavə et"
+
+msgid "Add one first"
+msgstr "Əvvəlcə birini əlavə edin"
+
+msgid "Actions"
+msgstr "Əməliyyatlar"
+
+msgid "Amount"
+msgstr "Məbləğ"
+
+msgid "Apply"
+msgstr "Tətbiq et"
+
+msgid "Cancel"
+msgstr "Ləğv et"
+
+msgid "Create Loan"
+msgstr "Krediti yarat"
+
+msgid "Custom"
+msgstr "Xüsusi"
+
+msgid "Date"
+msgstr "Tarix"
+
+msgid "Delete Loan"
+msgstr "Krediti sil"
+
+msgid "Edit"
+msgstr "Redaktə et"
+
+msgid "Edit Customer"
+msgstr "Müştərini redaktə et"
+
+msgid "Edit Loan"
+msgstr "Krediti redaktə et"
+
+msgid "Edit Profile"
+msgstr "Profili redaktə et"
+
+msgid "Export CSV"
+msgstr "CSV kimi ixrac et"
+
+msgid "New Loan"
+msgstr "Yeni kredit"
+
+msgid "Save Changes"
+msgstr "Dəyişiklikləri saxla"
+
+msgid "View All"
+msgstr "Hamısına bax"
+
+# Statuses
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "Active Loan"
+msgstr "Aktiv kredit"
+
+msgid "Active Loans"
+msgstr "Aktiv kreditlər"
+
+msgid "Active Loans (most)"
+msgstr "Aktiv kreditlər (ən çox)"
+
+msgid "Active Monthly Payment"
+msgstr "Aktiv aylıq ödəniş"
+
+msgid "Active Total"
+msgstr "Aktiv cəmi"
+
+msgid "Completed"
+msgstr "Tamamlanıb"
+
+msgid "Completed Loan"
+msgstr "Tamamlanmış kredit"
+
+msgid "Completed Loans"
+msgstr "Tamamlanmış kreditlər"
+
+msgid "Delayed"
+msgstr "Gecikmiş"
+
+msgid "Delayed Loan"
+msgstr "Gecikmiş kredit"
+
+msgid "Delayed Watchlist"
+msgstr "Gecikmə izləmə siyahısı"
+
+msgid "In Repayment"
+msgstr "Ödəmə mərhələsində"
+
+msgid "No Loans"
+msgstr "Kredit yoxdur"
+
+msgid "On Time"
+msgstr "Vaxtında"
+
+msgid "ON-TIME"
+msgstr "VAXTINDA"
+
+msgid "On Track"
+msgstr "Cədvəldə"
+
+msgid "OVERDUE"
+msgstr "GECİKMİŞ"
+
+msgid "Overdue"
+msgstr "Gecikmiş"
+
+msgid "PENDING"
+msgstr "GÖZLƏMƏDƏ"
+
+msgid "Paid"
+msgstr "Ödənilib"
+
+msgid "Paid Late"
+msgstr "Gec ödənilib"
+
+msgid "Paid Off"
+msgstr "Tam ödənilib"
+
+msgid "Paid On"
+msgstr "Ödənilib"
+
+msgid "Paid On Time"
+msgstr "Vaxtında ödənilib"
+
+msgid "Paid on time"
+msgstr "Vaxtında ödənildi"
+
+msgid "Scheduled"
+msgstr "Planlaşdırılıb"
+
+msgid "Due"
+msgstr "Ödənilməli"
+
+msgid "Due today"
+msgstr "Bu gün ödənilməlidir"
+
+msgid "Fully Paid"
+msgstr "Tam ödənilib"
+
+msgid "Grace Period"
+msgstr "Möhlət müddəti"
+
+msgid "LATE"
+msgstr "GECİKMİŞ"
+
+msgid "Late"
+msgstr "Gecikmiş"
+
+msgid "CRITICAL"
+msgstr "KRİTİK"
+
+msgid "Upcoming"
+msgstr "Gələcək"
+
+# Filters / sort / periods
+msgid "All Customers"
+msgstr "Bütün müştərilər"
+
+msgid "All Loans"
+msgstr "Bütün kreditlər"
+
+msgid "All Time"
+msgstr "Bütün vaxt"
+
+msgid "All Years"
+msgstr "Bütün illər"
+
+msgid "This Month"
+msgstr "Bu ay"
+
+msgid "This Year"
+msgstr "Bu il"
+
+msgid "Last Month"
+msgstr "Keçən ay"
+
+msgid "Newest first"
+msgstr "Ən yeni əvvəl"
+
+msgid "Oldest first"
+msgstr "Ən köhnə əvvəl"
+
+msgid "Monthly"
+msgstr "Aylıq"
+
+msgid "Yearly"
+msgstr "İllik"
+
+msgid "Next payment (soonest)"
+msgstr "Növbəti ödəniş (ən yaxın)"
+
+msgid "Next payment (latest)"
+msgstr "Növbəti ödəniş (ən son)"
+
+msgid "Amount (high → low)"
+msgstr "Məbləğ (yüksək → aşağı)"
+
+msgid "Amount (low → high)"
+msgstr "Məbləğ (aşağı → yüksək)"
+
+msgid "Monthly (high → low)"
+msgstr "Aylıq (yüksək → aşağı)"
+
+msgid "Remaining (high → low)"
+msgstr "Qalıq (yüksək → aşağı)"
+
+msgid "Remaining (low → high)"
+msgstr "Qalıq (aşağı → yüksək)"
+
+msgid "Revenue (high → low)"
+msgstr "Gəlir (yüksək → aşağı)"
+
+msgid "Progress (least)"
+msgstr "İrəliləyiş (ən az)"
+
+msgid "Progress (most)"
+msgstr "İrəliləyiş (ən çox)"
+
+msgid "Term (longest)"
+msgstr "Müddət (ən uzun)"
+
+msgid "Term (shortest)"
+msgstr "Müddət (ən qısa)"
+
+msgid "Customer (A → Z)"
+msgstr "Müştəri (A → Z)"
+
+msgid "Loan ID (A → Z)"
+msgstr "Kredit ID (A → Z)"
+
+msgid "Name (A → Z)"
+msgstr "Ad (A → Z)"
+
+msgid "Name (Z → A)"
+msgstr "Ad (Z → A)"
+
+msgid "Total Loan (high → low)"
+msgstr "Ümumi kredit (yüksək → aşağı)"
+
+msgid "Total Loan (low → high)"
+msgstr "Ümumi kredit (aşağı → yüksək)"
+
+msgid "Total Paid (high → low)"
+msgstr "Ümumi ödənilib (yüksək → aşağı)"
+
+msgid "Start date"
+msgstr "Başlanğıc tarix"
+
+msgid "Start Date"
+msgstr "Başlanğıc tarixi"
+
+msgid "End date"
+msgstr "Son tarix"
+
+msgid "From date"
+msgstr "Başlanğıc tarix"
+
+msgid "To date"
+msgstr "Son tarix"
+
+msgid "Reset date range"
+msgstr "Tarix aralığını sıfırla"
+
+# Loan / customer / payment fields
+msgid "Amount Due"
+msgstr "Ödəniş məbləği"
+
+msgid "After this payment"
+msgstr "Bu ödənişdən sonra"
+
+msgid "Already Completed"
+msgstr "Artıq tamamlanıb"
+
+msgid "Avg Loan Size"
+msgstr "Orta kredit ölçüsü"
+
+msgid "Avg Term"
+msgstr "Orta müddət"
+
+msgid "Avg. Yield"
+msgstr "Orta gəlirlilik"
+
+msgid "Back to Customers"
+msgstr "Müştərilərə qayıt"
+
+msgid "Back to Loan"
+msgstr "Kreditə qayıt"
+
+msgid "Collected"
+msgstr "Yığılıb"
+
+msgid "Collection Rate"
+msgstr "Yığım nisbəti"
+
+msgid "Confirm Payment"
+msgstr "Ödənişi təsdiqlə"
+
+msgid "Contact admin."
+msgstr "Adminə müraciət edin."
+
+msgid "Created"
+msgstr "Yaradılıb"
+
+msgid "Customer"
+msgstr "Müştəri"
+
+msgid "Customer & ID"
+msgstr "Müştəri və ID"
+
+msgid "Default Risk"
+msgstr "Risk səviyyəsi"
+
+msgid "Deployed"
+msgstr "Yatırılıb"
+
+msgid "Due Date"
+msgstr "Son ödəmə tarixi"
+
+msgid "Every recorded payment across all loans"
+msgstr "Bütün kreditlərdə qeydə alınmış ödənişlər"
+
+msgid "Executive Profile"
+msgstr "İdarəçi profili"
+
+msgid "First Name"
+msgstr "Ad"
+
+msgid "Forgot password?"
+msgstr "Şifrəni unutmusunuz?"
+
+msgid "In period"
+msgstr "Dövr üzrə"
+
+msgid "Initials shown"
+msgstr "İnisiallar göstərilir"
+
+msgid "Institutional-grade financial monitoring for professionals who demand precision and real-time insights."
+msgstr "Peşəkarlar üçün institusional səviyyəli maliyyə monitorinqi və real vaxt təhlili."
+
+msgid "Institutional-grade financial monitoring for professionals."
+msgstr "Peşəkarlar üçün institusional səviyyəli maliyyə monitorinqi."
+
+msgid "Issue a new loan to an existing customer."
+msgstr "Mövcud müştəriyə yeni kredit ver."
+
+msgid "Last 28 days collection intensity"
+msgstr "Son 28 günün yığım intensivliyi"
+
+msgid "Last Updated"
+msgstr "Son yenilənmə"
+
+msgid "LESS"
+msgstr "AZ"
+
+msgid "MORE"
+msgstr "ÇOX"
+
+msgid "Live Summary"
+msgstr "Canlı xülasə"
+
+msgid "Loan Already Completed"
+msgstr "Kredit artıq tamamlanıb"
+
+msgid "Loan Amount"
+msgstr "Kredit məbləği"
+
+msgid "Loan Composition"
+msgstr "Kredit tərkibi"
+
+msgid "Loan Details"
+msgstr "Kredit detalları"
+
+msgid "Loan ID"
+msgstr "Kredit ID"
+
+msgid "Loan Information"
+msgstr "Kredit məlumatı"
+
+msgid "Loan completed"
+msgstr "Kredit tamamlandı"
+
+msgid "Loan created"
+msgstr "Kredit yaradıldı"
+
+msgid "Manage and track loan portfolio."
+msgstr "Kredit portfelini idarə et və izlə."
+
+msgid "Manage and track your loan clients"
+msgstr "Kredit müştərilərinizi idarə et və izləyin"
+
+msgid "Mark Completed"
+msgstr "Tamamlanmış işarələ"
+
+msgid "Mark this loan as completed? This will not be reversible from the UI."
+msgstr "Bu krediti tamamlanmış işarələmək istəyirsiniz? Bu əməliyyat interfeys vasitəsilə geri qaytarıla bilməz."
+
+msgid "Markup"
+msgstr "Faiz"
+
+msgid "Month-end balance per currency."
+msgstr "Valyuta üzrə ay sonu balans."
+
+msgid "Monthly (₼)"
+msgstr "Aylıq (₼)"
+
+msgid "Monthly Capital Flow"
+msgstr "Aylıq kapital axını"
+
+msgid "Monthly Pay"
+msgstr "Aylıq ödəniş"
+
+msgid "Monthly Payment"
+msgstr "Aylıq ödəniş"
+
+msgid "Months Remaining"
+msgstr "Qalan aylar"
+
+msgid "Need a new customer?"
+msgstr "Yeni müştəriyə ehtiyacınız var?"
+
+msgid "Need help?"
+msgstr "Kömək lazımdır?"
+
+msgid "Net Invested"
+msgstr "Xalis yatırım"
+
+msgid "Net Investment"
+msgstr "Xalis yatırım"
+
+msgid "New Loans"
+msgstr "Yeni kreditlər"
+
+msgid "New Loans This Month"
+msgstr "Bu ay yeni kreditlər"
+
+msgid "New loans vs payments collected — the gap is your monthly investment."
+msgstr "Yeni kreditlər və yığılmış ödənişlər — fərq sizin aylıq yatırımınızdır."
+
+msgid "Next Payment"
+msgstr "Növbəti ödəniş"
+
+msgid "No active delays."
+msgstr "Aktiv gecikmə yoxdur."
+
+msgid "No activity yet."
+msgstr "Hələ fəaliyyət yoxdur."
+
+msgid "No customers match the current filter."
+msgstr "Filterə uyğun müştəri yoxdur."
+
+msgid "No customers yet."
+msgstr "Hələ müştəri yoxdur."
+
+msgid "No loans in this period."
+msgstr "Bu dövrdə kredit yoxdur."
+
+msgid "No loans match the current filter."
+msgstr "Filterə uyğun kredit yoxdur."
+
+msgid "No loans yet for this customer."
+msgstr "Bu müştəri üçün hələ kredit yoxdur."
+
+msgid "No loans yet."
+msgstr "Hələ kredit yoxdur."
+
+msgid "No payment data for this period."
+msgstr "Bu dövr üçün ödəniş məlumatı yoxdur."
+
+msgid "No payment recorded this month yet"
+msgstr "Bu ay üçün ödəniş qeydə alınmayıb"
+
+msgid "No payments match the current filter."
+msgstr "Filterə uyğun ödəniş yoxdur."
+
+msgid "No payments recorded yet."
+msgstr "Hələ ödəniş qeydə alınmayıb."
+
+msgid "No payments yet."
+msgstr "Hələ ödəniş yoxdur."
+
+msgid "On-time Rate"
+msgstr "Vaxtında ödəmə nisbəti"
+
+msgid "Password"
+msgstr "Şifrə"
+
+msgid "Payment Date"
+msgstr "Ödəniş tarixi"
+
+msgid "Payment Schedule"
+msgstr "Ödəniş cədvəli"
+
+msgid "Payment received"
+msgstr "Ödəniş alındı"
+
+msgid "Payment recorded this month"
+msgstr "Bu ay üçün ödəniş qeydə alınıb"
+
+msgid "Payments by Status / Month"
+msgstr "Aylıq statusa görə ödənişlər"
+
+msgid "Principal"
+msgstr "Əsas məbləğ"
+
+msgid "Privacy"
+msgstr "Məxfilik"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Profile Initials"
+msgstr "Profil inisialları"
+
+msgid "Progress"
+msgstr "İrəliləyiş"
+
+msgid "Quick Actions"
+msgstr "Sürətli əməliyyatlar"
+
+msgid "Record Payment"
+msgstr "Ödəniş qeyd et"
+
+msgid "Remaining"
+msgstr "Qalıq"
+
+msgid "Remaining (₼)"
+msgstr "Qalıq (₼)"
+
+msgid "Remaining Amount"
+msgstr "Qalıq məbləğ"
+
+msgid "Remaining Months"
+msgstr "Qalan aylar"
+
+msgid "Remember me"
+msgstr "Məni xatırla"
+
+msgid "Repayment Progress"
+msgstr "Ödəniş irəliləyişi"
+
+msgid "Revenue"
+msgstr "Gəlir"
+
+msgid "Revenue (₼)"
+msgstr "Gəlir (₼)"
+
+msgid "Revenue Accrued"
+msgstr "Yığılmış gəlir"
+
+msgid "Revenue Over Time"
+msgstr "Zaman üzrə gəlir"
+
+msgid "Available Cash Over Time"
+msgstr "Zaman üzrə mövcud vəsait"
+
+msgid "Financial performance and loan portfolio analytics."
+msgstr "Maliyyə göstəriciləri və kredit portfeli analitikası."
+
+msgid "Search by Loan ID or customer..."
+msgstr "Kredit ID və ya müştəri üzrə axtar..."
+
+msgid "Search by Loan ID or customer…"
+msgstr "Kredit ID və ya müştəri üzrə axtar…"
+
+msgid "Search by customer or loan..."
+msgstr "Müştəri və ya kredit üzrə axtar..."
+
+msgid "Search by name or surname..."
+msgstr "Ad və ya soyad üzrə axtar..."
+
+msgid "Search by name..."
+msgstr "Ad üzrə axtar..."
+
+msgid "Search by transaction, customer, or loan ID..."
+msgstr "Əməliyyat, müştəri və ya kredit ID üzrə axtar..."
+
+msgid "Security"
+msgstr "Təhlükəsizlik"
+
+msgid "Select customer"
+msgstr "Müştəri seçin"
+
+msgid "Sign In"
+msgstr "Daxil ol"
+
+msgid "Enter your credentials to access your dashboard."
+msgstr "Panelə daxil olmaq üçün məlumatlarınızı daxil edin."
+
+msgid "Enter your password"
+msgstr "Şifrənizi daxil edin"
+
+msgid "Enter your username"
+msgstr "İstifadəçi adınızı daxil edin"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Surname"
+msgstr "Soyad"
+
+msgid "Activity Heatmap"
+msgstr "Fəallıq xəritəsi"
+
+msgid "Term"
+msgstr "Müddət"
+
+msgid "Term (months)"
+msgstr "Müddət (ay)"
+
+msgid "Terms"
+msgstr "Şərtlər"
+
+msgid "Timeline"
+msgstr "Xronologiya"
+
+msgid "Toggle off if this payment is delayed"
+msgstr "Əgər bu ödəniş gecikmişdirsə söndürün"
+
+msgid "Top Earning Loans"
+msgstr "Ən çox gəlir gətirən kreditlər"
+
+msgid "Total"
+msgstr "Cəmi"
+
+msgid "Total Loan"
+msgstr "Ümumi kredit"
+
+msgid "Total Loan (₼)"
+msgstr "Ümumi kredit (₼)"
+
+msgid "Total Loaned"
+msgstr "Verilmiş kredit"
+
+msgid "Total Monthly Payment"
+msgstr "Ümumi aylıq ödəniş"
+
+msgid "Total Paid"
+msgstr "Ümumi ödənilib"
+
+msgid "Total Paid (₼)"
+msgstr "Ümumi ödənilib (₼)"
+
+msgid "Total Repayment"
+msgstr "Ümumi qaytarma"
+
+msgid "Total Revenue"
+msgstr "Ümumi gəlir"
+
+msgid "Track loans, payments, and revenue with clarity."
+msgstr "Kreditləri, ödənişləri və gəlirləri aydın izləyin."
+
+msgid "Transaction ID"
+msgstr "Əməliyyat ID"
+
+msgid "Trusted by 500+ Financial Institutions"
+msgstr "500+ maliyyə qurumu tərəfindən etibar edilir"
+
+msgid "Update the details of this loan."
+msgstr "Bu kreditin detallarını yeniləyin."
+
+msgid "Username"
+msgstr "İstifadəçi adı"
+
+msgid "Welcome back"
+msgstr "Xoş gəldiniz"
+
+msgid "Yes"
+msgstr "Bəli"
+
+msgid "You'll be able to create loans for this customer right after."
+msgstr "Bu müştəri üçün dərhal kredit yarada biləcəksiniz."
+
+msgid "A unique Loan ID will be assigned automatically."
+msgstr "Unikal Kredit ID avtomatik təyin ediləcək."
+
+msgid "Defaults to today. The first payment is due one month after this date."
+msgstr "Standart olaraq bu gün seçilir. İlk ödəniş bu tarixdən bir ay sonradır."
+
+msgid "Paid Months"
+msgstr "Ödənilmiş aylar"
+
+msgid "(late)"
+msgstr "(gecikmiş)"
+
+msgid "/ month"
+msgstr "/ ay"
+
+msgid "after creation"
+msgstr "yaradıldıqdan sonra"
+
+msgid "e.g. Anar"
+msgstr "məs. Anar"
+
+msgid "e.g. Mammadov"
+msgstr "məs. Məmmədov"
+
+msgid "for"
+msgstr "üçün"
+
+msgid "to"
+msgstr "-a"
+
+msgid "© 2026 Budget. All rights reserved."
+msgstr "© 2026 Budget. Bütün hüquqlar qorunur."
+
+msgid "— Select a customer —"
+msgstr "— Müştəri seçin —"
+
+# Blocktrans (variable + count)
+#, python-format
+msgid "+%(count)s this year"
+msgstr "+%(count)s bu il"
+
+#, python-format
+msgid "All (%(count)s)"
+msgstr "Hamısı (%(count)s)"
+
+#, python-format
+msgid "Active (%(count)s)"
+msgstr "Aktiv (%(count)s)"
+
+#, python-format
+msgid "Completed (%(count)s)"
+msgstr "Tamamlanıb (%(count)s)"
+
+#, python-format
+msgid "Delayed (%(count)s)"
+msgstr "Gecikmiş (%(count)s)"
+
+#, python-format
+msgid "Fully Paid (%(count)s)"
+msgstr "Tam ödənilib (%(count)s)"
+
+#, python-format
+msgid "Has Active (%(count)s)"
+msgstr "Aktiv var (%(count)s)"
+
+#, python-format
+msgid "Late (%(count)s)"
+msgstr "Gecikmiş (%(count)s)"
+
+#, python-format
+msgid "New This Month (%(count)s)"
+msgstr "Bu ay yeni (%(count)s)"
+
+#, python-format
+msgid "On Time (%(count)s)"
+msgstr "Vaxtında (%(count)s)"
+
+#, python-format
+msgid "Back to %(name)s"
+msgstr "%(name)s-ə qayıt"
+
+#, python-format
+msgid "Edit %(name)s"
+msgstr "%(name)s redaktə et"
+
+#, python-format
+msgid "Edit Loan #%(loan_id)s"
+msgstr "#%(loan_id)s krediti redaktə et"
+
+#, python-format
+msgid "Loan #%(loan_id)s"
+msgstr "#%(loan_id)s krediti"
+
+#, python-format
+msgid "Loan ID #%(loan_id)s cannot be changed."
+msgstr "#%(loan_id)s kredit ID-si dəyişdirilə bilməz."
+
+#, python-format
+msgid "Due %(date)s"
+msgstr "%(date)s tarixinə ödənilməli"
+
+#, python-format
+msgid "Paid %(date)s"
+msgstr "%(date)s ödənildi"
+
+#, python-format
+msgid "Since %(date)s"
+msgstr "%(date)s-dan bəri"
+
+#, python-format
+msgid "Started %(date)s"
+msgstr "%(date)s tarixində başlanıb"
+
+#, python-format
+msgid "Showing data from %(start)s to %(end)s"
+msgstr "%(start)s - %(end)s aralığındakı məlumatlar"
+
+#, python-format
+msgid "Month %(month)s · Overdue"
+msgstr "Ay %(month)s · Gecikmiş"
+
+#, python-format
+msgid "Month %(month)s · Paid late"
+msgstr "Ay %(month)s · Gec ödənildi"
+
+#, python-format
+msgid "Month %(month)s · Paid on time"
+msgstr "Ay %(month)s · Vaxtında ödənildi"
+
+#, python-format
+msgid "Month %(month)s · Upcoming"
+msgstr "Ay %(month)s · Gələcək"
+
+#, python-format
+msgid "Paid: ₼%(amount)s"
+msgstr "Ödənilib: ₼%(amount)s"
+
+#, python-format
+msgid "Paid: ₼%(amount)s (%(pct)s%%)"
+msgstr "Ödənilib: ₼%(amount)s (%(pct)s%%)"
+
+#, python-format
+msgid "Remaining: ₼%(amount)s"
+msgstr "Qalıq: ₼%(amount)s"
+
+#, python-format
+msgid "Remaining: ₼%(amount)s (%(pct)s%%)"
+msgstr "Qalıq: ₼%(amount)s (%(pct)s%%)"
+
+#, python-format
+msgid "Progress (%(paid)s/%(total)s mo)"
+msgstr "İrəliləyiş (%(paid)s/%(total)s ay)"
+
+#, python-format
+msgid "%(paid)s/%(total)s months"
+msgstr "%(paid)s/%(total)s ay"
+
+#, python-format
+msgid "%(pct)s%% Complete"
+msgstr "%(pct)s%% tamamlanıb"
+
+#, python-format
+msgid "%(term)s mo"
+msgstr "%(term)s ay"
+
+#, python-format
+msgid "%(term)s months"
+msgstr "%(term)s ay"
+
+#, python-format
+msgid "%(months)s mo"
+msgstr "%(months)s ay"
+
+#, python-format
+msgid "in %(days)s day"
+msgid_plural "in %(days)s days"
+msgstr[0] "%(days)s gün sonra"
+msgstr[1] "%(days)s gün sonra"
+
+#, python-format
+msgid "in %(days)s days"
+msgstr "%(days)s gün sonra"
+
+#, python-format
+msgid "%(days)s days overdue"
+msgstr "%(days)s gün gecikmə"
+
+#, python-format
+msgid "%(amount)s ₼ / mo"
+msgstr "%(amount)s ₼ / ay"
+
+#, python-format
+msgid "%(count)s Active"
+msgstr "%(count)s aktiv"
+
+#, python-format
+msgid "%(count)s Late"
+msgstr "%(count)s gecikmiş"
+
+#, python-format
+msgid "%(date)s: %(counter)s payment"
+msgid_plural "%(date)s: %(counter)s payments"
+msgstr[0] "%(date)s: %(counter)s ödəniş"
+msgstr[1] "%(date)s: %(counter)s ödəniş"
+
+#, python-format
+msgid "%(paid)s payment already recorded — reducing the term below this number is not allowed."
+msgid_plural "%(paid)s payments already recorded — reducing the term below this number is not allowed."
+msgstr[0] "%(paid)s ödəniş artıq qeydə alınıb — müddət bu rəqəmdən aşağı ola bilməz."
+msgstr[1] "%(paid)s ödəniş artıq qeydə alınıb — müddət bu rəqəmdən aşağı ola bilməz."
+
+#, python-format
+msgid "for ₼%(amount)s over %(term)s months"
+msgstr "₼%(amount)s məbləğində %(term)s ay"
+
+#, python-format
+msgid "₼%(amount)s Total"
+msgstr "Cəmi ₼%(amount)s"
+
+#, python-format
+msgid "₼%(amount)s at risk"
+msgstr "Risk altında ₼%(amount)s"
+
+# Month names for charts
+msgid "Jan"
+msgstr "Yan"
+
+msgid "Feb"
+msgstr "Fev"
+
+msgid "Mar"
+msgstr "Mar"
+
+msgid "Apr"
+msgstr "Apr"
+
+msgid "May"
+msgstr "May"
+
+msgid "Jun"
+msgstr "İyn"
+
+msgid "Jul"
+msgstr "İyl"
+
+msgid "Aug"
+msgstr "Avq"
+
+msgid "Sep"
+msgstr "Sen"
+
+msgid "Oct"
+msgstr "Okt"
+
+msgid "Nov"
+msgstr "Noy"
+
+msgid "Dec"
+msgstr "Dek"
+
+msgid "January"
+msgstr "Yanvar"
+
+msgid "February"
+msgstr "Fevral"
+
+msgid "March"
+msgstr "Mart"
+
+msgid "April"
+msgstr "Aprel"
+
+msgid "June"
+msgstr "İyun"
+
+msgid "July"
+msgstr "İyul"
+
+msgid "August"
+msgstr "Avqust"
+
+msgid "September"
+msgstr "Sentyabr"
+
+msgid "October"
+msgstr "Oktyabr"
+
+msgid "November"
+msgstr "Noyabr"
+
+msgid "December"
+msgstr "Dekabr"
+
+# Dashboard section titles
+msgid "Monthly Cash Flow"
+msgstr "Aylıq nağd axını"
+
+msgid "Loan Status"
+msgstr "Kredit statusu"
+
+msgid "Top 5 Customers"
+msgstr "Ən yaxşı 5 müştəri"
+
+msgid "Recent Payments"
+msgstr "Son ödənişlər"
+
+msgid "Recent Cash Movements"
+msgstr "Son nağd hərəkətləri"
+
+msgid "Recent Transfers"
+msgstr "Son köçürmələr"
+
+msgid "Download PDF"
+msgstr "PDF yüklə"

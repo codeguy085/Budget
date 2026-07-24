@@ -1,5 +1,5 @@
-{% load humanize %}<!DOCTYPE html>
-<html lang="en">
+{% load humanize %}{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -263,34 +263,34 @@
       </div>
       <div>
         <h1 class="text-headline-md font-headline-md font-extrabold text-primary">Budget</h1>
-        <p class="text-label-sm font-label-sm text-on-surface-variant">Loan Management</p>
+        <p class="text-label-sm font-label-sm text-on-surface-variant">{% trans "Loan Management" %}</p>
       </div>
     </a>
   </div>
   <nav class="flex-1 space-y-1 px-2">
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'dashboard' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'dashboard' %}">
       <span class="material-symbols-outlined">dashboard</span>
-      <span class="text-label-md font-label-md">Dashboard</span>
+      <span class="text-label-md font-label-md">{% trans "Dashboard" %}</span>
     </a>
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'customers' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'customer_list' %}">
       <span class="material-symbols-outlined">group</span>
-      <span class="text-label-md font-label-md">Customers</span>
+      <span class="text-label-md font-label-md">{% trans "Customers" %}</span>
     </a>
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'loans' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'loan_list' %}">
       <span class="material-symbols-outlined">payments</span>
-      <span class="text-label-md font-label-md">Loans</span>
+      <span class="text-label-md font-label-md">{% trans "Loans" %}</span>
     </a>
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'payments' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'payment_list' %}">
       <span class="material-symbols-outlined">account_balance_wallet</span>
-      <span class="text-label-md font-label-md">Payments</span>
+      <span class="text-label-md font-label-md">{% trans "Payments" %}</span>
     </a>
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'reports' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'reports' %}">
       <span class="material-symbols-outlined">assessment</span>
-      <span class="text-label-md font-label-md">Reports</span>
+      <span class="text-label-md font-label-md">{% trans "Reports" %}</span>
     </a>
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'settings' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="#">
       <span class="material-symbols-outlined">settings</span>
-      <span class="text-label-md font-label-md">Settings</span>
+      <span class="text-label-md font-label-md">{% trans "Settings" %}</span>
     </a>
   </nav>
   <div class="px-4 space-y-2">
@@ -300,19 +300,27 @@
       </div>
       <div class="min-w-0">
         <p class="text-label-md font-bold truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
-        <p class="text-xs text-on-surface-variant">{% if request.user.is_superuser %}Administrator{% else %}Account{% endif %}</p>
+        <p class="text-xs text-on-surface-variant">{% if request.user.is_superuser %}{% trans "Administrator" %}{% else %}{% trans "Account" %}{% endif %}</p>
       </div>
     </div>
+    <form action="{% url 'set_language' %}" method="post" class="flex gap-1 bg-surface-container-low rounded-lg p-1">
+      {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path|default:'/' }}"/>
+      {% get_current_language as CURRENT_LANGUAGE %}
+      {% for code, name in LANGUAGES %}
+      <button type="submit" name="language" value="{{ code }}" class="flex-1 py-1.5 px-2 rounded-md text-[11px] font-bold uppercase transition-colors {% if code == CURRENT_LANGUAGE %}bg-surface-container-lowest text-primary shadow-sm{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">{{ code|upper }}</button>
+      {% endfor %}
+    </form>
     <button type="button" data-theme-toggle class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-lg transition-colors">
       <span class="material-symbols-outlined dark:hidden">dark_mode</span>
       <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
-      <span class="text-label-md font-label-md"><span class="dark:hidden">Dark mode</span><span class="hidden dark:inline">Light mode</span></span>
+      <span class="text-label-md font-label-md"><span class="dark:hidden">{% trans "Dark mode" %}</span><span class="hidden dark:inline">{% trans "Light mode" %}</span></span>
     </button>
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-error hover:bg-error-container/30 rounded-lg transition-colors">
         <span class="material-symbols-outlined">logout</span>
-        <span class="text-label-md font-label-md">Sign out</span>
+        <span class="text-label-md font-label-md">{% trans "Sign out" %}</span>
       </button>
     </form>
   </div>
@@ -326,13 +334,21 @@
   <div class="hidden lg:flex items-center flex-1 max-w-md">
     <div class="relative w-full focus-within:ring-2 focus-within:ring-primary rounded-full">
       <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-      <input id="topbar-search" class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-label-md focus:ring-0" placeholder="{% block search_placeholder %}Search loans, customers...{% endblock %}" type="text"/>
+      <input id="topbar-search" class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-label-md focus:ring-0" placeholder="{% block search_placeholder %}{% trans 'Search loans, customers...' %}{% endblock %}" type="text"/>
     </div>
   </div>
   <div class="flex items-center gap-2 lg:gap-4">
     <button class="lg:hidden hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors">
       <span class="material-symbols-outlined">search</span>
     </button>
+    {% get_current_language as CURRENT_LANGUAGE %}
+    <form action="{% url 'set_language' %}" method="post" class="lg:hidden">
+      {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path|default:'/' }}"/>
+      <button type="submit" name="language" value="{% if CURRENT_LANGUAGE == 'az' %}en{% else %}az{% endif %}" class="hover:bg-surface-container rounded-full px-2 py-2 text-on-surface-variant transition-colors text-xs font-bold uppercase" aria-label="Toggle language">
+        {% if CURRENT_LANGUAGE == 'az' %}EN{% else %}AZ{% endif %}
+      </button>
+    </form>
     <button type="button" data-theme-toggle class="lg:hidden hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors" aria-label="Toggle theme">
       <span class="material-symbols-outlined dark:hidden">dark_mode</span>
       <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
@@ -357,23 +373,23 @@
 <nav class="lg:hidden fixed bottom-0 left-0 right-0 h-20 bg-surface/95 backdrop-blur-xl flex items-center justify-around px-2 border-t border-outline-variant/20 z-40">
   <a href="{% url 'dashboard' %}" class="flex flex-col items-center gap-1 transition-colors {% if active_nav == 'dashboard' %}text-primary font-bold{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined" {% if active_nav == 'dashboard' %}style="font-variation-settings: 'FILL' 1;"{% endif %}>dashboard</span>
-    <span class="text-[10px] font-label-sm">Dashboard</span>
+    <span class="text-[10px] font-label-sm">{% trans "Dashboard" %}</span>
   </a>
   <a href="{% url 'customer_list' %}" class="flex flex-col items-center gap-1 transition-colors {% if active_nav == 'customers' %}text-primary font-bold{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined" {% if active_nav == 'customers' %}style="font-variation-settings: 'FILL' 1;"{% endif %}>group</span>
-    <span class="text-[10px] font-label-sm">Customers</span>
+    <span class="text-[10px] font-label-sm">{% trans "Customers" %}</span>
   </a>
   <a href="{% url 'loan_list' %}" class="flex flex-col items-center gap-1 transition-colors {% if active_nav == 'loans' %}text-primary font-bold{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined" {% if active_nav == 'loans' %}style="font-variation-settings: 'FILL' 1;"{% endif %}>payments</span>
-    <span class="text-[10px] font-label-sm">Loans</span>
+    <span class="text-[10px] font-label-sm">{% trans "Loans" %}</span>
   </a>
   <a href="{% url 'payment_list' %}" class="flex flex-col items-center gap-1 transition-colors {% if active_nav == 'payments' %}text-primary font-bold{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined" {% if active_nav == 'payments' %}style="font-variation-settings: 'FILL' 1;"{% endif %}>account_balance_wallet</span>
-    <span class="text-[10px] font-label-sm">Payments</span>
+    <span class="text-[10px] font-label-sm">{% trans "Payments" %}</span>
   </a>
   <a href="{% url 'reports' %}" class="flex flex-col items-center gap-1 transition-colors {% if active_nav == 'reports' %}text-primary font-bold{% else %}text-on-surface-variant{% endif %}">
     <span class="material-symbols-outlined" {% if active_nav == 'reports' %}style="font-variation-settings: 'FILL' 1;"{% endif %}>assessment</span>
-    <span class="text-[10px] font-label-sm">Reports</span>
+    <span class="text-[10px] font-label-sm">{% trans "Reports" %}</span>
   </a>
 </nav>
 

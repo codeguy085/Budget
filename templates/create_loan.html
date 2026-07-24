@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load humanize %}
 
-{% block title %}{% if loan %}Edit Loan #{{ loan.loan_id }}{% else %}Add New Loan{% endif %} | Budget{% endblock %}
+{% block title %}{% if loan %}{% blocktrans with loan_id=loan.loan_id %}Edit Loan #{{ loan_id }}{% endblocktrans %}{% else %}{% trans "Add New Loan" %}{% endif %} | Budget{% endblock %}
 
 {% block content %}
 <style>
@@ -10,24 +11,24 @@
 </style>
 
 <nav class="flex text-sm text-on-surface-variant gap-2 items-center flex-wrap">
-  <a class="hover:text-primary transition-colors" href="{% url 'loan_list' %}">Loans</a>
+  <a class="hover:text-primary transition-colors" href="{% url 'loan_list' %}">{% trans "Loans" %}</a>
   <span class="material-symbols-outlined text-[16px]">chevron_right</span>
   {% if loan %}
   <a class="hover:text-primary transition-colors" href="{% url 'loan_detail' loan.id %}">#{{ loan.loan_id }}</a>
   <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-  <span class="text-on-surface font-bold">Edit</span>
+  <span class="text-on-surface font-bold">{% trans "Edit" %}</span>
   {% else %}
-  <span class="text-on-surface font-bold">Add New Loan</span>
+  <span class="text-on-surface font-bold">{% trans "Add New Loan" %}</span>
   {% endif %}
 </nav>
 
 <header>
   {% if loan %}
-  <h2 class="text-3xl font-semibold text-on-surface">Edit Loan <span class="font-mono text-primary">#{{ loan.loan_id }}</span></h2>
-  <p class="text-base text-on-surface-variant mt-1">Update the details of this loan.</p>
+  <h2 class="text-3xl font-semibold text-on-surface">{% trans "Edit Loan" %} <span class="font-mono text-primary">#{{ loan.loan_id }}</span></h2>
+  <p class="text-base text-on-surface-variant mt-1">{% trans "Update the details of this loan." %}</p>
   {% else %}
-  <h2 class="text-3xl font-semibold text-on-surface">Add New Loan</h2>
-  <p class="text-base text-on-surface-variant mt-1">Issue a new loan to an existing customer.</p>
+  <h2 class="text-3xl font-semibold text-on-surface">{% trans "Add New Loan" %}</h2>
+  <p class="text-base text-on-surface-variant mt-1">{% trans "Issue a new loan to an existing customer." %}</p>
   {% endif %}
 </header>
 
@@ -39,14 +40,14 @@
       <section class="bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-slate-200">
         <div class="flex items-center gap-2 mb-6">
           <span class="material-symbols-outlined text-primary">person</span>
-          <h3 class="text-xl font-semibold text-on-surface">Customer</h3>
+          <h3 class="text-xl font-semibold text-on-surface">{% trans "Customer" %}</h3>
         </div>
         <div class="space-y-2">
-          <label class="block text-sm text-on-surface-variant" for="id_customer">Select customer</label>
+          <label class="block text-sm text-on-surface-variant" for="id_customer">{% trans "Select customer" %}</label>
           <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">person_search</span>
             <select id="id_customer" name="customer" class="w-full h-[48px] pl-12 pr-10 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all appearance-none {% if errors.customer %}border-error{% endif %}">
-              <option value="">— Select a customer —</option>
+              <option value="">{% trans "— Select a customer —" %}</option>
               {% for c in customers %}
               <option value="{{ c.id }}" {% if data.customer|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>{{ c.get_full_name }}</option>
               {% endfor %}
@@ -54,18 +55,18 @@
             <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
           </div>
           {% if errors.customer %}<p class="text-error text-xs">{{ errors.customer }}</p>{% endif %}
-          <p class="text-xs text-on-surface-variant">Need a new customer? <a href="{% url 'customer_create' %}" class="text-primary font-semibold hover:underline">Add one first</a>.</p>
+          <p class="text-xs text-on-surface-variant">{% trans "Need a new customer?" %} <a href="{% url 'customer_create' %}" class="text-primary font-semibold hover:underline">{% trans "Add one first" %}</a>.</p>
         </div>
       </section>
 
       <section class="bg-surface-container-lowest rounded-xl p-6 soft-shadow border border-slate-200">
         <div class="flex items-center gap-2 mb-6">
           <span class="material-symbols-outlined text-primary">monetization_on</span>
-          <h3 class="text-xl font-semibold text-on-surface">Loan Details</h3>
+          <h3 class="text-xl font-semibold text-on-surface">{% trans "Loan Details" %}</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="space-y-2">
-            <label class="block text-sm text-on-surface-variant" for="id_amount">Loan Amount</label>
+            <label class="block text-sm text-on-surface-variant" for="id_amount">{% trans "Loan Amount" %}</label>
             <div class="relative">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">₼</span>
               <input id="id_amount" name="amount" type="number" min="1" step="1" value="{{ data.amount }}" placeholder="0" class="w-full h-[48px] pl-10 pr-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none text-right font-medium {% if errors.amount %}border-error{% endif %}"/>
@@ -73,7 +74,7 @@
             {% if errors.amount %}<p class="text-error text-xs">{{ errors.amount }}</p>{% endif %}
           </div>
           <div class="space-y-2">
-            <label class="block text-sm text-on-surface-variant" for="id_monthly_payment">Monthly Payment</label>
+            <label class="block text-sm text-on-surface-variant" for="id_monthly_payment">{% trans "Monthly Payment" %}</label>
             <div class="relative">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">₼</span>
               <input id="id_monthly_payment" name="monthly_payment" type="number" min="1" step="1" value="{{ data.monthly_payment }}" placeholder="0" class="w-full h-[48px] pl-10 pr-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none text-right font-medium {% if errors.monthly_payment %}border-error{% endif %}"/>
@@ -81,21 +82,21 @@
             {% if errors.monthly_payment %}<p class="text-error text-xs">{{ errors.monthly_payment }}</p>{% endif %}
           </div>
           <div class="space-y-2">
-            <label class="block text-sm text-on-surface-variant" for="id_term">Term (months)</label>
+            <label class="block text-sm text-on-surface-variant" for="id_term">{% trans "Term (months)" %}</label>
             <input id="id_term" name="term" type="number" min="1" step="1" value="{{ data.term }}" placeholder="0" class="w-full h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium text-right {% if errors.term %}border-error{% endif %}"/>
             {% if errors.term %}<p class="text-error text-xs">{{ errors.term }}</p>{% endif %}
           </div>
           <div class="space-y-2 md:col-span-3">
-            <label class="block text-sm text-on-surface-variant" for="id_start">Start Date</label>
+            <label class="block text-sm text-on-surface-variant" for="id_start">{% trans "Start Date" %}</label>
             <input id="id_start" name="start" type="date" value="{{ data.start }}" class="w-full md:w-auto h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium {% if errors.start %}border-error{% endif %}"/>
             {% if errors.start %}<p class="text-error text-xs">{{ errors.start }}</p>{% endif %}
-            <p class="text-xs text-on-surface-variant">Defaults to today. The first payment is due one month after this date.</p>
+            <p class="text-xs text-on-surface-variant">{% trans "Defaults to today. The first payment is due one month after this date." %}</p>
           </div>
         </div>
         {% if loan %}
-        <p class="text-xs text-on-surface-variant mt-4">Loan ID <span class="font-mono font-bold">#{{ loan.loan_id }}</span> cannot be changed.{% if loan.paid_month %} {{ loan.paid_month }} payment{{ loan.paid_month|pluralize }} already recorded — reducing the term below this number is not allowed.{% endif %}</p>
+        <p class="text-xs text-on-surface-variant mt-4">{% blocktrans with loan_id=loan.loan_id %}Loan ID #{{ loan_id }} cannot be changed.{% endblocktrans %}{% if loan.paid_month %} {% blocktrans count paid=loan.paid_month %}{{ paid }} payment already recorded — reducing the term below this number is not allowed.{% plural %}{{ paid }} payments already recorded — reducing the term below this number is not allowed.{% endblocktrans %}{% endif %}</p>
         {% else %}
-        <p class="text-xs text-on-surface-variant mt-4">A unique Loan ID will be assigned automatically.</p>
+        <p class="text-xs text-on-surface-variant mt-4">{% trans "A unique Loan ID will be assigned automatically." %}</p>
         {% endif %}
       </section>
     </div>
@@ -105,26 +106,26 @@
         <section class="bg-primary text-on-primary rounded-xl p-6 deep-shadow overflow-hidden relative">
           <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
           <div class="relative z-10">
-            <h3 class="text-sm font-bold uppercase tracking-wider opacity-80 mb-6">Live Summary</h3>
+            <h3 class="text-sm font-bold uppercase tracking-wider opacity-80 mb-6">{% trans "Live Summary" %}</h3>
             <div class="space-y-6">
               <div>
-                <p class="text-xs opacity-80">Monthly Payment</p>
+                <p class="text-xs opacity-80">{% trans "Monthly Payment" %}</p>
                 <p class="text-4xl font-bold" id="summary-monthly">₼0</p>
               </div>
               <div class="h-px bg-white/20"></div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <p class="text-xs opacity-80">Total Repayment</p>
+                  <p class="text-xs opacity-80">{% trans "Total Repayment" %}</p>
                   <p class="text-xl font-bold" id="summary-total">₼0</p>
                 </div>
                 <div>
-                  <p class="text-xs opacity-80">Revenue</p>
+                  <p class="text-xs opacity-80">{% trans "Revenue" %}</p>
                   <p class="text-xl font-bold" id="summary-revenue">₼0</p>
                 </div>
               </div>
               <div class="h-px bg-white/20"></div>
               <div>
-                <p class="text-xs opacity-80">Markup</p>
+                <p class="text-xs opacity-80">{% trans "Markup" %}</p>
                 <p class="text-xl font-bold" id="summary-markup">0.0%</p>
               </div>
             </div>
@@ -135,8 +136,8 @@
   </div>
 
   <div class="mt-8 pt-6 border-t border-outline-variant flex justify-end gap-4">
-    <a href="{% if loan %}{% url 'loan_detail' loan.id %}{% else %}{% url 'loan_list' %}{% endif %}" class="px-8 py-3 rounded-lg border border-outline text-on-surface font-bold hover:bg-surface-container transition-colors">Cancel</a>
-    <button type="submit" class="px-10 py-3 rounded-lg bg-primary text-on-primary font-bold hover:opacity-90 transition-all shadow-lg active:scale-95">{% if loan %}Save Changes{% else %}Create Loan{% endif %}</button>
+    <a href="{% if loan %}{% url 'loan_detail' loan.id %}{% else %}{% url 'loan_list' %}{% endif %}" class="px-8 py-3 rounded-lg border border-outline text-on-surface font-bold hover:bg-surface-container transition-colors">{% trans "Cancel" %}</a>
+    <button type="submit" class="px-10 py-3 rounded-lg bg-primary text-on-primary font-bold hover:opacity-90 transition-all shadow-lg active:scale-95">{% if loan %}{% trans "Save Changes" %}{% else %}{% trans "Create Loan" %}{% endif %}</button>
   </div>
 </form>
 {% endblock %}

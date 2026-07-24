@@ -12,10 +12,30 @@ from django.core.cache import cache
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
+
+
+_MONTH_ABBREV = {
+    1: 'Jan', 2: 'Feb', 3: 'Mar', 4: 'Apr', 5: 'May', 6: 'Jun',
+    7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec',
+}
+_MONTH_FULL = {
+    1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+    7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December',
+}
+
+
+def _short_month(month):
+    return _(_MONTH_ABBREV[month])
+
+
+def _long_month_upper(month, year):
+    return f"{_(_MONTH_FULL[month])} {year}".upper()
 
 from user.models import Customer
 from .models import Investment, Loan, Payment, Transfer
+from .pdf import build_loan_pdf
 
 
 logger = logging.getLogger(__name__)
@@ -310,6 +330,19 @@ def loan_mark_complete(request, pk):
 
 
 @login_required
+def loan_pdf(request, pk):
+    loan = get_object_or_404(
+        Loan.objects.select_related('customer').prefetch_related('loan_payments'),
+        pk=pk,
+    )
+    pdf_bytes = build_loan_pdf(loan)
+    filename = f"kredit-{loan.loan_id or loan.pk}.pdf"
+    response = HttpResponse(pdf_bytes, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+@login_required
 def loan_form(request, pk=None):
     loan = get_object_or_404(Loan, pk=pk) if pk else None
     errors = {}
@@ -551,7 +584,7 @@ def reports(request):
 
         def period_label_for(p):
             y, m = p
-            return date(y, m, 1).strftime('%b')
+            return _short_month(m)
 
     chart_periods_set = set(chart_periods)
 
@@ -592,7 +625,7 @@ def reports(request):
             on_time_pct = 0
             late_pct = 0
         status_rows.append({
-            'label': date(y, m, 1).strftime('%B %Y').upper(),
+            'label': _long_month_upper(m, y),
             'total_amount': counts['total_amount'],
             'on_time_pct': on_time_pct,
             'late_pct': late_pct,
@@ -951,7 +984,7 @@ def dashboard(request):
             if key in months_set:
                 expected_by_month[key] += l.monthly_payment
 
-    month_labels = [date(y, m, 1).strftime('%b') for (y, m) in months]
+    month_labels = [_short_month(m) for (y, m) in months]
     cash_flow_data = {
         'labels': month_labels,
         'paid': list(paid_by_month.values()),

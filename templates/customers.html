@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load humanize %}
 
-{% block title %}Customers | Budget{% endblock %}
+{% block title %}{% trans "Customers" %} | Budget{% endblock %}
 
-{% block search_placeholder %}Search by name or surname...{% endblock %}
+{% block search_placeholder %}{% trans "Search by name or surname..." %}{% endblock %}
 
 {% block topbar_actions %}
 <div class="hidden lg:flex items-center gap-4">
   <div class="h-8 w-[1px] bg-outline-variant"></div>
   <a href="{% url 'customer_create' %}" class="bg-primary-container text-white px-5 py-2 rounded-full font-bold text-label-md flex items-center gap-2 hover:opacity-90 transition-opacity">
     <span class="material-symbols-outlined text-sm">add</span>
-    Add Customer
+    {% trans "Add Customer" %}
   </a>
 </div>
 {% endblock %}
@@ -19,36 +20,36 @@
 <div class="flex flex-col gap-4 lg:gap-6">
   <div class="flex justify-between items-end">
     <div>
-      <h2 class="text-headline-md lg:text-headline-lg font-headline-lg text-on-surface">Customers</h2>
-      <p class="text-label-md lg:text-body-md text-on-surface-variant">Manage and track your loan clients</p>
+      <h2 class="text-headline-md lg:text-headline-lg font-headline-lg text-on-surface">{% trans "Customers" %}</h2>
+      <p class="text-label-md lg:text-body-md text-on-surface-variant">{% trans "Manage and track your loan clients" %}</p>
     </div>
   </div>
   <div class="lg:hidden relative">
     <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-    <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="Search by name..." type="text"/>
+    <input id="mobile-search" class="w-full h-12 pl-12 pr-4 bg-surface-container-lowest border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none" placeholder="{% trans 'Search by name...' %}" type="text"/>
   </div>
   <div class="lg:hidden flex items-center gap-2">
     <span class="material-symbols-outlined text-on-surface-variant text-[20px]">sort</span>
     <select id="mobile-sort" class="flex-1 h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
-      <option value="name|asc">Name (A → Z)</option>
-      <option value="name|desc">Name (Z → A)</option>
-      <option value="loan|desc">Total Loan (high → low)</option>
-      <option value="loan|asc">Total Loan (low → high)</option>
-      <option value="remaining|desc">Remaining (high → low)</option>
-      <option value="remaining|asc">Remaining (low → high)</option>
-      <option value="paid|desc">Total Paid (high → low)</option>
-      <option value="revenue|desc">Revenue (high → low)</option>
-      <option value="monthly|desc">Monthly (high → low)</option>
-      <option value="active|desc">Active Loans (most)</option>
-      <option value="created|desc">Newest first</option>
-      <option value="created|asc">Oldest first</option>
+      <option value="name|asc">{% trans "Name (A → Z)" %}</option>
+      <option value="name|desc">{% trans "Name (Z → A)" %}</option>
+      <option value="loan|desc">{% trans "Total Loan (high → low)" %}</option>
+      <option value="loan|asc">{% trans "Total Loan (low → high)" %}</option>
+      <option value="remaining|desc">{% trans "Remaining (high → low)" %}</option>
+      <option value="remaining|asc">{% trans "Remaining (low → high)" %}</option>
+      <option value="paid|desc">{% trans "Total Paid (high → low)" %}</option>
+      <option value="revenue|desc">{% trans "Revenue (high → low)" %}</option>
+      <option value="monthly|desc">{% trans "Monthly (high → low)" %}</option>
+      <option value="active|desc">{% trans "Active Loans (most)" %}</option>
+      <option value="created|desc">{% trans "Newest first" %}</option>
+      <option value="created|asc">{% trans "Oldest first" %}</option>
     </select>
   </div>
   <div class="flex items-center gap-3 flex-nowrap overflow-x-auto hide-scrollbar lg:flex-wrap lg:overflow-visible -mx-4 px-4 lg:mx-0 lg:px-0" id="customer-filters">
-    <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-on-primary rounded-full text-label-md font-bold shadow-sm">All ({{ all_count }})</button>
-    <button data-filter="has-active" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Has Active ({{ has_active_count }})</button>
-    <button data-filter="fully-paid" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">Fully Paid ({{ fully_paid_count }})</button>
-    <button data-filter="new-this-month" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">New This Month ({{ new_this_month_count }})</button>
+    <button data-filter="all" class="filter-chip whitespace-nowrap px-4 py-2 bg-primary text-on-primary rounded-full text-label-md font-bold shadow-sm">{% blocktrans with count=all_count %}All ({{ count }}){% endblocktrans %}</button>
+    <button data-filter="has-active" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">{% blocktrans with count=has_active_count %}Has Active ({{ count }}){% endblocktrans %}</button>
+    <button data-filter="fully-paid" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">{% blocktrans with count=fully_paid_count %}Fully Paid ({{ count }}){% endblocktrans %}</button>
+    <button data-filter="new-this-month" class="filter-chip whitespace-nowrap px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-medium hover:bg-surface-variant transition-colors border border-outline-variant/30">{% blocktrans with count=new_this_month_count %}New This Month ({{ count }}){% endblocktrans %}</button>
   </div>
 </div>
 
@@ -83,41 +84,41 @@
         </div>
       </div>
       {% if row.status == 'active' %}
-      <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{{ row.active_count }} Active</span>
+      <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{% blocktrans with count=row.active_count %}{{ count }} Active{% endblocktrans %}</span>
       {% elif row.status == 'delayed' %}
-      <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">Delayed</span>
+      <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{% trans "Delayed" %}</span>
       {% elif row.status == 'completed' %}
-      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">Paid Off</span>
+      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{% trans "Paid Off" %}</span>
       {% else %}
-      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">No Loans</span>
+      <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0">{% trans "No Loans" %}</span>
       {% endif %}
     </div>
     <div class="grid grid-cols-3 gap-3 mb-4">
       <div class="space-y-1 min-w-0">
-        <p class="text-label-sm text-on-surface-variant">Total Loan</p>
+        <p class="text-label-sm text-on-surface-variant">{% trans "Total Loan" %}</p>
         <p class="text-label-md font-bold text-on-surface truncate">{{ row.total_loan|intcomma }} ₼</p>
       </div>
       <div class="space-y-1 min-w-0 text-center">
-        <p class="text-label-sm text-on-surface-variant">Remaining</p>
+        <p class="text-label-sm text-on-surface-variant">{% trans "Remaining" %}</p>
         <p class="text-label-md font-bold text-primary truncate">{{ row.total_remaining|intcomma }} ₼</p>
       </div>
       <div class="space-y-1 min-w-0 text-right">
-        <p class="text-label-sm text-on-surface-variant">Revenue</p>
+        <p class="text-label-sm text-on-surface-variant">{% trans "Revenue" %}</p>
         <p class="text-label-md font-bold text-secondary truncate">+{{ row.total_revenue|intcomma }} ₼</p>
       </div>
     </div>
     <div class="flex items-center justify-between pt-3 border-t border-outline-variant/20">
       <div class="flex items-center gap-2 min-w-0">
         <span class="material-symbols-outlined text-primary text-[20px] flex-shrink-0">payments</span>
-        <span class="text-label-md text-on-surface-variant truncate">{{ row.monthly_payment|intcomma }} ₼ / mo</span>
+        <span class="text-label-md text-on-surface-variant truncate">{% blocktrans with amount=row.monthly_payment|intcomma %}{{ amount }} ₼ / mo{% endblocktrans %}</span>
       </div>
       <span class="material-symbols-outlined text-on-surface-variant flex-shrink-0">chevron_right</span>
     </div>
   </a>
   {% empty %}
-  <p class="py-12 text-center text-on-surface-variant text-label-md">No customers yet.</p>
+  <p class="py-12 text-center text-on-surface-variant text-label-md">{% trans "No customers yet." %}</p>
   {% endfor %}
-  <div id="mobile-no-results" class="hidden py-12 text-center text-on-surface-variant text-label-md">No customers match the current filter.</div>
+  <div id="mobile-no-results" class="hidden py-12 text-center text-on-surface-variant text-label-md">{% trans "No customers match the current filter." %}</div>
 </section>
 
 <section class="hidden lg:block bg-surface-container-lowest rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-200 overflow-hidden">
@@ -126,30 +127,30 @@
       <thead>
         <tr class="bg-surface-container-low/50 text-on-surface-variant text-label-sm border-b border-slate-100">
           <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="name">
-            <span class="inline-flex items-center gap-1">Customer<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1">{% trans "Customer" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="active">
-            <span class="inline-flex items-center gap-1">Active Loans<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1">{% trans "Active Loans" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="loan">
-            <span class="inline-flex items-center gap-1 justify-end">Total Loan (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1 justify-end">{% trans "Total Loan (₼)" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="paid">
-            <span class="inline-flex items-center gap-1 justify-end">Total Paid (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1 justify-end">{% trans "Total Paid (₼)" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="remaining">
-            <span class="inline-flex items-center gap-1 justify-end">Remaining (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1 justify-end">{% trans "Remaining (₼)" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="revenue">
-            <span class="inline-flex items-center gap-1 justify-end">Revenue (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1 justify-end">{% trans "Revenue (₼)" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider text-right whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="monthly">
-            <span class="inline-flex items-center gap-1 justify-end">Monthly (₼)<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1 justify-end">{% trans "Monthly (₼)" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
           <th class="px-6 py-4 font-semibold uppercase tracking-wider whitespace-nowrap cursor-pointer hover:text-primary transition-colors select-none" data-sort-by="created">
-            <span class="inline-flex items-center gap-1">Created<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
+            <span class="inline-flex items-center gap-1">{% trans "Created" %}<span class="material-symbols-outlined text-[14px] sort-indicator opacity-30">unfold_more</span></span>
           </th>
-          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">Actions</th>
+          <th class="px-6 py-4 font-semibold uppercase tracking-wider text-center">{% trans "Actions" %}</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-100" id="customer-rows">
@@ -174,13 +175,13 @@
           </td>
           <td class="px-6 py-4">
             {% if row.status == 'active' %}
-            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded uppercase border border-emerald-100">{{ row.active_count }} Active</span>
+            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded uppercase border border-emerald-100">{% blocktrans with count=row.active_count %}{{ count }} Active{% endblocktrans %}</span>
             {% elif row.status == 'delayed' %}
-            <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded uppercase border border-amber-100">{{ row.active_count }} Active</span>
+            <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded uppercase border border-amber-100">{% blocktrans with count=row.active_count %}{{ count }} Active{% endblocktrans %}</span>
             {% elif row.status == 'completed' %}
-            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">Fully Paid</span>
+            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">{% trans "Fully Paid" %}</span>
             {% else %}
-            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">No Loans</span>
+            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase border border-slate-200">{% trans "No Loans" %}</span>
             {% endif %}
           </td>
           <td class="px-6 py-4 text-right font-medium">{{ row.total_loan|intcomma }} ₼</td>
@@ -199,19 +200,19 @@
         </tr>
         {% empty %}
         <tr>
-          <td colspan="9" class="py-12 text-center text-on-surface-variant text-label-md">No customers yet.</td>
+          <td colspan="9" class="py-12 text-center text-on-surface-variant text-label-md">{% trans "No customers yet." %}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
-  <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-label-md">No customers match the current filter.</div>
+  <div id="no-results" class="hidden px-6 py-12 text-center text-on-surface-variant text-label-md">{% trans "No customers match the current filter." %}</div>
 </section>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
   <div class="p-4 lg:p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3">
     <div class="min-w-0">
-      <p class="text-label-sm font-bold text-on-surface-variant uppercase">Collection Rate</p>
+      <p class="text-label-sm font-bold text-on-surface-variant uppercase">{% trans "Collection Rate" %}</p>
       <h3 class="text-headline-md font-headline-md text-secondary truncate">{{ collection_rate }}%</h3>
     </div>
     <div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary flex-shrink-0">
@@ -220,7 +221,7 @@
   </div>
   <div class="p-4 lg:p-6 bg-surface-container-lowest rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3">
     <div class="min-w-0">
-      <p class="text-label-sm font-bold text-on-surface-variant uppercase">New Loans This Month</p>
+      <p class="text-label-sm font-bold text-on-surface-variant uppercase">{% trans "New Loans This Month" %}</p>
       <h3 class="text-headline-md font-headline-md text-on-surface truncate">{{ new_loans_this_month }}</h3>
     </div>
     <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant flex-shrink-0">
@@ -229,7 +230,7 @@
   </div>
   <div class="p-4 lg:p-6 bg-primary text-on-primary rounded-2xl border border-primary-container shadow-md flex items-center justify-between gap-3">
     <div class="min-w-0">
-      <p class="text-label-sm font-bold opacity-80 uppercase">Total Monthly Payment</p>
+      <p class="text-label-sm font-bold opacity-80 uppercase">{% trans "Total Monthly Payment" %}</p>
       <h3 class="text-headline-md font-headline-md truncate">{{ total_monthly_payment|intcomma }} ₼</h3>
     </div>
     <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">

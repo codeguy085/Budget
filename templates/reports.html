@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load humanize %}
 
-{% block title %}Reports | Budget{% endblock %}
+{% block title %}{% trans "Reports" %} | Budget{% endblock %}
 
 {% block content %}
 <style>
@@ -10,24 +11,24 @@
 
 <div class="flex flex-col md:flex-row justify-between md:items-end gap-4">
   <div>
-    <h2 class="text-2xl lg:text-3xl font-semibold text-on-surface">Reports</h2>
-    <p class="text-label-md lg:text-base text-on-surface-variant">Financial performance and loan portfolio analytics.</p>
+    <h2 class="text-2xl lg:text-3xl font-semibold text-on-surface">{% trans "Reports" %}</h2>
+    <p class="text-label-md lg:text-base text-on-surface-variant">{% trans "Financial performance and loan portfolio analytics." %}</p>
   </div>
   <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:flex-wrap">
     <div class="lg:bg-surface-container-low lg:p-1 lg:rounded-lg lg:border lg:border-outline-variant flex items-center gap-2 lg:gap-0 overflow-x-auto hide-scrollbar -mx-4 px-4 lg:mx-0 lg:px-1">
-      <a href="?period=this_month&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">This Month</a>
-      <a href="?period=last_month&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'last_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">Last Month</a>
-      <a href="?period=this_year&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_year' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">This Year</a>
-      <a href="?period=all_time&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'all_time' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">All Time</a>
-      <button type="button" id="custom-toggle" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors flex items-center gap-1 {% if period == 'custom' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">Custom <span class="material-symbols-outlined text-sm">calendar_today</span></button>
+      <a href="?period=this_month&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "This Month" %}</a>
+      <a href="?period=last_month&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'last_month' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "Last Month" %}</a>
+      <a href="?period=this_year&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'this_year' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "This Year" %}</a>
+      <a href="?period=all_time&view={{ view_mode }}" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors {% if period == 'all_time' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "All Time" %}</a>
+      <button type="button" id="custom-toggle" class="whitespace-nowrap px-4 py-2 lg:py-1.5 text-label-md lg:text-sm rounded-full lg:rounded-md transition-colors flex items-center gap-1 {% if period == 'custom' %}bg-primary lg:bg-surface-container-lowest text-on-primary lg:text-primary lg:shadow-sm font-bold{% else %}bg-surface-container-low lg:bg-transparent border border-outline-variant/30 lg:border-0 text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "Custom" %} <span class="material-symbols-outlined text-sm">calendar_today</span></button>
     </div>
     <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded-lg border border-outline-variant">
-      <a href="?period={{ period }}{% if period == 'custom' %}&start={{ custom_start_iso }}&end={{ custom_end_iso }}{% endif %}&view=monthly" class="whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors {% if view_mode == 'monthly' %}bg-surface-container-lowest text-primary shadow-sm font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Monthly</a>
-      <a href="?period={{ period }}{% if period == 'custom' %}&start={{ custom_start_iso }}&end={{ custom_end_iso }}{% endif %}&view=yearly" class="whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors {% if view_mode == 'yearly' %}bg-surface-container-lowest text-primary shadow-sm font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">Yearly</a>
+      <a href="?period={{ period }}{% if period == 'custom' %}&start={{ custom_start_iso }}&end={{ custom_end_iso }}{% endif %}&view=monthly" class="whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors {% if view_mode == 'monthly' %}bg-surface-container-lowest text-primary shadow-sm font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "Monthly" %}</a>
+      <a href="?period={{ period }}{% if period == 'custom' %}&start={{ custom_start_iso }}&end={{ custom_end_iso }}{% endif %}&view=yearly" class="whitespace-nowrap px-3 py-1.5 text-sm rounded-md transition-colors {% if view_mode == 'yearly' %}bg-surface-container-lowest text-primary shadow-sm font-bold{% else %}text-on-surface-variant hover:text-on-surface{% endif %}">{% trans "Yearly" %}</a>
     </div>
     <a href="{% url 'export_loans_csv' %}" class="w-full lg:w-auto flex items-center justify-center gap-2 px-5 py-3 lg:py-2.5 bg-surface-container-lowest border border-outline-variant rounded-xl lg:rounded-lg text-label-md lg:text-sm font-bold text-primary lg:text-on-surface-variant hover:bg-surface-container-high transition-all">
       <span class="material-symbols-outlined">download</span>
-      Export CSV
+      {% trans "Export CSV" %}
     </a>
   </div>
 </div>
@@ -36,22 +37,22 @@
   <input type="hidden" name="period" value="custom"/>
   <input type="hidden" name="view" value="{{ view_mode }}"/>
   <div class="flex-1 min-w-0">
-    <label class="block text-xs text-on-surface-variant mb-1" for="start">Start date</label>
+    <label class="block text-xs text-on-surface-variant mb-1" for="start">{% trans "Start date" %}</label>
     <input id="start" name="start" type="date" value="{{ custom_start_iso }}" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
   </div>
   <div class="flex-1 min-w-0">
-    <label class="block text-xs text-on-surface-variant mb-1" for="end">End date</label>
+    <label class="block text-xs text-on-surface-variant mb-1" for="end">{% trans "End date" %}</label>
     <input id="end" name="end" type="date" value="{{ custom_end_iso }}" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-md text-sm focus:ring-2 focus:ring-primary outline-none"/>
   </div>
-  <button type="submit" class="h-10 px-5 bg-primary text-on-primary text-sm font-bold rounded-md hover:opacity-90 transition-opacity">Apply</button>
-  <span class="text-xs text-on-surface-variant lg:ml-2">Showing data from {{ start_date|date:"M j, Y" }} to {{ end_date|date:"M j, Y" }}</span>
+  <button type="submit" class="h-10 px-5 bg-primary text-on-primary text-sm font-bold rounded-md hover:opacity-90 transition-opacity">{% trans "Apply" %}</button>
+  <span class="text-xs text-on-surface-variant lg:ml-2">{% blocktrans with start=start_date|date:"M j, Y" end=end_date|date:"M j, Y" %}Showing data from {{ start }} to {{ end }}{% endblocktrans %}</span>
 </form>
 
 <section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
   <div class="flex justify-between items-start mb-6 gap-3">
-    <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Revenue Over Time</h3>
+    <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Revenue Over Time" %}</h3>
     <div class="text-right min-w-0 flex-shrink-0">
-      <p class="text-[10px] text-on-surface-variant font-bold uppercase">Total Revenue</p>
+      <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Total Revenue" %}</p>
       <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ total_revenue_in_range|intcomma }}</p>
     </div>
   </div>
@@ -65,28 +66,28 @@
 <section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
   <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-6">
     <div>
-      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Monthly Capital Flow</h3>
-      <p class="text-label-sm lg:text-sm text-on-surface-variant">New loans vs payments collected — the gap is your monthly investment.</p>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Monthly Capital Flow" %}</h3>
+      <p class="text-label-sm lg:text-sm text-on-surface-variant">{% trans "New loans vs payments collected — the gap is your monthly investment." %}</p>
     </div>
     <div class="grid grid-cols-3 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
       <div class="min-w-0">
-        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Deployed</p>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Deployed" %}</p>
         <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ total_deployed|intcomma }}</p>
       </div>
       <div class="min-w-0">
-        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Collected</p>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Collected" %}</p>
         <p class="text-base lg:text-lg font-bold text-secondary truncate">₼{{ total_collected|intcomma }}</p>
       </div>
       <div class="min-w-0">
-        <p class="text-[10px] text-on-surface-variant font-bold uppercase">Net Invested</p>
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Net Invested" %}</p>
         <p class="text-base lg:text-lg font-bold {% if net_invested >= 0 %}text-on-surface{% else %}text-secondary{% endif %} truncate">₼{{ net_invested|intcomma }}</p>
       </div>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-3 lg:gap-4 mb-4 text-[10px] lg:text-xs text-on-surface-variant">
-    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-primary"></span>New Loans</div>
-    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-secondary"></span>Collected</div>
-    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>Net Investment</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-primary"></span>{% trans "New Loans" %}</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-secondary"></span>{% trans "Collected" %}</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>{% trans "Net Investment" %}</div>
   </div>
   <div class="h-56 lg:h-80 overflow-x-auto hide-scrollbar">
     <div class="h-full relative" style="width: max(100%, calc({{ chart_months_count }} * 100% / 18));">
@@ -98,8 +99,8 @@
 <section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
   <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
     <div>
-      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Available Cash Over Time</h3>
-      <p class="text-label-sm lg:text-sm text-on-surface-variant">Month-end balance per currency.</p>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Available Cash Over Time" %}</h3>
+      <p class="text-label-sm lg:text-sm text-on-surface-variant">{% trans "Month-end balance per currency." %}</p>
     </div>
     <div class="grid grid-cols-3 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
       <div class="min-w-0">
@@ -131,15 +132,15 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
-      <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider">Payments by Status / Month</h3>
+      <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider">{% trans "Payments by Status / Month" %}</h3>
       <div class="flex gap-3 lg:gap-4">
         <div class="flex items-center gap-1.5">
           <div class="w-2.5 h-2.5 rounded-sm bg-secondary"></div>
-          <span class="text-[10px] font-bold text-on-surface-variant">ON-TIME</span>
+          <span class="text-[10px] font-bold text-on-surface-variant">{% trans "ON-TIME" %}</span>
         </div>
         <div class="flex items-center gap-1.5">
           <div class="w-2.5 h-2.5 rounded-sm bg-tertiary-fixed-dim"></div>
-          <span class="text-[10px] font-bold text-on-surface-variant">LATE</span>
+          <span class="text-[10px] font-bold text-on-surface-variant">{% trans "LATE" %}</span>
         </div>
       </div>
     </div>
@@ -148,7 +149,7 @@
       <div class="space-y-1">
         <div class="flex justify-between text-[11px] font-bold text-on-surface-variant">
           <span>{{ r.label }}</span>
-          <span>₼{{ r.total_amount|intcomma }} Total</span>
+          <span>{% blocktrans with amount=r.total_amount|intcomma %}₼{{ amount }} Total{% endblocktrans %}</span>
         </div>
         <div class="h-6 w-full flex rounded-md overflow-hidden bg-surface-container">
           {% if r.has_data %}
@@ -158,38 +159,38 @@
         </div>
       </div>
       {% empty %}
-      <p class="text-sm text-on-surface-variant text-center py-8">No payment data for this period.</p>
+      <p class="text-sm text-on-surface-variant text-center py-8">{% trans "No payment data for this period." %}</p>
       {% endfor %}
     </div>
   </div>
 
   <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
-    <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider mb-6">Activity Heatmap</h3>
+    <h3 class="text-label-md lg:text-sm font-bold text-on-surface uppercase tracking-wider mb-6">{% trans "Activity Heatmap" %}</h3>
     <div class="grid grid-cols-7 gap-1.5 lg:gap-2">
       {% for cell in heatmap_cells %}
       {% if cell.intensity == 0 %}
-      <div class="aspect-square bg-primary/5 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      <div class="aspect-square bg-primary/5 rounded-md" title="{% blocktrans with date=cell.date|date:'M j' count counter=cell.count %}{{ date }}: {{ counter }} payment{% plural %}{{ date }}: {{ counter }} payments{% endblocktrans %}"></div>
       {% elif cell.intensity == 1 %}
-      <div class="aspect-square bg-primary/30 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      <div class="aspect-square bg-primary/30 rounded-md" title="{% blocktrans with date=cell.date|date:'M j' count counter=cell.count %}{{ date }}: {{ counter }} payment{% plural %}{{ date }}: {{ counter }} payments{% endblocktrans %}"></div>
       {% elif cell.intensity == 2 %}
-      <div class="aspect-square bg-primary/60 rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      <div class="aspect-square bg-primary/60 rounded-md" title="{% blocktrans with date=cell.date|date:'M j' count counter=cell.count %}{{ date }}: {{ counter }} payment{% plural %}{{ date }}: {{ counter }} payments{% endblocktrans %}"></div>
       {% else %}
-      <div class="aspect-square bg-primary rounded-md" title="{{ cell.date|date:'M j' }}: {{ cell.count }} payment{{ cell.count|pluralize }}"></div>
+      <div class="aspect-square bg-primary rounded-md" title="{% blocktrans with date=cell.date|date:'M j' count counter=cell.count %}{{ date }}: {{ counter }} payment{% plural %}{{ date }}: {{ counter }} payments{% endblocktrans %}"></div>
       {% endif %}
       {% endfor %}
     </div>
     <div class="mt-6 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <span class="text-[10px] text-on-surface-variant font-bold">LESS</span>
+        <span class="text-[10px] text-on-surface-variant font-bold">{% trans "LESS" %}</span>
         <div class="flex gap-1">
           <div class="w-3 h-3 rounded-sm bg-primary/5"></div>
           <div class="w-3 h-3 rounded-sm bg-primary/30"></div>
           <div class="w-3 h-3 rounded-sm bg-primary/60"></div>
           <div class="w-3 h-3 rounded-sm bg-primary"></div>
         </div>
-        <span class="text-[10px] text-on-surface-variant font-bold">MORE</span>
+        <span class="text-[10px] text-on-surface-variant font-bold">{% trans "MORE" %}</span>
       </div>
-      <span class="text-[10px] text-on-surface-variant italic">Last 28 days collection intensity</span>
+      <span class="text-[10px] text-on-surface-variant italic">{% trans "Last 28 days collection intensity" %}</span>
     </div>
   </div>
 </div>
@@ -197,8 +198,8 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
   <div class="lg:col-span-2 lg:bg-surface-container-lowest lg:rounded-3xl lg:p-6 lg:soft-shadow lg:border lg:border-slate-200">
     <div class="flex justify-between items-center mb-4 lg:mb-6 px-1 lg:px-0">
-      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">Top Earning Loans</h3>
-      <a href="{% url 'loan_list' %}" class="text-primary text-label-md lg:text-sm font-bold hover:underline">View All</a>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Top Earning Loans" %}</h3>
+      <a href="{% url 'loan_list' %}" class="text-primary text-label-md lg:text-sm font-bold hover:underline">{% trans "View All" %}</a>
     </div>
 
     <div class="lg:hidden flex flex-col gap-3">
@@ -209,11 +210,11 @@
           <h4 class="font-bold text-on-surface truncate">{{ row.loan.customer.get_full_name }}</h4>
           <div class="flex items-center gap-2 flex-wrap">
             {% if row.status == 'active' %}
-            <span class="bg-secondary-container/30 text-secondary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Active</span>
+            <span class="bg-secondary-container/30 text-secondary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">{% trans "Active" %}</span>
             {% elif row.status == 'delayed' %}
-            <span class="bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Delayed</span>
+            <span class="bg-amber-50 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">{% trans "Delayed" %}</span>
             {% else %}
-            <span class="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Completed</span>
+            <span class="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">{% trans "Completed" %}</span>
             {% endif %}
             <span class="text-on-surface-variant font-medium text-sm">₼{{ row.revenue|intcomma }}</span>
           </div>
@@ -221,7 +222,7 @@
         <span class="material-symbols-outlined text-outline flex-shrink-0">chevron_right</span>
       </a>
       {% empty %}
-      <p class="py-8 text-center text-on-surface-variant text-label-md">No loans in this period.</p>
+      <p class="py-8 text-center text-on-surface-variant text-label-md">{% trans "No loans in this period." %}</p>
       {% endfor %}
     </div>
 
@@ -229,11 +230,11 @@
       <table class="w-full">
         <thead>
           <tr class="text-left border-b border-slate-100">
-            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Loan ID</th>
-            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Customer</th>
-            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-right">Revenue</th>
-            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-center">Term</th>
-            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">Status</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">{% trans "Loan ID" %}</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">{% trans "Customer" %}</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-right">{% trans "Revenue" %}</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold text-center">{% trans "Term" %}</th>
+            <th class="pb-4 text-xs text-on-surface-variant uppercase font-bold">{% trans "Status" %}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100">
@@ -250,16 +251,16 @@
             <td class="py-4 text-center text-sm text-on-surface-variant">{{ row.loan.term }}m</td>
             <td class="py-4">
               {% if row.status == 'active' %}
-              <span class="px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase rounded">Active</span>
+              <span class="px-2 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase rounded">{% trans "Active" %}</span>
               {% elif row.status == 'delayed' %}
-              <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded">Delayed</span>
+              <span class="px-2 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold uppercase rounded">{% trans "Delayed" %}</span>
               {% else %}
-              <span class="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded">Completed</span>
+              <span class="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded">{% trans "Completed" %}</span>
               {% endif %}
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="5" class="py-8 text-center text-on-surface-variant text-sm">No loans in this period.</td></tr>
+          <tr><td colspan="5" class="py-8 text-center text-on-surface-variant text-sm">{% trans "No loans in this period." %}</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -269,7 +270,7 @@
   <div class="bg-error-container/20 lg:bg-surface-container-lowest rounded-3xl p-5 lg:p-6 lg:soft-shadow border border-error/20 lg:border-l-4 lg:border-l-error lg:border lg:border-slate-200">
     <div class="flex items-center gap-2 mb-4 lg:mb-6 text-error">
       <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
-      <h3 class="text-label-md lg:text-sm font-bold uppercase tracking-widest lg:tracking-wider">Delayed Watchlist</h3>
+      <h3 class="text-label-md lg:text-sm font-bold uppercase tracking-widest lg:tracking-wider">{% trans "Delayed Watchlist" %}</h3>
     </div>
     <div class="space-y-3 lg:space-y-4">
       {% for entry in watchlist %}
@@ -277,40 +278,40 @@
       <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-error/5 border border-error/20 hover:bg-error/10 transition-colors">
         <div class="flex justify-between items-start mb-2 gap-2">
           <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
-          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">CRITICAL</span>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">{% trans "CRITICAL" %}</span>
         </div>
         <div class="flex justify-between text-xs text-on-surface-variant gap-2">
-          <span>{{ entry.late_count }} Late</span>
-          <span class="font-bold text-error truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
+          <span>{% blocktrans with count=entry.late_count %}{{ count }} Late{% endblocktrans %}</span>
+          <span class="font-bold text-error truncate">{% blocktrans with amount=entry.at_risk|intcomma %}₼{{ amount }} at risk{% endblocktrans %}</span>
         </div>
       </a>
       {% elif entry.severity == 'overdue' %}
       <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-error/5 border border-error/10 hover:bg-error/10 transition-colors">
         <div class="flex justify-between items-start mb-2 gap-2">
           <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
-          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">OVERDUE</span>
+          <span class="px-2 py-0.5 bg-error text-white text-[10px] font-bold rounded flex-shrink-0">{% trans "OVERDUE" %}</span>
         </div>
         <div class="flex justify-between text-xs text-on-surface-variant gap-2">
-          <span>{{ entry.late_count }} Late</span>
-          <span class="font-bold text-error truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
+          <span>{% blocktrans with count=entry.late_count %}{{ count }} Late{% endblocktrans %}</span>
+          <span class="font-bold text-error truncate">{% blocktrans with amount=entry.at_risk|intcomma %}₼{{ amount }} at risk{% endblocktrans %}</span>
         </div>
       </a>
       {% else %}
       <a href="{% url 'customer_detail' entry.customer.id %}" class="block p-4 rounded-2xl bg-surface-container-low border border-outline-variant hover:bg-surface-container-high transition-colors">
         <div class="flex justify-between items-start mb-2 gap-2">
           <span class="text-sm font-bold text-on-surface truncate">{{ entry.customer.get_full_name }}</span>
-          <span class="px-2 py-0.5 bg-tertiary text-white text-[10px] font-bold rounded flex-shrink-0">PENDING</span>
+          <span class="px-2 py-0.5 bg-tertiary text-white text-[10px] font-bold rounded flex-shrink-0">{% trans "PENDING" %}</span>
         </div>
         <div class="flex justify-between text-xs text-on-surface-variant gap-2">
-          <span>{{ entry.late_count }} Late</span>
-          <span class="font-bold text-on-surface truncate">₼{{ entry.at_risk|intcomma }} at risk</span>
+          <span>{% blocktrans with count=entry.late_count %}{{ count }} Late{% endblocktrans %}</span>
+          <span class="font-bold text-on-surface truncate">{% blocktrans with amount=entry.at_risk|intcomma %}₼{{ amount }} at risk{% endblocktrans %}</span>
         </div>
       </a>
       {% endif %}
       {% empty %}
       <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
         <span class="material-symbols-outlined text-emerald-600">verified</span>
-        <p class="text-sm text-emerald-700 font-medium mt-1">No active delays.</p>
+        <p class="text-sm text-emerald-700 font-medium mt-1">{% trans "No active delays." %}</p>
       </div>
       {% endfor %}
     </div>
@@ -319,24 +320,24 @@
 
 <footer class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 pt-2">
   <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
-    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Avg Loan Size</span>
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">{% trans "Avg Loan Size" %}</span>
     <span class="text-headline-md lg:text-2xl font-semibold text-primary truncate">₼{{ avg_loan_size|intcomma }}</span>
-    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">In period</div>
+    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">{% trans "In period" %}</div>
   </div>
   <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
-    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Avg Term</span>
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">{% trans "Avg Term" %}</span>
     <span class="text-headline-md lg:text-2xl font-semibold text-primary truncate">{{ avg_term }}m</span>
-    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">In period</div>
+    <div class="mt-2 text-[10px] lg:text-[11px] text-on-surface-variant">{% trans "In period" %}</div>
   </div>
   <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
-    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">On-time Rate</span>
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">{% trans "On-time Rate" %}</span>
     <span class="text-headline-md lg:text-2xl font-semibold text-secondary truncate">{{ on_time_rate }}%</span>
     <div class="mt-2 w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
       <div class="bg-secondary h-full" style="width: {{ on_time_rate }}%"></div>
     </div>
   </div>
   <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">
-    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">Default Risk</span>
+    <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">{% trans "Default Risk" %}</span>
     <span class="text-headline-md lg:text-2xl font-semibold text-{{ risk_class }} truncate">{{ risk_level }}</span>
     <p class="text-[10px] lg:text-[11px] text-on-surface-variant mt-2 leading-tight line-clamp-2">{{ risk_blurb }}</p>
   </div>

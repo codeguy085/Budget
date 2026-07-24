@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load humanize %}
 
-{% block title %}Loan #{{ loan.loan_id }} | Budget{% endblock %}
+{% block title %}{% blocktrans with loan_id=loan.loan_id %}Loan #{{ loan_id }}{% endblocktrans %} | Budget{% endblock %}
 
 {% block content %}
 <style>
@@ -11,63 +12,63 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
 
 <nav class="hidden lg:flex text-sm text-on-surface-variant gap-2 items-center flex-wrap">
-  <a class="hover:text-primary transition-colors" href="{% url 'loan_list' %}">Loans</a>
+  <a class="hover:text-primary transition-colors" href="{% url 'loan_list' %}">{% trans "Loans" %}</a>
   <span class="material-symbols-outlined text-[16px]">chevron_right</span>
   <a class="hover:text-primary transition-colors" href="{% url 'customer_detail' loan.customer.id %}">{{ loan.customer.get_full_name }}</a>
   <span class="material-symbols-outlined text-[16px]">chevron_right</span>
-  <span class="text-on-surface font-bold">Loan #{{ loan.loan_id }}</span>
+  <span class="text-on-surface font-bold">{% blocktrans with loan_id=loan.loan_id %}Loan #{{ loan_id }}{% endblocktrans %}</span>
 </nav>
 
 <a href="{% url 'loan_list' %}" class="lg:hidden inline-flex items-center gap-2 text-primary text-label-md font-bold">
   <span class="material-symbols-outlined">arrow_back</span>
-  Loans
+  {% trans "Loans" %}
 </a>
 
 <section class="bg-white rounded-2xl p-5 lg:p-8 soft-shadow border border-slate-200">
   <div class="flex justify-between items-start mb-6 lg:mb-8 flex-wrap gap-4">
     <div class="min-w-0">
       <p class="lg:hidden text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-        {% if overall_status == 'active' %}Active Loan{% elif overall_status == 'delayed' %}Delayed Loan{% else %}Completed Loan{% endif %}
+        {% if overall_status == 'active' %}{% trans "Active Loan" %}{% elif overall_status == 'delayed' %}{% trans "Delayed Loan" %}{% else %}{% trans "Completed Loan" %}{% endif %}
       </p>
       <div class="flex items-center gap-3 lg:gap-4 mb-1 flex-wrap">
         <h2 class="text-2xl lg:text-3xl mono font-bold text-primary truncate">#{{ loan.loan_id }}</h2>
         {% if overall_status == 'active' %}
-        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wide font-bold border border-emerald-100">Active</span>
+        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs uppercase tracking-wide font-bold border border-emerald-100">{% trans "Active" %}</span>
         {% elif overall_status == 'delayed' %}
-        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs uppercase tracking-wide font-bold border border-amber-100">Delayed</span>
+        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs uppercase tracking-wide font-bold border border-amber-100">{% trans "Delayed" %}</span>
         {% else %}
-        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs uppercase tracking-wide font-bold border border-blue-100">Completed</span>
+        <span class="hidden lg:inline-flex px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs uppercase tracking-wide font-bold border border-blue-100">{% trans "Completed" %}</span>
         {% endif %}
       </div>
       <a class="text-sm text-primary font-semibold hover:underline" href="{% url 'customer_detail' loan.customer.id %}">{{ loan.customer.get_full_name }}</a>
     </div>
     <div class="flex gap-3">
       {% if overall_status == 'active' %}
-      <span class="lg:hidden bg-secondary-container/30 text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">In Repayment</span>
+      <span class="lg:hidden bg-secondary-container/30 text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">{% trans "In Repayment" %}</span>
       {% elif overall_status == 'delayed' %}
-      <span class="lg:hidden bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-label-sm font-label-sm border border-amber-100">Delayed</span>
+      <span class="lg:hidden bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-label-sm font-label-sm border border-amber-100">{% trans "Delayed" %}</span>
       {% else %}
-      <span class="lg:hidden bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-label-sm font-label-sm border border-blue-100">Completed</span>
+      <span class="lg:hidden bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-label-sm font-label-sm border border-blue-100">{% trans "Completed" %}</span>
       {% endif %}
       {% if not loan.is_completed %}
-      <button type="button" data-open-payment-modal class="hidden lg:inline-block px-4 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">Record Payment</button>
+      <button type="button" data-open-payment-modal class="hidden lg:inline-block px-4 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">{% trans "Record Payment" %}</button>
       {% endif %}
     </div>
   </div>
 
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-5 lg:gap-6 mb-8 lg:mb-10 border-t lg:border-0 border-outline-variant pt-6 lg:pt-0">
-    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Principal</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">₼{{ loan.amount|intcomma }}</p></div>
-    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Monthly Payment</p><p class="text-lg lg:text-xl font-bold text-primary lg:text-on-surface truncate">₼{{ loan.monthly_payment|intcomma }}</p></div>
-    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Remaining</p><p class="text-lg lg:text-xl font-bold text-primary truncate">₼{{ remaining|intcomma }}</p></div>
-    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Term</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">{{ loan.term }} mo</p></div>
-    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Paid Months</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">{{ paid_count }} / {{ loan.term }}</p></div>
-    <div class="space-y-1 min-w-0 col-span-2 md:col-span-1 pt-3 md:pt-0 border-t md:border-0 border-outline-variant/20"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">Revenue Accrued</p><p class="text-lg lg:text-xl font-bold text-secondary truncate">₼{{ revenue|intcomma }}</p></div>
+    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Principal" %}</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">₼{{ loan.amount|intcomma }}</p></div>
+    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Monthly Payment" %}</p><p class="text-lg lg:text-xl font-bold text-primary lg:text-on-surface truncate">₼{{ loan.monthly_payment|intcomma }}</p></div>
+    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Remaining" %}</p><p class="text-lg lg:text-xl font-bold text-primary truncate">₼{{ remaining|intcomma }}</p></div>
+    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Term" %}</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">{% blocktrans with term=loan.term %}{{ term }} mo{% endblocktrans %}</p></div>
+    <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Paid Months" %}</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">{{ paid_count }} / {{ loan.term }}</p></div>
+    <div class="space-y-1 min-w-0 col-span-2 md:col-span-1 pt-3 md:pt-0 border-t md:border-0 border-outline-variant/20"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Revenue Accrued" %}</p><p class="text-lg lg:text-xl font-bold text-secondary truncate">₼{{ revenue|intcomma }}</p></div>
   </div>
 
   <div class="space-y-4">
     <div class="flex justify-between items-center text-sm">
-      <span class="text-on-surface font-semibold">Repayment Progress</span>
-      <span class="text-on-surface-variant">{{ progress_pct }}% Complete</span>
+      <span class="text-on-surface font-semibold">{% trans "Repayment Progress" %}</span>
+      <span class="text-on-surface-variant">{% blocktrans with pct=progress_pct %}{{ pct }}% Complete{% endblocktrans %}</span>
     </div>
     <div class="w-full h-4 bg-surface-container-high rounded-full overflow-hidden">
       <div class="h-full bg-primary-container rounded-full transition-all" style="width: {{ progress_pct }}%"></div>
@@ -75,13 +76,13 @@
     <div class="flex flex-wrap gap-2 pt-2">
       {% for s in schedule %}
       {% if s.status == 'on_time' %}
-      <span class="w-3 h-3 rounded-full bg-emerald-500" title="Month {{ s.month }} · Paid on time"></span>
+      <span class="w-3 h-3 rounded-full bg-emerald-500" title="{% blocktrans with month=s.month %}Month {{ month }} · Paid on time{% endblocktrans %}"></span>
       {% elif s.status == 'late' %}
-      <span class="w-3 h-3 rounded-full bg-amber-500" title="Month {{ s.month }} · Paid late"></span>
+      <span class="w-3 h-3 rounded-full bg-amber-500" title="{% blocktrans with month=s.month %}Month {{ month }} · Paid late{% endblocktrans %}"></span>
       {% elif s.status == 'overdue' %}
-      <span class="w-3 h-3 rounded-full bg-error" title="Month {{ s.month }} · Overdue"></span>
+      <span class="w-3 h-3 rounded-full bg-error" title="{% blocktrans with month=s.month %}Month {{ month }} · Overdue{% endblocktrans %}"></span>
       {% else %}
-      <span class="w-3 h-3 rounded-full bg-slate-200" title="Month {{ s.month }} · Upcoming"></span>
+      <span class="w-3 h-3 rounded-full bg-slate-200" title="{% blocktrans with month=s.month %}Month {{ month }} · Upcoming{% endblocktrans %}"></span>
       {% endif %}
       {% endfor %}
     </div>
@@ -91,7 +92,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
   <div class="lg:col-span-2 lg:bg-white lg:rounded-2xl lg:soft-shadow lg:border lg:border-slate-200 lg:overflow-hidden">
     <div class="flex items-center justify-between px-2 lg:p-6 lg:border-b lg:border-slate-100 mb-3 lg:mb-0">
-      <h3 class="text-headline-md lg:text-xl font-bold">Payment Schedule</h3>
+      <h3 class="text-headline-md lg:text-xl font-bold">{% trans "Payment Schedule" %}</h3>
     </div>
 
     <div class="lg:hidden space-y-3">
@@ -117,19 +118,19 @@
         <div class="flex-1 min-w-0">
           <p class="font-label-md text-on-surface truncate">{{ s.due_date|date:"M j, Y" }}</p>
           <p class="font-label-sm text-on-surface-variant">
-            {% if s.status == 'on_time' or s.status == 'late' %}Paid {{ s.paid_on|date:"M j" }}{% elif s.status == 'overdue' %}Grace Period{% else %}Upcoming{% endif %}
+            {% if s.status == 'on_time' or s.status == 'late' %}{% blocktrans with date=s.paid_on|date:"M j" %}Paid {{ date }}{% endblocktrans %}{% elif s.status == 'overdue' %}{% trans "Grace Period" %}{% else %}{% trans "Upcoming" %}{% endif %}
           </p>
         </div>
         <div class="text-right flex-shrink-0">
           <p class="font-label-md text-on-surface font-bold">₼{{ s.amount|intcomma }}</p>
           {% if s.status == 'on_time' %}
-          <span class="text-[10px] font-bold uppercase text-secondary">On Time</span>
+          <span class="text-[10px] font-bold uppercase text-secondary">{% trans "On Time" %}</span>
           {% elif s.status == 'late' %}
-          <span class="text-[10px] font-bold uppercase text-amber-700">Late</span>
+          <span class="text-[10px] font-bold uppercase text-amber-700">{% trans "Late" %}</span>
           {% elif s.status == 'overdue' %}
-          <span class="text-[10px] font-bold uppercase text-error">Overdue</span>
+          <span class="text-[10px] font-bold uppercase text-error">{% trans "Overdue" %}</span>
           {% else %}
-          <span class="text-[10px] font-bold uppercase text-on-surface-variant">Scheduled</span>
+          <span class="text-[10px] font-bold uppercase text-on-surface-variant">{% trans "Scheduled" %}</span>
           {% endif %}
         </div>
       </div>
@@ -141,10 +142,10 @@
         <thead>
           <tr class="bg-surface-container-low text-xs text-on-surface-variant uppercase tracking-wider">
             <th class="px-6 py-4 font-semibold">#</th>
-            <th class="px-6 py-4 font-semibold">Due Date</th>
-            <th class="px-6 py-4 font-semibold text-right">Amount</th>
-            <th class="px-6 py-4 font-semibold">Status</th>
-            <th class="px-6 py-4 font-semibold">Paid On</th>
+            <th class="px-6 py-4 font-semibold">{% trans "Due Date" %}</th>
+            <th class="px-6 py-4 font-semibold text-right">{% trans "Amount" %}</th>
+            <th class="px-6 py-4 font-semibold">{% trans "Status" %}</th>
+            <th class="px-6 py-4 font-semibold">{% trans "Paid On" %}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 text-sm">
@@ -154,7 +155,7 @@
             <td class="px-6 py-4 text-on-surface-variant">{{ s.month }}</td>
             <td class="px-6 py-4 font-bold text-error">{{ s.due_date|date:"M j, Y" }}</td>
             <td class="px-6 py-4 text-right font-bold text-error">₼{{ s.amount|intcomma }}</td>
-            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[11px] font-bold uppercase">Overdue</span></td>
+            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[11px] font-bold uppercase">{% trans "Overdue" %}</span></td>
             <td class="px-6 py-4 text-on-surface-variant">—</td>
           </tr>
           {% elif s.status == 'upcoming' %}
@@ -162,7 +163,7 @@
             <td class="px-6 py-4">{{ s.month }}</td>
             <td class="px-6 py-4">{{ s.due_date|date:"M j, Y" }}</td>
             <td class="px-6 py-4 text-right">₼{{ s.amount|intcomma }}</td>
-            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold uppercase">Upcoming</span></td>
+            <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold uppercase">{% trans "Upcoming" %}</span></td>
             <td class="px-6 py-4">—</td>
           </tr>
           {% else %}
@@ -172,9 +173,9 @@
             <td class="px-6 py-4 text-right">₼{{ s.amount|intcomma }}</td>
             <td class="px-6 py-4">
               {% if s.status == 'on_time' %}
-              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold uppercase">Paid On Time</span>
+              <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold uppercase">{% trans "Paid On Time" %}</span>
               {% else %}
-              <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-bold uppercase">Paid Late</span>
+              <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-bold uppercase">{% trans "Paid Late" %}</span>
               {% endif %}
             </td>
             <td class="px-6 py-4 text-on-surface-variant">{{ s.paid_on|date:"M j, Y" }}</td>
@@ -188,62 +189,66 @@
 
   <div class="space-y-6 lg:space-y-8">
     <div class="bg-surface-container-low lg:bg-white rounded-xl lg:rounded-2xl p-5 lg:p-6 lg:soft-shadow lg:border lg:border-slate-200" id="loan-info-card">
-      <h3 class="text-label-md lg:text-sm font-bold text-on-surface-variant lg:text-on-surface-variant uppercase tracking-widest lg:tracking-wider border-b border-outline-variant lg:border-0 pb-3 lg:pb-0 mb-4 lg:mb-6">Loan Information</h3>
+      <h3 class="text-label-md lg:text-sm font-bold text-on-surface-variant lg:text-on-surface-variant uppercase tracking-widest lg:tracking-wider border-b border-outline-variant lg:border-0 pb-3 lg:pb-0 mb-4 lg:mb-6">{% trans "Loan Information" %}</h3>
       <div class="space-y-4">
         <div class="flex justify-between items-center gap-3 text-sm">
-          <span class="text-on-surface-variant flex-shrink-0">Customer</span>
+          <span class="text-on-surface-variant flex-shrink-0">{% trans "Customer" %}</span>
           <a href="{% url 'customer_detail' loan.customer.id %}" class="text-on-surface font-semibold hover:text-primary transition-colors truncate text-right">{{ loan.customer.get_full_name }}</a>
         </div>
         <div class="flex justify-between items-center text-sm">
-          <span class="text-on-surface-variant">Start Date</span>
+          <span class="text-on-surface-variant">{% trans "Start Date" %}</span>
           <span class="text-on-surface font-semibold">{{ loan.start|date:"M j, Y" }}</span>
         </div>
         <div class="flex justify-between items-center text-sm">
-          <span class="text-on-surface-variant">Term</span>
-          <span class="text-on-surface font-semibold">{{ loan.term }} months</span>
+          <span class="text-on-surface-variant">{% trans "Term" %}</span>
+          <span class="text-on-surface font-semibold">{% blocktrans with term=loan.term %}{{ term }} months{% endblocktrans %}</span>
         </div>
         <div class="flex justify-between items-center text-sm">
-          <span class="text-on-surface-variant">Last Updated</span>
+          <span class="text-on-surface-variant">{% trans "Last Updated" %}</span>
           <span class="text-on-surface font-semibold">{{ loan.updated|naturaltime }}</span>
         </div>
       </div>
     </div>
 
     <div class="lg:bg-white lg:rounded-2xl lg:p-6 lg:soft-shadow lg:border lg:border-slate-200">
-      <h3 class="text-label-md lg:text-xl font-bold uppercase lg:normal-case tracking-widest lg:tracking-normal text-on-surface-variant lg:text-on-surface mb-4 lg:mb-6 px-2 lg:px-0">Quick Actions</h3>
+      <h3 class="text-label-md lg:text-xl font-bold uppercase lg:normal-case tracking-widest lg:tracking-normal text-on-surface-variant lg:text-on-surface mb-4 lg:mb-6 px-2 lg:px-0">{% trans "Quick Actions" %}</h3>
       <div class="grid grid-cols-2 lg:flex lg:flex-col gap-3">
         <a href="{% url 'loan_edit' loan.id %}" class="flex flex-col lg:flex-row items-center justify-center gap-2 p-4 lg:py-3 lg:px-4 bg-surface-container-lowest lg:bg-transparent border border-outline-variant/30 lg:border lg:border-outline text-on-surface rounded-xl font-semibold hover:bg-surface-container transition-colors">
           <span class="material-symbols-outlined text-primary lg:text-on-surface text-[24px] lg:text-[20px]">edit</span>
-          <span class="font-label-sm lg:text-base">Edit Loan</span>
+          <span class="font-label-sm lg:text-base">{% trans "Edit Loan" %}</span>
+        </a>
+        <a href="{% url 'loan_pdf' loan.id %}" class="flex flex-col lg:flex-row items-center justify-center gap-2 p-4 lg:py-3 lg:px-4 bg-surface-container-lowest lg:bg-transparent border border-outline-variant/30 lg:border lg:border-outline text-on-surface rounded-xl font-semibold hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-primary lg:text-on-surface text-[24px] lg:text-[20px]">picture_as_pdf</span>
+          <span class="font-label-sm lg:text-base">{% trans "Download PDF" %}</span>
         </a>
         {% if loan.is_completed %}
         <button disabled class="flex flex-col lg:flex-row items-center justify-center gap-2 p-4 lg:py-3 lg:px-4 bg-surface-container-lowest lg:bg-transparent border border-outline-variant/30 lg:border lg:border-outline-variant text-on-surface-variant rounded-xl font-semibold opacity-50 cursor-not-allowed">
           <span class="material-symbols-outlined text-[24px] lg:text-[20px]">task_alt</span>
-          <span class="font-label-sm lg:text-base">Already Completed</span>
+          <span class="font-label-sm lg:text-base">{% trans "Already Completed" %}</span>
         </button>
         {% else %}
-        <form method="post" action="{% url 'loan_mark_complete' loan.id %}" onsubmit="return confirm('Mark this loan as completed? This will not be reversible from the UI.');" class="contents">
+        <form method="post" action="{% url 'loan_mark_complete' loan.id %}" onsubmit="return confirm('{% trans "Mark this loan as completed? This will not be reversible from the UI." %}');" class="contents">
           {% csrf_token %}
           <button type="submit" class="w-full flex flex-col lg:flex-row items-center justify-center gap-2 p-4 lg:py-3 lg:px-4 bg-surface-container-lowest lg:bg-transparent border border-outline-variant/30 lg:border lg:border-outline text-on-surface rounded-xl font-semibold hover:bg-surface-container transition-colors">
             <span class="material-symbols-outlined text-primary lg:text-on-surface text-[24px] lg:text-[20px]">task_alt</span>
-            <span class="font-label-sm lg:text-base">Mark Completed</span>
+            <span class="font-label-sm lg:text-base">{% trans "Mark Completed" %}</span>
           </button>
         </form>
         {% endif %}
         {% if loan.is_completed %}
         <button type="button" disabled class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold opacity-50 cursor-not-allowed lg:order-first">
           <span class="material-symbols-outlined text-[20px]">add_card</span>
-          Record Payment
+          {% trans "Record Payment" %}
         </button>
         {% else %}
         <button type="button" data-open-payment-modal class="hidden lg:flex w-full items-center justify-center gap-2 py-3 px-4 bg-primary text-on-primary rounded-xl font-semibold hover:opacity-90 transition-opacity lg:order-first">
           <span class="material-symbols-outlined text-[20px]">add_card</span>
-          Record Payment
+          {% trans "Record Payment" %}
         </button>
         {% endif %}
         <a href="/loans/{{ loan.id }}/delete/" class="col-span-2 lg:col-span-1 flex flex-col lg:flex-row items-center justify-center gap-2 p-4 lg:py-3 lg:px-4 bg-surface-container-lowest lg:bg-transparent border border-error/30 text-error rounded-xl font-semibold hover:bg-error/5 transition-colors lg:mt-4">
           <span class="material-symbols-outlined text-[24px] lg:text-[20px]">delete</span>
-          <span class="font-label-sm lg:text-base">Delete Loan</span>
+          <span class="font-label-sm lg:text-base">{% trans "Delete Loan" %}</span>
         </a>
       </div>
     </div>
@@ -254,19 +259,19 @@
   <div class="bg-surface-container-lowest w-full lg:max-w-[560px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
     <div class="px-5 pt-5 pb-5 lg:px-8 lg:pt-8 lg:pb-6 border-b border-outline-variant/30 overflow-y-auto">
       <div class="flex justify-between items-start mb-5 lg:mb-6">
-        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">Record Payment</h2>
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">{% trans "Record Payment" %}</h2>
         <button type="button" data-close-payment-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl gap-3 lg:gap-4">
         <div class="space-y-1 min-w-0">
-          <p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider">Customer &amp; ID</p>
+          <p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider">{% trans "Customer & ID" %}</p>
           <p class="text-sm lg:text-base text-on-surface font-semibold truncate">{{ loan.customer.get_full_name }}</p>
           <p class="text-xs lg:text-sm text-primary font-mono bg-primary-container/10 px-2 py-0.5 rounded inline-block">#{{ loan.loan_id }}</p>
         </div>
         <div class="text-right flex-shrink-0">
-          <p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider">Amount Due</p>
+          <p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider">{% trans "Amount Due" %}</p>
           <p class="text-2xl lg:text-3xl font-bold text-on-surface">₼{{ loan.monthly_payment|intcomma }}</p>
         </div>
       </div>
@@ -278,16 +283,16 @@
       <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-5 lg:space-y-6 overflow-y-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-2">
-            <label class="text-sm font-medium text-on-surface-variant" for="id_paid_at">Payment Date</label>
+            <label class="text-sm font-medium text-on-surface-variant" for="id_paid_at">{% trans "Payment Date" %}</label>
             <input id="id_paid_at" name="paid_at" type="date" value="{{ today_iso }}" class="w-full h-12 bg-surface-container-lowest border border-outline-variant rounded-lg px-4 text-base focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"/>
           </div>
           <div class="space-y-2">
-            <label class="text-sm font-medium text-on-surface-variant">Paid on time</label>
+            <label class="text-sm font-medium text-on-surface-variant">{% trans "Paid on time" %}</label>
             <div class="flex items-center h-12">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input id="id_is_not_delayed" name="is_not_delayed" type="checkbox" checked class="sr-only peer"/>
                 <div class="w-11 h-6 bg-outline-variant peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
-                <span class="ml-3 text-base font-medium text-on-surface" id="paid-on-time-label">Yes</span>
+                <span class="ml-3 text-base font-medium text-on-surface" id="paid-on-time-label">{% trans "Yes" %}</span>
               </label>
             </div>
           </div>
@@ -296,30 +301,30 @@
         <div class="bg-surface-container/50 border border-outline-variant/50 rounded-xl p-4 lg:p-5 space-y-4">
           <div class="flex items-center gap-2 text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider">
             <span class="material-symbols-outlined text-[18px]">analytics</span>
-            <span>After this payment</span>
+            <span>{% trans "After this payment" %}</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
             <div class="space-y-1 min-w-0">
-              <p class="text-[10px] lg:text-xs text-on-surface-variant">Paid Months</p>
+              <p class="text-[10px] lg:text-xs text-on-surface-variant">{% trans "Paid Months" %}</p>
               <p class="text-sm lg:text-base font-semibold truncate">{{ paid_count }} <span class="text-secondary mx-1">→</span> {{ paid_count_after }}</p>
             </div>
             <div class="space-y-1 min-w-0">
-              <p class="text-[10px] lg:text-xs text-on-surface-variant">Remaining Amount</p>
+              <p class="text-[10px] lg:text-xs text-on-surface-variant">{% trans "Remaining Amount" %}</p>
               <p class="text-sm lg:text-base font-semibold truncate">₼{{ remaining|intcomma }} <span class="text-secondary mx-1">→</span> ₼{{ remaining_after|intcomma }}</p>
             </div>
             <div class="space-y-1 min-w-0">
-              <p class="text-[10px] lg:text-xs text-on-surface-variant">Remaining Months</p>
-              <p class="text-sm lg:text-base font-semibold truncate">{{ remaining_months }} <span class="text-secondary mx-1">→</span> {{ remaining_months_after }} mo</p>
+              <p class="text-[10px] lg:text-xs text-on-surface-variant">{% trans "Remaining Months" %}</p>
+              <p class="text-sm lg:text-base font-semibold truncate">{{ remaining_months }} <span class="text-secondary mx-1">→</span> {% blocktrans with months=remaining_months_after %}{{ months }} mo{% endblocktrans %}</p>
             </div>
           </div>
         </div>
       </div>
 
       <div class="px-5 py-4 lg:px-8 lg:py-6 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-6">
-        <button type="button" data-close-payment-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">Cancel</button>
+        <button type="button" data-close-payment-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">{% trans "Cancel" %}</button>
         <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-secondary text-on-secondary text-sm font-bold shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
           <span class="material-symbols-outlined text-[20px]">check_circle</span>
-          Confirm Payment
+          {% trans "Confirm Payment" %}
         </button>
       </div>
     </form>
