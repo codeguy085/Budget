@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load humanize %}
+{% load l10n %}
 
 {% block title %}{% blocktrans with loan_id=loan.loan_id %}Loan #{{ loan_id }}{% endblocktrans %} | Budget{% endblock %}
 
@@ -71,7 +72,7 @@
       <span class="text-on-surface-variant">{% blocktrans with pct=progress_pct %}{{ pct }}% Complete{% endblocktrans %}</span>
     </div>
     <div class="w-full h-4 bg-surface-container-high rounded-full overflow-hidden">
-      <div class="h-full bg-primary-container rounded-full transition-all" style="width: {{ progress_pct }}%"></div>
+      <div class="h-full bg-primary-container rounded-full transition-all" style="width: {{ progress_pct|unlocalize }}%"></div>
     </div>
     <div class="flex flex-wrap gap-2 pt-2">
       {% for s in schedule %}

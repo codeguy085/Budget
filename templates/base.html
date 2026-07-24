@@ -345,8 +345,10 @@
     <form action="{% url 'set_language' %}" method="post" class="lg:hidden">
       {% csrf_token %}
       <input name="next" type="hidden" value="{{ request.get_full_path|default:'/' }}"/>
-      <button type="submit" name="language" value="{% if CURRENT_LANGUAGE == 'az' %}en{% else %}az{% endif %}" class="hover:bg-surface-container rounded-full px-2 py-2 text-on-surface-variant transition-colors text-xs font-bold uppercase" aria-label="Toggle language">
-        {% if CURRENT_LANGUAGE == 'az' %}EN{% else %}AZ{% endif %}
+      <input type="hidden" name="language" value="{% if CURRENT_LANGUAGE == 'az' %}en{% else %}az{% endif %}"/>
+      <button type="submit" class="hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors flex items-center gap-1" aria-label="Toggle language">
+        <span class="material-symbols-outlined">translate</span>
+        <span class="text-[10px] font-bold uppercase">{% if CURRENT_LANGUAGE == 'az' %}EN{% else %}AZ{% endif %}</span>
       </button>
     </form>
     <button type="button" data-theme-toggle class="lg:hidden hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-colors" aria-label="Toggle theme">

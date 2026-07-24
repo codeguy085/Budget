@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load humanize %}
+{% load l10n %}
 
 {% block title %}{% trans "Reports" %} | Budget{% endblock %}
 
@@ -153,8 +154,8 @@
         </div>
         <div class="h-6 w-full flex rounded-md overflow-hidden bg-surface-container">
           {% if r.has_data %}
-          <div class="h-full bg-secondary" style="width: {{ r.on_time_pct }}%"></div>
-          <div class="h-full bg-tertiary-fixed-dim" style="width: {{ r.late_pct }}%"></div>
+          <div class="h-full bg-secondary" style="width: {{ r.on_time_pct|unlocalize }}%"></div>
+          <div class="h-full bg-tertiary-fixed-dim" style="width: {{ r.late_pct|unlocalize }}%"></div>
           {% endif %}
         </div>
       </div>
@@ -333,7 +334,7 @@
     <span class="text-[10px] lg:text-xs text-outline lg:text-on-surface-variant font-bold uppercase">{% trans "On-time Rate" %}</span>
     <span class="text-headline-md lg:text-2xl font-semibold text-secondary truncate">{{ on_time_rate }}%</span>
     <div class="mt-2 w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
-      <div class="bg-secondary h-full" style="width: {{ on_time_rate }}%"></div>
+      <div class="bg-secondary h-full" style="width: {{ on_time_rate|unlocalize }}%"></div>
     </div>
   </div>
   <div class="bg-surface-container-low lg:bg-surface rounded-2xl p-4 lg:p-5 border border-outline-variant/20 lg:border-outline-variant flex flex-col gap-1 min-w-0">

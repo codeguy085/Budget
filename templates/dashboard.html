@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% load i18n %}
+{% load l10n %}
 
 {% block title %}{% trans "Dashboard" %} | Budget{% endblock %}
 
@@ -138,9 +139,9 @@
       <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
         <circle cx="50" cy="50" fill="transparent" r="40" stroke="#e2e7ff" stroke-width="12"></circle>
         {% if total_loans > 0 %}
-        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#006c49" stroke-dasharray="{{ on_time_dash }} 251.2" stroke-width="12"></circle>
-        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#ffb95f" stroke-dasharray="{{ delayed_dash }} 251.2" stroke-dashoffset="-{{ on_time_dash }}" stroke-width="12"></circle>
-        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#3525cd" stroke-dasharray="{{ completed_dash }} 251.2" stroke-dashoffset="-{{ on_time_plus_delayed_dash }}" stroke-width="12"></circle>
+        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#006c49" stroke-dasharray="{{ on_time_dash|unlocalize }} 251.2" stroke-width="12"></circle>
+        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#ffb95f" stroke-dasharray="{{ delayed_dash|unlocalize }} 251.2" stroke-dashoffset="-{{ on_time_dash|unlocalize }}" stroke-width="12"></circle>
+        <circle cx="50" cy="50" fill="transparent" r="40" stroke="#3525cd" stroke-dasharray="{{ completed_dash|unlocalize }} 251.2" stroke-dashoffset="-{{ on_time_plus_delayed_dash|unlocalize }}" stroke-width="12"></circle>
         {% endif %}
       </svg>
       <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -188,7 +189,7 @@
           <span class="text-primary font-bold flex-shrink-0">₼{{ row.remaining|intcomma }}</span>
         </div>
         <div class="h-2 lg:h-3 bg-surface-container rounded-full overflow-hidden">
-          <div class="h-full bg-primary rounded-full" style="width: {{ row.pct }}%"></div>
+          <div class="h-full bg-primary rounded-full" style="width: {{ row.pct|unlocalize }}%"></div>
         </div>
       </div>
       {% empty %}

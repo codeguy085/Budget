@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load humanize %}
+{% load l10n %}
 
 {% block title %}{% trans "Loans" %} | Budget{% endblock %}
 
@@ -171,7 +172,7 @@
         <p class="text-label-sm font-bold text-on-surface">{% blocktrans with paid=row.paid_months total=row.loan.term %}{{ paid }}/{{ total }} months{% endblocktrans %}</p>
       </div>
       <div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-        <div class="{% if row.status == 'delayed' %}bg-error{% elif row.status == 'completed' %}bg-on-surface-variant{% else %}bg-primary{% endif %} h-full rounded-full" style="width: {{ row.progress_pct }}%"></div>
+        <div class="{% if row.status == 'delayed' %}bg-error{% elif row.status == 'completed' %}bg-on-surface-variant{% else %}bg-primary{% endif %} h-full rounded-full" style="width: {{ row.progress_pct|unlocalize }}%"></div>
       </div>
       <div class="flex justify-between pt-1 gap-2">
         <p class="text-[11px] text-outline italic">{% trans "Remaining Balance" %}</p>
@@ -246,7 +247,7 @@
           <td class="px-6 py-5 min-w-[140px]">
             <div class="flex flex-col gap-1.5">
               <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-                <div class="{% if row.status == 'delayed' %}bg-tertiary-container{% elif row.status == 'completed' %}bg-on-surface-variant{% else %}bg-primary{% endif %} h-full rounded-full" style="width: {{ row.progress_pct }}%"></div>
+                <div class="{% if row.status == 'delayed' %}bg-tertiary-container{% elif row.status == 'completed' %}bg-on-surface-variant{% else %}bg-primary{% endif %} h-full rounded-full" style="width: {{ row.progress_pct|unlocalize }}%"></div>
               </div>
               <span class="text-[11px] font-bold text-on-surface-variant">{{ row.paid_months }} / {{ row.loan.term }}</span>
             </div>
