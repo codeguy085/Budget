@@ -919,6 +919,7 @@ def dashboard(request):
     total_loans = len(loans)
     total_borrowers = Customer.objects.count()
     new_borrowers_this_month = Customer.objects.filter(created_at__gte=first_of_month).count()
+    new_loans_this_month = Loan.objects.filter(start__date__gte=first_of_month).count()
 
     delayed_loan_ids = set(
         Payment.objects.filter(
@@ -1003,6 +1004,7 @@ def dashboard(request):
         'total_loans': total_loans,
         'total_borrowers': total_borrowers,
         'new_borrowers_this_month': new_borrowers_this_month,
+        'new_loans_this_month': new_loans_this_month,
         'on_time_count': on_time_count,
         'delayed_count': delayed_count,
         'on_time_dash': on_time_dash,
