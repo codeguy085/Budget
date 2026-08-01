@@ -244,6 +244,7 @@ def loan_detail(request, pk):
 
     progress_pct = round(paid_count * 100 / loan.term, 1) if loan.term else 0
     remaining = loan.remaining_amount()
+    paid_amount = paid_count * loan.monthly_payment
     remaining_months = max(loan.term - paid_count, 0)
     paid_count_after = min(paid_count + 1, loan.term)
     remaining_after = max(remaining - loan.monthly_payment, 0)
@@ -253,6 +254,7 @@ def loan_detail(request, pk):
         'active_nav': 'loans',
         'loan': loan,
         'paid_count': paid_count,
+        'paid_amount': paid_amount,
         'remaining': remaining,
         'revenue': loan.revenue(),
         'progress_pct': progress_pct,
