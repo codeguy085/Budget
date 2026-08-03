@@ -800,12 +800,14 @@ def reports(request):
     outstanding_running = 0
     outstanding_idx = 0
     portfolio_series = []
+    outstanding_series = []
     for i, period_p in enumerate(chart_periods):
         period_end = period_end_date(period_p)
         while outstanding_idx < len(outstanding_events) and outstanding_events[outstanding_idx][0] <= period_end:
             outstanding_running += outstanding_events[outstanding_idx][1]
             outstanding_idx += 1
         outstanding_at_end = max(0, outstanding_running)
+        outstanding_series.append(outstanding_at_end)
         portfolio_at_end = int(round(
             outstanding_at_end
             + azn_series[i]
@@ -817,8 +819,10 @@ def reports(request):
     portfolio_chart_data = {
         'labels': period_labels,
         'data': portfolio_series,
+        'outstanding': outstanding_series,
     }
     period_end_portfolio = portfolio_series[-1] if portfolio_series else 0
+    period_end_outstanding = outstanding_series[-1] if outstanding_series else 0
 
     capital_flow_data = {
         'labels': period_labels,
@@ -841,6 +845,7 @@ def reports(request):
         'period_end_balances': period_end_balances,
         'portfolio_chart_data': portfolio_chart_data,
         'period_end_portfolio': period_end_portfolio,
+        'period_end_outstanding': period_end_outstanding,
         'chart_months_count': len(chart_periods),
         'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,
