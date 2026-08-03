@@ -1087,3 +1087,13 @@ msgstr "Son köçürmələr"
 
 msgid "Download PDF"
 msgstr "PDF yüklə"
+
+# Total Portfolio Over Time chart
+msgid "Total Portfolio Over Time"
+msgstr "Zaman üzrə ümumi portfel"
+
+msgid "Outstanding loans + available cash (converted to AZN)."
+msgstr "Aktiv kreditlərin qalıq borcu + mövcud vəsait (AZN-ə çevrilmiş)."
+
+msgid "Period End"
+msgstr "Dövr sonu"

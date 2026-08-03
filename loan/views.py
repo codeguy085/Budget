@@ -785,6 +785,41 @@ def reports(request):
         'EUR': eur_series[-1] if eur_series else 0,
     }
 
+    # Total portfolio trend = outstanding loan balance + available cash (converted to AZN)
+    outstanding_events = []
+    for l in Loan.objects.prefetch_related('loan_payments'):
+        outstanding_events.append((l.start.date(), l.term * l.monthly_payment))
+        for p in l.loan_payments.all():
+            outstanding_events.append((p.paid_at, -l.monthly_payment))
+    outstanding_events.sort(key=lambda e: e[0])
+
+    rates_for_chart = _exchange_rates()
+    usd_rate = rates_for_chart.get('USD', FALLBACK_RATES['USD'])
+    eur_rate = rates_for_chart.get('EUR', FALLBACK_RATES['EUR'])
+
+    outstanding_running = 0
+    outstanding_idx = 0
+    portfolio_series = []
+    for i, period_p in enumerate(chart_periods):
+        period_end = period_end_date(period_p)
+        while outstanding_idx < len(outstanding_events) and outstanding_events[outstanding_idx][0] <= period_end:
+            outstanding_running += outstanding_events[outstanding_idx][1]
+            outstanding_idx += 1
+        outstanding_at_end = max(0, outstanding_running)
+        portfolio_at_end = int(round(
+            outstanding_at_end
+            + azn_series[i]
+            + usd_series[i] * usd_rate
+            + eur_series[i] * eur_rate
+        ))
+        portfolio_series.append(portfolio_at_end)
+
+    portfolio_chart_data = {
+        'labels': period_labels,
+        'data': portfolio_series,
+    }
+    period_end_portfolio = portfolio_series[-1] if portfolio_series else 0
+
     capital_flow_data = {
         'labels': period_labels,
         'new_loans': [new_loans_by_period[p] for p in chart_periods],
@@ -804,6 +839,8 @@ def reports(request):
         'capital_flow_data': capital_flow_data,
         'cash_balance_data': cash_balance_data,
         'period_end_balances': period_end_balances,
+        'portfolio_chart_data': portfolio_chart_data,
+        'period_end_portfolio': period_end_portfolio,
         'chart_months_count': len(chart_periods),
         'total_revenue_in_range': total_revenue_in_range,
         'total_deployed': total_deployed,

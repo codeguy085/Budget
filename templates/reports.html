@@ -130,6 +130,24 @@
   </div>
 </section>
 
+<section class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
+  <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-4">
+    <div>
+      <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Total Portfolio Over Time" %}</h3>
+      <p class="text-label-sm lg:text-sm text-on-surface-variant">{% trans "Outstanding loans + available cash (converted to AZN)." %}</p>
+    </div>
+    <div class="text-right min-w-0 flex-shrink-0">
+      <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Period End" %}</p>
+      <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ period_end_portfolio|intcomma }}</p>
+    </div>
+  </div>
+  <div class="h-56 lg:h-80 overflow-x-auto hide-scrollbar">
+    <div class="h-full relative" style="width: max(100%, calc({{ chart_months_count }} * 100% / 18));">
+      <canvas id="portfolioChart"></canvas>
+    </div>
+  </div>
+</section>
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <div class="bg-surface-container-lowest rounded-3xl p-5 lg:p-6 soft-shadow border border-slate-200">
     <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
@@ -349,6 +367,7 @@
 {{ revenue_chart_data|json_script:"revenue-chart-data" }}
 {{ capital_flow_data|json_script:"capital-flow-data" }}
 {{ cash_balance_data|json_script:"cash-balance-data" }}
+{{ portfolio_chart_data|json_script:"portfolio-chart-data" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   (function () {
@@ -380,6 +399,7 @@
     let revenueChart = null;
     let flowChart = null;
     let cashChart = null;
+    let portfolioChart = null;
 
     function buildRevenueChart() {
       const data = JSON.parse(document.getElementById('revenue-chart-data').textContent);
@@ -564,9 +584,61 @@
       });
     }
 
+    function buildPortfolioChart() {
+      const data = JSON.parse(document.getElementById('portfolio-chart-data').textContent);
+      const ctx = document.getElementById('portfolioChart').getContext('2d');
+      const t = themeColors();
+      const grad = ctx.createLinearGradient(0, 0, 0, 300);
+      grad.addColorStop(0, 'rgba(' + t.primaryRgb + ', 0.28)');
+      grad.addColorStop(1, 'rgba(' + t.primaryRgb + ', 0)');
+      portfolioChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Total Portfolio',
+            data: data.data,
+            borderColor: t.primary,
+            backgroundColor: grad,
+            fill: true,
+            tension: 0.3,
+            borderWidth: 3,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            pointBackgroundColor: t.primary,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => '₼' + ctx.parsed.y.toLocaleString(),
+              },
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: t.tickColor, font: { size: 11 } } },
+            y: {
+              grid: { color: t.gridColor },
+              ticks: {
+                color: t.tickColor,
+                font: { size: 11 },
+                callback: v => '₼' + v.toLocaleString(),
+              },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
     buildRevenueChart();
     buildFlowChart();
     buildCashChart();
+    buildPortfolioChart();
 
     const customToggle = document.getElementById('custom-toggle');
     const customRange = document.getElementById('custom-range');
@@ -582,9 +654,11 @@
           if (revenueChart) revenueChart.destroy();
           if (flowChart) flowChart.destroy();
           if (cashChart) cashChart.destroy();
+          if (portfolioChart) portfolioChart.destroy();
           buildRevenueChart();
           buildFlowChart();
           buildCashChart();
+          buildPortfolioChart();
           break;
         }
       }
