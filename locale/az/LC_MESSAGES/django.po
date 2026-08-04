@@ -1097,3 +1097,25 @@ msgstr "Aktiv kreditlərin qalıq borcu + mövcud vəsait (AZN-ə çevrilmiş)."
 
 msgid "Period End"
 msgstr "Dövr sonu"
+
+# Payment projection card
+msgid "Payment Projection"
+msgstr "Ödəniş proqnozu"
+
+msgid "Expected inflows between today and the selected date."
+msgstr "Bu gündən seçilmiş tarixə qədər gözlənilən ödənişlər."
+
+msgid "Expected payments"
+msgstr "Gözlənilən ödənişlər"
+
+msgid "Projected total with cash"
+msgstr "Mövcud vəsait ilə ümumi proqnoz"
+
+msgid "Expected + available cash (in AZN)"
+msgstr "Gözlənilən + mövcud vəsait (AZN)"
+
+msgid "payment"
+msgstr "ödəniş"
+
+msgid "payments"
+msgstr "ödəniş"

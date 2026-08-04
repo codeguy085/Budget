@@ -470,7 +470,6 @@
   </div>
 </div>
 
-{% if recent_investments or recent_transfers %}
 <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
   {% if recent_investments %}
   <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
@@ -500,26 +499,76 @@
     </div>
   </div>
   {% endif %}
-  {% if recent_transfers %}
-  <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
-    <h2 class="text-headline-md font-headline-md text-on-surface mb-6">{% trans "Recent Transfers" %}</h2>
-    <div class="space-y-3">
-      {% for t in recent_transfers %}
-      <div class="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low">
-        <div class="w-10 h-10 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary flex-shrink-0">
-          <span class="material-symbols-outlined">swap_horiz</span>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="font-bold text-on-surface truncate">{{ t.from_symbol }}{{ t.from_amount|intcomma }} {{ t.from_currency }} → {{ t.to_symbol }}{{ t.to_amount|intcomma }} {{ t.to_currency }}</p>
-          <p class="text-label-sm text-on-surface-variant truncate">{{ t.transferred_at|date:"M j, Y" }} · rate {{ t.rate }}{% if t.note %} · {{ t.note }}{% endif %}</p>
-        </div>
+
+  <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30 flex flex-col">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
+      <div>
+        <h2 class="text-headline-md font-headline-md text-on-surface">{% trans "Payment Projection" %}</h2>
+        <p class="text-label-sm text-on-surface-variant mt-1">{% trans "Expected inflows between today and the selected date." %}</p>
       </div>
-      {% endfor %}
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <span class="material-symbols-outlined text-on-surface-variant text-[20px]">event</span>
+        <input id="projection-date" type="date" min="{{ today_iso }}" value="{{ default_projection_end_iso }}" class="h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"/>
+      </div>
+    </div>
+    <div class="space-y-3 flex-1">
+      <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30">
+        <p class="text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">{% trans "Expected payments" %}</p>
+        <p class="text-headline-md font-headline-md text-secondary mt-1 truncate" id="projection-payments">₼0</p>
+        <p class="text-label-sm text-on-surface-variant" id="projection-count">0 {% trans "payments" %}</p>
+      </div>
+      <div class="p-4 rounded-2xl bg-primary/5 border border-primary/20">
+        <p class="text-label-sm text-primary uppercase tracking-wider font-bold">{% trans "Projected total with cash" %}</p>
+        <p class="text-headline-md font-headline-md text-primary mt-1 truncate" id="projection-total">₼0</p>
+        <p class="text-label-sm text-on-surface-variant">{% trans "Expected + available cash (in AZN)" %}</p>
+      </div>
     </div>
   </div>
-  {% endif %}
+</section>
+
+{% if recent_transfers %}
+<section class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
+  <h2 class="text-headline-md font-headline-md text-on-surface mb-6">{% trans "Recent Transfers" %}</h2>
+  <div class="space-y-3">
+    {% for t in recent_transfers %}
+    <div class="flex items-center gap-3 p-3 rounded-2xl bg-surface-container-low">
+      <div class="w-10 h-10 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary flex-shrink-0">
+        <span class="material-symbols-outlined">swap_horiz</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-on-surface truncate">{{ t.from_symbol }}{{ t.from_amount|intcomma }} {{ t.from_currency }} → {{ t.to_symbol }}{{ t.to_amount|intcomma }} {{ t.to_currency }}</p>
+        <p class="text-label-sm text-on-surface-variant truncate">{{ t.transferred_at|date:"M j, Y" }} · rate {{ t.rate }}{% if t.note %} · {{ t.note }}{% endif %}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </section>
 {% endif %}
+
+{{ future_payments_data|json_script:"future-payments-data" }}
+<script>
+  (function () {
+    const data = JSON.parse(document.getElementById('future-payments-data').textContent);
+    const availableCashAzn = {{ available_cash_azn }};
+    const input = document.getElementById('projection-date');
+    const paymentsEl = document.getElementById('projection-payments');
+    const countEl = document.getElementById('projection-count');
+    const totalEl = document.getElementById('projection-total');
+    function fmt(n) { return '₼' + n.toLocaleString('en-US'); }
+    function recalc() {
+      const end = input.value;
+      if (!end) { paymentsEl.textContent = '₼0'; countEl.textContent = '0'; totalEl.textContent = fmt(availableCashAzn); return; }
+      let sum = 0, count = 0;
+      for (const p of data) {
+        if (p.date <= end) { sum += p.amount; count++; } else break;
+      }
+      paymentsEl.textContent = fmt(sum);
+      countEl.textContent = count + ' ' + (count === 1 ? '{% trans "payment" %}' : '{% trans "payments" %}');
+      totalEl.textContent = fmt(sum + availableCashAzn);
+    }
+    if (input) { input.addEventListener('change', recalc); input.addEventListener('input', recalc); recalc(); }
+  })();
+</script>
 {% endblock %}
 
 {% block fab %}

@@ -1066,12 +1066,32 @@ def dashboard(request):
     cash = context['available_cash']
     rates = _exchange_rates()
     context['exchange_rates'] = rates
+    usd_rate = rates.get('USD', FALLBACK_RATES['USD'])
+    eur_rate = rates.get('EUR', FALLBACK_RATES['EUR'])
     context['total_portfolio_azn'] = int(round(
         remaining_balance
         + cash['AZN']
-        + cash['USD'] * rates.get('USD', FALLBACK_RATES['USD'])
-        + cash['EUR'] * rates.get('EUR', FALLBACK_RATES['EUR'])
+        + cash['USD'] * usd_rate
+        + cash['EUR'] * eur_rate
     ))
+    context['available_cash_azn'] = int(round(
+        cash['AZN'] + cash['USD'] * usd_rate + cash['EUR'] * eur_rate
+    ))
+
+    future_payments = []
+    for l in active_loans:
+        paid_by_now = l.paid_month()
+        for month_num in range(paid_by_now + 1, l.term + 1):
+            due = _add_months(l.start.date(), month_num)
+            if due >= today:
+                future_payments.append({'date': due.isoformat(), 'amount': l.monthly_payment})
+    future_payments.sort(key=lambda x: x['date'])
+    context['future_payments_data'] = future_payments
+
+    from datetime import timedelta as _td
+    default_projection_end = today + _td(days=30)
+    context['default_projection_end_iso'] = default_projection_end.isoformat()
+
     return render(request, 'dashboard.html', context)
 
 
