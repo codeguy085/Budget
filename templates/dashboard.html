@@ -11,18 +11,22 @@
     <p class="text-on-primary/80 text-label-md uppercase tracking-wider font-bold">{% trans "Available Cash" %}</p>
     <p class="text-on-primary/70 text-label-sm hidden sm:block">{% trans "Capital not deployed in active loans" %}</p>
   </div>
-  <div class="grid grid-cols-3 gap-3 lg:gap-6">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
     <div class="min-w-0">
-      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">AZN</p>
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">{% trans "AZN Reserve" %}</p>
       <p class="text-xl lg:text-3xl font-bold mt-1 truncate">₼{{ available_cash.AZN|intcomma }}</p>
     </div>
     <div class="min-w-0">
-      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">USD</p>
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">{% trans "USD Reserve" %}</p>
       <p class="text-xl lg:text-3xl font-bold mt-1 truncate">${{ available_cash.USD|intcomma }}</p>
     </div>
     <div class="min-w-0">
-      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">EUR</p>
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">{% trans "EUR Reserve" %}</p>
       <p class="text-xl lg:text-3xl font-bold mt-1 truncate">€{{ available_cash.EUR|intcomma }}</p>
+    </div>
+    <div class="min-w-0 pl-3 lg:pl-6 border-l border-on-primary/20">
+      <p class="text-on-primary/80 text-[10px] lg:text-label-sm uppercase tracking-wider font-bold">{% trans "Available AZN" %}</p>
+      <p class="text-xl lg:text-3xl font-bold mt-1 truncate">₼{{ available_azn|intcomma }}</p>
     </div>
   </div>
   <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-5">
@@ -37,6 +41,10 @@
     <button type="button" data-open-transfer-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary/15 text-on-primary border border-on-primary/30 rounded-xl font-bold text-label-md hover:bg-on-primary/25 active:scale-95 transition-all">
       <span class="material-symbols-outlined">swap_horiz</span>
       {% trans "Transfer" %}
+    </button>
+    <button type="button" data-open-move-cash-modal class="flex-1 flex items-center justify-center gap-2 px-5 py-3 bg-on-primary/15 text-on-primary border border-on-primary/30 rounded-xl font-bold text-label-md hover:bg-on-primary/25 active:scale-95 transition-all">
+      <span class="material-symbols-outlined">currency_exchange</span>
+      {% trans "Move Cash" %}
     </button>
   </div>
 </section>
@@ -470,6 +478,75 @@
   </div>
 </div>
 
+<div id="move-cash-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
+  <div class="bg-surface-container-lowest w-full lg:max-w-[480px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
+    <div class="px-5 pt-5 pb-4 lg:px-8 lg:pt-7 lg:pb-5 border-b border-outline-variant/30">
+      <div class="flex justify-between items-start mb-2">
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">{% trans "Move Cash" %}</h2>
+        <button type="button" data-close-move-cash-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p class="text-label-md text-on-surface-variant">{% trans "Move money between a reserve and Available AZN." %}</p>
+    </div>
+
+    <form method="post" action="{% url 'available_cash_transfer_create' %}" class="contents">
+      {% csrf_token %}
+      <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-4 overflow-y-auto">
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant">{% trans "Direction" %}</label>
+          <div class="flex gap-1 bg-surface-container rounded-lg p-1">
+            <button type="button" data-mc-direction="to_available" class="mc-direction-btn flex-1 py-2 px-2 rounded-md text-[12px] font-bold bg-surface-container-lowest text-primary shadow-sm">
+              {% trans "Reserve → Available AZN" %}
+            </button>
+            <button type="button" data-mc-direction="from_available" class="mc-direction-btn flex-1 py-2 px-2 rounded-md text-[12px] font-bold text-on-surface-variant">
+              {% trans "Available AZN → Reserve" %}
+            </button>
+          </div>
+          <input type="hidden" id="mc_direction" name="direction" value="to_available"/>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-2 col-span-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="mc_amount" id="mc_amount_label">{% trans "Amount" %}</label>
+            <input id="mc_amount" name="amount" type="number" min="1" required placeholder="e.g. 1000" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+          </div>
+          <div class="space-y-2">
+            <label class="text-label-md font-label-md text-on-surface-variant" for="mc_reserve_currency">{% trans "Reserve" %}</label>
+            <select id="mc_reserve_currency" name="reserve_currency" class="w-full h-12 px-3 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none">
+              <option value="AZN">₼ AZN</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+            </select>
+          </div>
+        </div>
+        <div id="mc_rate_wrap" class="space-y-2 hidden">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="mc_rate">{% trans "Rate (AZN per unit)" %}</label>
+          <input id="mc_rate" name="rate" type="number" min="0.0001" step="0.0001" placeholder="e.g. 1.7" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+        <div class="bg-surface-container/50 border border-outline-variant/50 rounded-xl p-4 flex justify-between items-center">
+          <span class="text-label-md text-on-surface-variant" id="mc_preview_label">{% trans "Available AZN receives" %}</span>
+          <span class="text-headline-md font-headline-md font-bold text-primary" id="mc_preview">—</span>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="mc_transferred_at">{% trans "Date" %}</label>
+          <input id="mc_transferred_at" name="transferred_at" type="date" value="{{ today_iso }}" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+        <div class="space-y-2">
+          <label class="text-label-md font-label-md text-on-surface-variant" for="mc_note">{% trans "Note (optional)" %}</label>
+          <input id="mc_note" name="note" type="text" maxlength="200" placeholder="{% trans 'Memo' %}" class="w-full h-12 px-4 rounded-xl border border-outline-variant bg-surface-container-low text-on-surface text-body-md focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"/>
+        </div>
+      </div>
+      <div class="px-5 py-4 lg:px-8 lg:py-5 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-5">
+        <button type="button" data-close-move-cash-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">{% trans "Cancel" %}</button>
+        <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">currency_exchange</span>
+          {% trans "Move Cash" %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
   {% if recent_investments %}
   <div class="bg-surface-container-lowest p-6 lg:p-8 rounded-3xl lg:rounded-2xl custom-shadow-soft border border-outline-variant/30">
@@ -536,7 +613,7 @@
         <span class="material-symbols-outlined">swap_horiz</span>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="font-bold text-on-surface truncate">{{ t.from_symbol }}{{ t.from_amount|intcomma }} {{ t.from_currency }} → {{ t.to_symbol }}{{ t.to_amount|intcomma }} {{ t.to_currency }}</p>
+        <p class="font-bold text-on-surface truncate">{{ t.from_symbol }}{{ t.from_amount|intcomma }} {{ t.from_label }} → {{ t.to_symbol }}{{ t.to_amount|intcomma }} {{ t.to_label }}</p>
         <p class="text-label-sm text-on-surface-variant truncate">{{ t.transferred_at|date:"M j, Y" }} · rate {{ t.rate }}{% if t.note %} · {{ t.note }}{% endif %}</p>
       </div>
     </div>
@@ -722,6 +799,12 @@
       updateTransferPreview();
     });
 
+    bindModal('move-cash-modal', '[data-open-move-cash-modal]', '[data-close-move-cash-modal]', function () {
+      const amount = document.getElementById('mc_amount');
+      if (amount) setTimeout(() => amount.focus(), 50);
+      updateMoveCashUI();
+    });
+
     const symbols = { AZN: '₼', USD: '$', EUR: '€' };
     const fromAmt = document.getElementById('t_from_amount');
     const rate = document.getElementById('t_rate');
@@ -794,6 +877,83 @@
     }
 
     refreshCurrencyLabels();
+
+    const mcDirectionButtons = document.querySelectorAll('.mc-direction-btn');
+    const mcDirection = document.getElementById('mc_direction');
+    const mcReserveCurrency = document.getElementById('mc_reserve_currency');
+    const mcAmount = document.getElementById('mc_amount');
+    const mcAmountLabel = document.getElementById('mc_amount_label');
+    const mcRateWrap = document.getElementById('mc_rate_wrap');
+    const mcRate = document.getElementById('mc_rate');
+    const mcPreview = document.getElementById('mc_preview');
+    const mcPreviewLabel = document.getElementById('mc_preview_label');
+    const exchangeRates = { USD: {{ exchange_rates.USD|default_if_none:1.7 }}, EUR: {{ exchange_rates.EUR|default_if_none:1.84 }} };
+
+    function updateMoveCashUI() {
+      if (!mcReserveCurrency) return;
+      const reserve = mcReserveCurrency.value;
+      const direction = mcDirection ? mcDirection.value : 'to_available';
+      const isAzn = reserve === 'AZN';
+
+      if (mcRateWrap) mcRateWrap.classList.toggle('hidden', isAzn);
+      if (mcRate && !isAzn && !mcRate.value) {
+        mcRate.value = exchangeRates[reserve] || '';
+      }
+      if (mcAmountLabel) {
+        mcAmountLabel.textContent = direction === 'to_available' ? ('Amount (' + reserve + ')') : 'Amount (AZN)';
+      }
+      if (mcPreviewLabel) {
+        mcPreviewLabel.textContent = direction === 'to_available' ? 'Available AZN receives' : (reserve + ' reserve receives');
+      }
+      updateMoveCashPreview();
+    }
+
+    function updateMoveCashPreview() {
+      if (!mcPreview) return;
+      const reserve = mcReserveCurrency ? mcReserveCurrency.value : 'AZN';
+      const direction = mcDirection ? mcDirection.value : 'to_available';
+      const a = parseFloat(mcAmount && mcAmount.value);
+      const aznPerUnit = reserve === 'AZN' ? 1 : parseFloat(mcRate && mcRate.value);
+      if (!isFinite(a) || a <= 0 || !isFinite(aznPerUnit) || aznPerUnit <= 0) {
+        mcPreview.textContent = '—';
+        return;
+      }
+      if (direction === 'to_available') {
+        mcPreview.textContent = '₼' + Math.round(a * aznPerUnit).toLocaleString();
+      } else {
+        const sym = symbols[reserve] || '';
+        mcPreview.textContent = sym + Math.round(a / aznPerUnit).toLocaleString();
+      }
+    }
+
+    mcDirectionButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (mcDirection) mcDirection.value = btn.dataset.mcDirection;
+        mcDirectionButtons.forEach(b => {
+          if (b === btn) {
+            b.classList.add('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+            b.classList.remove('text-on-surface-variant');
+          } else {
+            b.classList.remove('bg-surface-container-lowest', 'text-primary', 'shadow-sm');
+            b.classList.add('text-on-surface-variant');
+          }
+        });
+        updateMoveCashUI();
+      });
+    });
+
+    if (mcReserveCurrency) {
+      mcReserveCurrency.addEventListener('change', () => {
+        if (mcRate) mcRate.value = '';
+        updateMoveCashUI();
+      });
+    }
+    [mcAmount, mcRate].forEach(el => {
+      if (el) {
+        el.addEventListener('input', updateMoveCashPreview);
+        el.addEventListener('change', updateMoveCashPreview);
+      }
+    });
   })();
 </script>
 {% endblock %}

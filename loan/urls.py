@@ -6,6 +6,7 @@ from .views import (
     loan_detail,
     loan_form,
     loan_mark_complete,
+    loan_note_update,
     loan_pdf,
     payment_list,
     payment_create,
@@ -14,6 +15,7 @@ from .views import (
     investment_create,
     cashout_create,
     transfer_create,
+    available_cash_transfer_create,
     refresh_exchange_rates,
 )
 
@@ -24,6 +26,7 @@ urlpatterns = [
     path("loans/<int:pk>/", loan_detail, name="loan_detail"),
     path("loans/<int:pk>/edit/", loan_form, name="loan_edit"),
     path("loans/<int:pk>/complete/", loan_mark_complete, name="loan_mark_complete"),
+    path("loans/<int:pk>/note/", loan_note_update, name="loan_note_update"),
     path("loans/<int:pk>/pdf/", loan_pdf, name="loan_pdf"),
     path("payments/", payment_list, name="payment_list"),
     path("payments/new/", payment_create, name="payment_create"),
@@ -32,5 +35,6 @@ urlpatterns = [
     path("investments/new/", investment_create, name="investment_create"),
     path("investments/cashout/", cashout_create, name="cashout_create"),
     path("transfers/new/", transfer_create, name="transfer_create"),
+    path("available-cash/transfer/", available_cash_transfer_create, name="available_cash_transfer_create"),
     path("rates/refresh/", refresh_exchange_rates, name="refresh_exchange_rates"),
 ]

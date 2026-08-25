@@ -103,7 +103,7 @@
       <h3 class="text-headline-md lg:text-2xl font-semibold text-on-surface">{% trans "Available Cash Over Time" %}</h3>
       <p class="text-label-sm lg:text-sm text-on-surface-variant">{% trans "Month-end balance per currency." %}</p>
     </div>
-    <div class="grid grid-cols-3 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
+    <div class="grid grid-cols-2 md:flex md:flex-wrap gap-3 lg:gap-4 md:text-right">
       <div class="min-w-0">
         <p class="text-[10px] text-on-surface-variant font-bold uppercase">AZN</p>
         <p class="text-base lg:text-lg font-bold text-primary truncate">₼{{ period_end_balances.AZN|intcomma }}</p>
@@ -116,12 +116,17 @@
         <p class="text-[10px] text-on-surface-variant font-bold uppercase">EUR</p>
         <p class="text-base lg:text-lg font-bold text-tertiary-fixed-dim truncate">€{{ period_end_balances.EUR|intcomma }}</p>
       </div>
+      <div class="min-w-0">
+        <p class="text-[10px] text-on-surface-variant font-bold uppercase">{% trans "Available AZN" %}</p>
+        <p class="text-base lg:text-lg font-bold text-error truncate">₼{{ period_end_balances.CASH|intcomma }}</p>
+      </div>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-3 lg:gap-4 mb-4 text-[10px] lg:text-xs text-on-surface-variant">
     <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-primary"></span>AZN</div>
     <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-secondary"></span>USD</div>
     <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-tertiary-fixed-dim"></span>EUR</div>
+    <div class="flex items-center gap-2"><span class="w-3 h-0.5 bg-error"></span>{% trans "Available AZN" %}</div>
   </div>
   <div class="h-56 lg:h-80 overflow-x-auto hide-scrollbar">
     <div class="h-full relative" style="width: max(100%, calc({{ chart_months_count }} * 100% / 18));">
@@ -391,6 +396,7 @@
         secondary: '#4edea3',
         secondaryRgb: '78, 222, 163',
         tertiary: '#ffb95f',
+        error: '#ffb4ab',
         tickColor: '#c7c4d8',
         gridColor: 'rgba(199, 196, 216, 0.12)',
       } : {
@@ -401,6 +407,7 @@
         secondary: '#006c49',
         secondaryRgb: '0, 108, 73',
         tertiary: '#ffb95f',
+        error: '#ba1a1a',
         tickColor: '#464555',
         gridColor: '#f1f5f9',
       };
@@ -563,6 +570,17 @@
               pointHoverRadius: 5,
               pointBackgroundColor: t.tertiary,
             },
+            {
+              label: 'Available AZN',
+              data: data.cash,
+              borderColor: t.error,
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: t.error,
+            },
           ],
         },
         options: {
@@ -573,7 +591,7 @@
             tooltip: {
               callbacks: {
                 label: ctx => {
-                  const sym = ctx.dataset.label === 'AZN' ? '₼' : ctx.dataset.label === 'USD' ? '$' : '€';
+                  const sym = ctx.dataset.label === 'AZN' ? '₼' : ctx.dataset.label === 'USD' ? '$' : ctx.dataset.label === 'EUR' ? '€' : '₼';
                   return ctx.dataset.label + ': ' + sym + ctx.parsed.y.toLocaleString();
                 },
               },

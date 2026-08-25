@@ -34,7 +34,7 @@ def _long_month_upper(month, year):
     return f"{_(_MONTH_FULL[month])} {year}".upper()
 
 from user.models import Customer
-from .models import Investment, Loan, Payment, Transfer
+from .models import AvailableCash, Investment, Loan, Payment, Transfer
 from .pdf import build_loan_pdf
 
 
@@ -123,10 +123,6 @@ def _available_cash():
     for row in Investment.objects.values('currency').annotate(s=Sum('amount')):
         if row['currency'] in balances:
             balances[row['currency']] += row['s'] or 0
-
-    deployed = Loan.objects.aggregate(s=Sum('amount'))['s'] or 0
-    collected = Payment.objects.aggregate(s=Sum('loan__monthly_payment'))['s'] or 0
-    balances['AZN'] += collected - deployed
 
     for row in Transfer.objects.values('from_currency').annotate(s=Sum('from_amount')):
         if row['from_currency'] in balances:
@@ -332,6 +328,15 @@ def loan_mark_complete(request, pk):
 
 
 @login_required
+@require_POST
+def loan_note_update(request, pk):
+    loan = get_object_or_404(Loan, pk=pk)
+    loan.note = request.POST.get('note', '').strip()[:200]
+    loan.save()
+    return redirect('loan_detail', pk=pk)
+
+
+@login_required
 def loan_pdf(request, pk):
     loan = get_object_or_404(
         Loan.objects.select_related('customer').prefetch_related('loan_payments'),
@@ -356,6 +361,7 @@ def loan_form(request, pk=None):
             'monthly_payment': request.POST.get('monthly_payment', '').strip(),
             'term': request.POST.get('term', '').strip(),
             'start': request.POST.get('start', '').strip(),
+            'note': request.POST.get('note', '').strip(),
         }
 
         customer = None
@@ -413,6 +419,7 @@ def loan_form(request, pk=None):
                     amount=amount_int,
                     monthly_payment=monthly_int,
                     term=term_int,
+                    note=data['note'][:200],
                     **({'start': start_value} if start_value else {}),
                 )
             else:
@@ -420,6 +427,7 @@ def loan_form(request, pk=None):
                 loan.amount = amount_int
                 loan.monthly_payment = monthly_int
                 loan.term = term_int
+                loan.note = data['note'][:200]
                 if start_value:
                     loan.start = start_value
                 loan.save()
@@ -431,6 +439,7 @@ def loan_form(request, pk=None):
             'monthly_payment': str(loan.monthly_payment),
             'term': str(loan.term),
             'start': loan.start.date().isoformat() if loan.start else '',
+            'note': loan.note,
         }
     else:
         data = {
@@ -439,6 +448,7 @@ def loan_form(request, pk=None):
             'monthly_payment': '',
             'term': '',
             'start': date.today().isoformat(),
+            'note': '',
         }
 
     customers = Customer.objects.order_by('name', 'surname')
@@ -746,21 +756,23 @@ def reports(request):
     total_collected = sum(collected_by_period.values())
     net_invested = total_deployed - total_collected
 
-    # Available cash trend per currency at end of each chart period
+    # Reserve (AZN/USD/EUR) and Available AZN cash trend at end of each chart period
     cash_events = []
     for inv in Investment.objects.all():
         cash_events.append((inv.added_at, inv.currency, inv.amount))
     for l in Loan.objects.all():
-        cash_events.append((l.start.date(), 'AZN', -l.amount))
+        cash_events.append((l.start.date(), 'CASH', -l.amount))
     for p in Payment.objects.select_related('loan').all():
-        cash_events.append((p.paid_at, 'AZN', p.loan.monthly_payment))
+        cash_events.append((p.paid_at, 'CASH', p.loan.monthly_payment))
     for t in Transfer.objects.all():
-        cash_events.append((t.transferred_at, t.from_currency, -t.from_amount))
-        cash_events.append((t.transferred_at, t.to_currency, t.to_amount))
+        from_cur = 'CASH' if t.from_currency == 'CSH' else t.from_currency
+        to_cur = 'CASH' if t.to_currency == 'CSH' else t.to_currency
+        cash_events.append((t.transferred_at, from_cur, -t.from_amount))
+        cash_events.append((t.transferred_at, to_cur, t.to_amount))
     cash_events.sort(key=lambda e: e[0])
 
-    running = {'AZN': 0, 'USD': 0, 'EUR': 0}
-    azn_series, usd_series, eur_series = [], [], []
+    running = {'AZN': 0, 'USD': 0, 'EUR': 0, 'CASH': 0}
+    azn_series, usd_series, eur_series, cash_series = [], [], [], []
     ev_idx = 0
     for period_p in chart_periods:
         period_end = period_end_date(period_p)
@@ -772,17 +784,20 @@ def reports(request):
         azn_series.append(running['AZN'])
         usd_series.append(running['USD'])
         eur_series.append(running['EUR'])
+        cash_series.append(running['CASH'])
 
     cash_balance_data = {
         'labels': period_labels,
         'azn': azn_series,
         'usd': usd_series,
         'eur': eur_series,
+        'cash': cash_series,
     }
     period_end_balances = {
         'AZN': azn_series[-1] if azn_series else 0,
         'USD': usd_series[-1] if usd_series else 0,
         'EUR': eur_series[-1] if eur_series else 0,
+        'CASH': cash_series[-1] if cash_series else 0,
     }
 
     # Total portfolio trend = outstanding loan balance + available cash (converted to AZN)
@@ -813,6 +828,7 @@ def reports(request):
             + azn_series[i]
             + usd_series[i] * usd_rate
             + eur_series[i] * eur_rate
+            + cash_series[i]
         ))
         portfolio_series.append(portfolio_at_end)
 
@@ -1059,11 +1075,13 @@ def dashboard(request):
         'recent_payments': recent_payments,
         'cash_flow_data': cash_flow_data,
         'available_cash': _available_cash(),
+        'available_azn': AvailableCash.get_solo().balance,
         'today_iso': today.isoformat(),
         'recent_investments': Investment.objects.all()[:5],
         'recent_transfers': Transfer.objects.all()[:5],
     }
     cash = context['available_cash']
+    available_azn = context['available_azn']
     rates = _exchange_rates()
     context['exchange_rates'] = rates
     usd_rate = rates.get('USD', FALLBACK_RATES['USD'])
@@ -1073,9 +1091,10 @@ def dashboard(request):
         + cash['AZN']
         + cash['USD'] * usd_rate
         + cash['EUR'] * eur_rate
+        + available_azn
     ))
     context['available_cash_azn'] = int(round(
-        cash['AZN'] + cash['USD'] * usd_rate + cash['EUR'] * eur_rate
+        cash['AZN'] + cash['USD'] * usd_rate + cash['EUR'] * eur_rate + available_azn
     ))
 
     future_payments = []
@@ -1213,6 +1232,70 @@ def transfer_create(request):
             transferred_at = datetime.strptime(transferred_at_str, '%Y-%m-%d').date()
         except ValueError:
             pass
+
+    Transfer.objects.create(
+        from_currency=from_currency,
+        to_currency=to_currency,
+        from_amount=from_amount,
+        to_amount=to_amount,
+        rate=rate,
+        transferred_at=transferred_at,
+        note=note[:200],
+    )
+    return redirect('dashboard')
+
+
+@login_required
+@require_POST
+def available_cash_transfer_create(request):
+    direction = request.POST.get('direction', '').strip().lower()
+    reserve_currency = request.POST.get('reserve_currency', '').strip().upper()
+    amount_str = request.POST.get('amount', '').strip()
+    rate_str = request.POST.get('rate', '').strip()
+    transferred_at_str = request.POST.get('transferred_at', '').strip()
+    note = request.POST.get('note', '').strip()
+
+    if direction not in ('to_available', 'from_available'):
+        return redirect('dashboard')
+    if reserve_currency not in CURRENCIES:
+        return redirect('dashboard')
+
+    try:
+        amount = int(amount_str)
+    except (ValueError, TypeError):
+        return redirect('dashboard')
+    if amount <= 0:
+        return redirect('dashboard')
+
+    if reserve_currency == 'AZN':
+        azn_per_unit = 1.0
+    else:
+        try:
+            azn_per_unit = float(rate_str)
+        except (ValueError, TypeError):
+            return redirect('dashboard')
+        if azn_per_unit <= 0:
+            return redirect('dashboard')
+
+    transferred_at = date.today()
+    if transferred_at_str:
+        try:
+            transferred_at = datetime.strptime(transferred_at_str, '%Y-%m-%d').date()
+        except ValueError:
+            pass
+
+    if direction == 'to_available':
+        from_currency, to_currency = reserve_currency, 'CSH'
+        from_amount = amount
+        rate = azn_per_unit
+    else:
+        from_currency, to_currency = 'CSH', reserve_currency
+        from_amount = amount
+        rate = 1 / azn_per_unit
+
+    to_amount = int(round(from_amount * rate))
+    if to_amount <= 0:
+        return redirect('dashboard')
 
     Transfer.objects.create(
         from_currency=from_currency,

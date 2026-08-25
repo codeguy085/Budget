@@ -92,6 +92,11 @@
             {% if errors.start %}<p class="text-error text-xs">{{ errors.start }}</p>{% endif %}
             <p class="text-xs text-on-surface-variant">{% trans "Defaults to today. The first payment is due one month after this date." %}</p>
           </div>
+          <div class="space-y-2 md:col-span-3">
+            <label class="block text-sm text-on-surface-variant" for="id_note">{% trans "Note (optional)" %}</label>
+            <input id="id_note" name="note" type="text" maxlength="200" value="{{ data.note }}" placeholder="{% trans 'Add a note' %}" class="w-full h-[48px] px-4 bg-surface border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none font-medium {% if errors.note %}border-error{% endif %}"/>
+            {% if errors.note %}<p class="text-error text-xs">{{ errors.note }}</p>{% endif %}
+          </div>
         </div>
         {% if loan %}
         <p class="text-xs text-on-surface-variant mt-4">{% blocktrans with loan_id=loan.loan_id %}Loan ID #{{ loan_id }} cannot be changed.{% endblocktrans %}{% if loan.paid_month %} {% blocktrans count paid=loan.paid_month %}{{ paid }} payment already recorded — reducing the term below this number is not allowed.{% plural %}{{ paid }} payments already recorded — reducing the term below this number is not allowed.{% endblocktrans %}{% endif %}</p>

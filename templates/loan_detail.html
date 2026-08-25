@@ -57,6 +57,21 @@
     </div>
   </div>
 
+  <div class="flex items-start justify-between gap-3 mb-6 lg:mb-8 p-4 bg-surface-container-low rounded-xl">
+    <div class="min-w-0">
+      <p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider mb-1">{% trans "Note" %}</p>
+      {% if loan.note %}
+      <p class="text-sm text-on-surface break-words">{{ loan.note }}</p>
+      {% else %}
+      <p class="text-sm text-on-surface-variant italic">{% trans "No note added yet." %}</p>
+      {% endif %}
+    </div>
+    <button type="button" data-open-note-modal class="flex-shrink-0 flex items-center gap-1 text-primary text-sm font-semibold hover:underline">
+      <span class="material-symbols-outlined text-[18px]">{% if loan.note %}edit{% else %}add{% endif %}</span>
+      {% if loan.note %}{% trans "Edit" %}{% else %}{% trans "Add note" %}{% endif %}
+    </button>
+  </div>
+
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-x-4 gap-y-5 lg:gap-6 mb-8 lg:mb-10 border-t lg:border-0 border-outline-variant pt-6 lg:pt-0">
     <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Principal" %}</p><p class="text-lg lg:text-xl font-bold text-on-surface truncate">₼{{ loan.amount|intcomma }}</p></div>
     <div class="space-y-1 min-w-0"><p class="text-[10px] lg:text-xs text-on-surface-variant uppercase tracking-wider lg:normal-case lg:tracking-normal">{% trans "Monthly Payment" %}</p><p class="text-lg lg:text-xl font-bold text-primary lg:text-on-surface truncate">₼{{ loan.monthly_payment|intcomma }}</p></div>
@@ -332,6 +347,35 @@
     </form>
   </div>
 </div>
+
+<div id="note-modal" class="fixed inset-0 z-50 hidden items-end lg:items-center justify-center bg-black/40 backdrop-blur-[2px] lg:p-4">
+  <div class="bg-surface-container-lowest w-full lg:max-w-[480px] rounded-t-3xl lg:rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col max-h-[95vh] lg:max-h-none">
+    <div class="px-5 pt-5 pb-5 lg:px-8 lg:pt-8 lg:pb-6 border-b border-outline-variant/30">
+      <div class="flex justify-between items-start">
+        <h2 class="text-xl lg:text-2xl font-semibold text-on-surface">{% trans "Loan Note" %}</h2>
+        <button type="button" data-close-note-modal class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <form method="post" action="{% url 'loan_note_update' loan.id %}" class="contents">
+      {% csrf_token %}
+      <div class="px-5 py-5 lg:px-8 lg:py-6 space-y-2">
+        <label class="text-sm font-medium text-on-surface-variant" for="id_loan_note">{% trans "Note" %}</label>
+        <textarea id="id_loan_note" name="note" maxlength="200" rows="4" placeholder="{% trans 'Add a note' %}" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-base focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none">{{ loan.note }}</textarea>
+      </div>
+
+      <div class="px-5 py-4 lg:px-8 lg:py-6 border-t border-outline-variant/30 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 lg:gap-4 bg-surface-container-lowest pb-[max(env(safe-area-inset-bottom),1rem)] lg:pb-6">
+        <button type="button" data-close-note-modal class="px-6 py-3 lg:py-2.5 rounded-full text-sm text-on-surface-variant hover:bg-surface-container transition-colors">{% trans "Cancel" %}</button>
+        <button type="submit" class="px-8 py-3 lg:py-2.5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">check_circle</span>
+          {% trans "Save Note" %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 {% block fab %}
@@ -372,6 +416,28 @@
         toggleLabel.textContent = toggle.checked ? 'Yes' : 'No';
       });
     }
+  })();
+
+  (function () {
+    const modal = document.getElementById('note-modal');
+    if (!modal) return;
+    const openers = document.querySelectorAll('[data-open-note-modal]');
+    const closers = document.querySelectorAll('[data-close-note-modal]');
+
+    function open() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    openers.forEach(b => b.addEventListener('click', open));
+    closers.forEach(b => b.addEventListener('click', close));
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) close(); });
   })();
 </script>
 {% endblock %}

@@ -15,6 +15,7 @@ class Loan(models.Model):
     is_completed = models.BooleanField(default=False)
     start = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(auto_now=True)
+    note = models.CharField(max_length=200, blank=True, default='')
 
     def __str__(self):
         return f"{self.loan_id} {self.is_completed}"
@@ -54,7 +55,32 @@ CURRENCY_CHOICES = [
     ('EUR', '€ EUR'),
 ]
 
-CURRENCY_SYMBOLS = {'AZN': '₼', 'USD': '$', 'EUR': '€'}
+TRANSFER_CURRENCY_CHOICES = CURRENCY_CHOICES + [
+    ('CSH', 'Available Cash (AZN)'),
+]
+
+CURRENCY_SYMBOLS = {'AZN': '₼', 'USD': '$', 'EUR': '€', 'CSH': '₼'}
+CURRENCY_DISPLAY = {'AZN': 'AZN', 'USD': 'USD', 'EUR': 'EUR', 'CSH': 'Available AZN'}
+
+
+class AvailableCash(models.Model):
+    balance = models.IntegerField(default=0)
+    updated = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @classmethod
+    def adjust(cls, delta):
+        if not delta:
+            return
+        cls.objects.get_or_create(pk=1)
+        cls.objects.filter(pk=1).update(balance=models.F('balance') + delta)
+
+    def __str__(self):
+        return f"Available Cash ₼{self.balance}"
 
 
 class Investment(models.Model):
@@ -76,8 +102,8 @@ class Investment(models.Model):
 
 
 class Transfer(models.Model):
-    from_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
-    to_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
+    from_currency = models.CharField(max_length=3, choices=TRANSFER_CURRENCY_CHOICES)
+    to_currency = models.CharField(max_length=3, choices=TRANSFER_CURRENCY_CHOICES)
     from_amount = models.IntegerField()
     to_amount = models.IntegerField()
     rate = models.DecimalField(max_digits=12, decimal_places=4)
@@ -95,6 +121,14 @@ class Transfer(models.Model):
     @property
     def to_symbol(self):
         return CURRENCY_SYMBOLS.get(self.to_currency, '')
+
+    @property
+    def from_label(self):
+        return CURRENCY_DISPLAY.get(self.from_currency, self.from_currency)
+
+    @property
+    def to_label(self):
+        return CURRENCY_DISPLAY.get(self.to_currency, self.to_currency)
 
     def __str__(self):
         return f"Transfer {self.from_symbol}{self.from_amount} {self.from_currency} → {self.to_symbol}{self.to_amount} {self.to_currency}"

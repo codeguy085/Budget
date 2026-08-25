@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Investment, Loan, Payment, Transfer
+from .models import AvailableCash, Investment, Loan, Payment, Transfer
 # Register your models here.
 
 class PaymentInline(admin.TabularInline):
@@ -10,10 +10,10 @@ class PaymentInline(admin.TabularInline):
 
 @admin.register(Loan)
 class LoanAdmin(admin.ModelAdmin):
-    list_display = ["customer", "amount", "loan_id", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
+    list_display = ["customer", "amount", "loan_id", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed", "note"]
     list_display_links = ["customer", "amount", "loan_id", "term", "monthly_payment", "remaining_month", "paid_amount", "remaining_amount", "revenue", "start", "updated", "is_completed"]
     inlines = [PaymentInline]
-    search_fields = ['loan_id']
+    search_fields = ['loan_id', 'note']
     autocomplete_fields = ['customer']
 
 @admin.register(Payment)
@@ -45,3 +45,8 @@ class TransferAdmin(admin.ModelAdmin):
     list_filter = ["from_currency", "to_currency", "transferred_at"]
     search_fields = ["note"]
     ordering = ["-transferred_at", "-id"]
+
+
+@admin.register(AvailableCash)
+class AvailableCashAdmin(admin.ModelAdmin):
+    list_display = ["balance", "updated"]
