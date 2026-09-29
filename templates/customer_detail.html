@@ -32,6 +32,16 @@
       </div>
     </div>
   </div>
+  <div class="hidden lg:flex items-center gap-3">
+    <a href="{% url 'customer_edit' customer.id %}" class="flex items-center gap-2 bg-surface-container-high px-5 py-2.5 rounded-full text-primary font-medium hover:bg-surface-container-highest transition-all active:scale-95">
+      <span class="material-symbols-outlined">edit</span>
+      <span class="text-sm font-medium">{% trans "Edit Profile" %}</span>
+    </a>
+    <a href="{% url 'loan_create' %}?customer={{ customer.id }}" class="flex items-center gap-2 bg-primary px-5 py-2.5 rounded-full text-on-primary font-bold hover:bg-primary-container transition-all hover:shadow-lg active:scale-95">
+      <span class="material-symbols-outlined">add</span>
+      <span class="text-sm font-medium">{% trans "New Loan" %}</span>
+    </a>
+  </div>
   <div class="flex lg:hidden gap-3 w-full">
     <a href="{% url 'customer_edit' customer.id %}" class="flex-1 bg-surface-container-high text-primary font-label-md text-label-md py-3 rounded-xl text-center hover:bg-surface-container-highest transition-colors active:scale-[0.98]">{% trans "Edit Profile" %}</a>
     <a href="{% url 'loan_create' %}?customer={{ customer.id }}" class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-3 rounded-xl text-center hover:opacity-90 shadow-md shadow-primary/20 transition-all active:scale-[0.98]">{% trans "New Loan" %}</a>

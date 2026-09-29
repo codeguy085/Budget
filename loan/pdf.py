@@ -176,8 +176,8 @@ def build_loan_pdf(loan):
 
     # Footer
     story.append(Spacer(1, 10 * mm))
-    today_az = _az_date(date.today())
-    story.append(Paragraph(f"Sənəd {today_az} tarixində yaradılıb", styles["footer"]))
+    # today_az = _az_date(date.today())
+    # story.append(Paragraph(f"Sənəd {today_az} tarixində yaradılıb", styles["footer"]))
     story.append(Paragraph(
         "Bu sənəd təsdiqlənmiş kredit şərtləri və ödəniş cədvəlinin xülasəsidir.",
         styles["footer"],
