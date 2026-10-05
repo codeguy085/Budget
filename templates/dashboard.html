@@ -149,8 +149,13 @@
         </div>
       </div>
     </div>
-    <div class="h-52 lg:h-[300px] relative">
-      <canvas id="cashFlowChart"></canvas>
+    <div class="relative">
+      <button type="button" data-chart-expand="cashFlowChart" data-chart-title="{% trans 'Monthly Cash Flow' %}" class="absolute -top-1 right-0 z-10 p-1.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" aria-label="Fullscreen" title="Fullscreen">
+        <span class="material-symbols-outlined text-[20px]">open_in_full</span>
+      </button>
+      <div data-chart-zoom class="h-52 lg:h-[300px] relative">
+        <canvas id="cashFlowChart"></canvas>
+      </div>
     </div>
   </div>
 
@@ -749,9 +754,13 @@
 
     build();
 
+    let wasDark = document.documentElement.classList.contains('dark');
     const themeObserver = new MutationObserver(function (mutations) {
       for (const m of mutations) {
         if (m.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          if (isDark === wasDark) break;
+          wasDark = isDark;
           if (chart) chart.destroy();
           build();
           break;

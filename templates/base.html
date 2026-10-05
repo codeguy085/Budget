@@ -12,6 +12,9 @@
       if (stored === 'dark' || (stored === null && preferDark)) {
         document.documentElement.classList.add('dark');
       }
+      if (localStorage.getItem('navCollapsed') === '1') {
+        document.documentElement.classList.add('nav-collapsed');
+      }
     } catch (e) {}
   })();
 </script>
@@ -250,12 +253,36 @@
 
     /* Tighter on-surface elevation for cards in dark mode */
     .dark body { color-scheme: dark; }
+
+    /* Collapsible desktop sidebar */
+    @media (min-width: 960px) {
+      #app-sidebar { transition: transform 0.25s ease; }
+      .nav-offset { transition: margin-left 0.25s ease; }
+      html.nav-collapsed #app-sidebar { transform: translateX(-100%); }
+      html.nav-collapsed .nav-offset { margin-left: 0; }
+    }
+    html.nav-collapsed [data-nav-icon="open"] { display: none; }
+    html:not(.nav-collapsed) [data-nav-icon="closed"] { display: none; }
+
+    /* Fullscreen chart viewer */
+    body.chart-zoom-open { overflow: hidden; }
+    .chart-zoomed {
+      height: 100% !important;
+      width: 100% !important;
+      max-width: none !important;
+      overflow: visible !important;
+    }
+    /* Let the inner scroll track fill the viewport; Chart.js sizes the canvas itself. */
+    .chart-zoomed > *:not(canvas) {
+      height: 100% !important;
+      width: 100% !important;
+    }
   </style>
 {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-surface font-body-md text-on-surface">
 
-<aside class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-surface border-r border-outline-variant shadow-sm flex-col py-6 z-50">
+<aside id="app-sidebar" class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-surface border-r border-outline-variant shadow-sm flex-col py-6 z-50">
   <div class="px-6 mb-10">
     <a href="{% url 'dashboard' %}" class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary">
@@ -267,6 +294,9 @@
       </div>
     </a>
   </div>
+  <button type="button" data-nav-toggle class="absolute top-6 right-3 p-1.5 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" aria-controls="app-sidebar" aria-label="Hide navigation" title="Hide navigation">
+    <span class="material-symbols-outlined text-[20px]">left_panel_close</span>
+  </button>
   <nav class="flex-1 space-y-1 px-2">
     <a class="flex items-center gap-3 px-4 py-3 transition-colors {% if active_nav == 'dashboard' %}text-primary bg-primary-container/10 border-l-4 border-primary font-bold{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-high{% endif %}" href="{% url 'dashboard' %}">
       <span class="material-symbols-outlined">dashboard</span>
@@ -326,7 +356,11 @@
   </div>
 </aside>
 
-<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-4 lg:px-8 lg:ml-[280px]">
+<header class="nav-offset sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-4 lg:px-8 lg:ml-[280px]">
+  <button type="button" data-nav-toggle class="hidden lg:inline-flex items-center justify-center mr-3 p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors flex-shrink-0" aria-controls="app-sidebar" aria-label="Toggle navigation" title="Toggle navigation">
+    <span class="material-symbols-outlined" data-nav-icon="open">menu_open</span>
+    <span class="material-symbols-outlined" data-nav-icon="closed">menu</span>
+  </button>
   <a href="{% url 'dashboard' %}" class="flex lg:hidden items-center gap-2">
     <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">account_balance</span>
     <h1 class="text-headline-md font-headline-md font-extrabold text-primary tracking-tight">Budget</h1>
@@ -366,7 +400,7 @@
   </div>
 </header>
 
-<main class="lg:ml-[280px] px-4 py-6 lg:p-8 space-y-6 lg:space-y-8 pb-28 lg:pb-8">
+<main class="nav-offset lg:ml-[280px] px-4 py-6 lg:p-8 space-y-6 lg:space-y-8 pb-28 lg:pb-8">
 {% block content %}{% endblock %}
 </main>
 
@@ -395,8 +429,97 @@
   </a>
 </nav>
 
+<div id="chart-fullscreen" class="hidden fixed inset-0 z-[70] bg-surface flex-col">
+  <div class="flex items-center justify-between gap-3 h-14 flex-shrink-0 px-4 lg:px-6 border-b border-outline-variant">
+    <h3 id="chart-fullscreen-title" class="text-label-md lg:text-lg font-bold text-on-surface truncate"></h3>
+    <button type="button" data-chart-close class="flex-shrink-0 p-2 rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" aria-label="Close fullscreen" title="Close fullscreen">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <div id="chart-fullscreen-body" class="flex-1 min-h-0 p-3 lg:p-6"></div>
+</div>
+
 {% block extra_scripts %}{% endblock %}
 <script>
+  (function () {
+    var root = document.documentElement;
+    function sync() {
+      var collapsed = root.classList.contains('nav-collapsed');
+      document.querySelectorAll('[data-nav-toggle]').forEach(function (btn) {
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      });
+    }
+    document.querySelectorAll('[data-nav-toggle]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var collapsed = root.classList.toggle('nav-collapsed');
+        try { localStorage.setItem('navCollapsed', collapsed ? '1' : '0'); } catch (e) {}
+        sync();
+      });
+    });
+    sync();
+  })();
+
+  (function () {
+    var overlay = document.getElementById('chart-fullscreen');
+    if (!overlay) return;
+    var host = document.getElementById('chart-fullscreen-body');
+    var titleEl = document.getElementById('chart-fullscreen-title');
+    var zoomed = null;
+    var placeholder = null;
+
+    function refit(el) {
+      var canvas = el.querySelector('canvas');
+      if (canvas && window.Chart && window.Chart.getChart) {
+        var instance = window.Chart.getChart(canvas);
+        if (instance) instance.resize();
+      }
+    }
+
+    function close() {
+      if (!zoomed) return;
+      var el = zoomed;
+      el.classList.remove('chart-zoomed');
+      placeholder.parentNode.replaceChild(el, placeholder);
+      zoomed = null;
+      placeholder = null;
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+      document.body.classList.remove('chart-zoom-open');
+      requestAnimationFrame(function () { refit(el); });
+    }
+
+    function open(el, title) {
+      close();
+      placeholder = document.createComment('chart-zoom-placeholder');
+      el.parentNode.insertBefore(placeholder, el);
+      zoomed = el;
+      el.classList.add('chart-zoomed');
+      host.appendChild(el);
+      titleEl.textContent = title || '';
+      overlay.classList.remove('hidden');
+      overlay.classList.add('flex');
+      document.body.classList.add('chart-zoom-open');
+      requestAnimationFrame(function () { refit(el); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-chart-close]')) {
+        close();
+        return;
+      }
+      var btn = e.target.closest('[data-chart-expand]');
+      if (!btn) return;
+      var anchor = document.getElementById(btn.getAttribute('data-chart-expand'));
+      if (!anchor) return;
+      var target = anchor.closest('[data-chart-zoom]') || anchor.parentElement;
+      if (target) open(target, btn.getAttribute('data-chart-title'));
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  })();
+
   (function () {
     document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
       btn.addEventListener('click', function () {
