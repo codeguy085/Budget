@@ -30,8 +30,12 @@ def _short_month(month):
     return _(_MONTH_ABBREV[month])
 
 
+def _long_month(month, year):
+    return f"{_(_MONTH_FULL[month])} {year}"
+
+
 def _long_month_upper(month, year):
-    return f"{_(_MONTH_FULL[month])} {year}".upper()
+    return _long_month(month, year).upper()
 
 from user.models import Customer
 from .models import AvailableCash, Investment, Loan, Payment, Transfer
@@ -583,6 +587,9 @@ def reports(request):
 
         def period_label_for(p):
             return str(p)
+
+        def period_title_for(p):
+            return str(p)
     else:
         chart_periods = _months_in_range(start_date, end_date, max_months=chart_max_months)
 
@@ -597,6 +604,10 @@ def reports(request):
         def period_label_for(p):
             y, m = p
             return _short_month(m)
+
+        def period_title_for(p):
+            y, m = p
+            return _long_month(m, y)
 
     chart_periods_set = set(chart_periods)
 
@@ -733,6 +744,9 @@ def reports(request):
         risk_blurb = f'{late_count_in_range} late of {total_payments_in_range} payments.'
 
     period_labels = [period_label_for(p) for p in chart_periods]
+    # Axis ticks stay short; the scrub readout needs the year, since a window
+    # can span two Januaries.
+    period_titles = [period_title_for(p) for p in chart_periods]
 
     revenue_chart_data = {
         'labels': period_labels,
@@ -788,6 +802,7 @@ def reports(request):
 
     cash_balance_data = {
         'labels': period_labels,
+        'titles': period_titles,
         'azn': azn_series,
         'usd': usd_series,
         'eur': eur_series,
@@ -834,6 +849,7 @@ def reports(request):
 
     portfolio_chart_data = {
         'labels': period_labels,
+        'titles': period_titles,
         'data': portfolio_series,
         'outstanding': outstanding_series,
     }
@@ -1050,7 +1066,7 @@ def dashboard(request):
         'labels': month_labels,
         # Axis ticks stay short; the hover readout needs the year to disambiguate
         # the two Januaries a 12-month window can contain.
-        'titles': [f"{_(_MONTH_FULL[m])} {y}" for (y, m) in months],
+        'titles': [_long_month(m, y) for (y, m) in months],
         'paid': list(paid_by_month.values()),
         'expected': list(expected_by_month.values()),
     }
