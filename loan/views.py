@@ -1048,6 +1048,9 @@ def dashboard(request):
     month_labels = [_short_month(m) for (y, m) in months]
     cash_flow_data = {
         'labels': month_labels,
+        # Axis ticks stay short; the hover readout needs the year to disambiguate
+        # the two Januaries a 12-month window can contain.
+        'titles': [f"{_(_MONTH_FULL[m])} {y}" for (y, m) in months],
         'paid': list(paid_by_month.values()),
         'expected': list(expected_by_month.values()),
     }

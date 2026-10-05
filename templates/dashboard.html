@@ -676,12 +676,54 @@
         tertiary: '#ffb95f',
         tickColor: '#c7c4d8',
         gridColor: 'rgba(199, 196, 216, 0.12)',
+        crosshair: 'rgba(199, 196, 216, 0.55)',
+        cardBg: '#080e1c',
+        tipBg: '#252c43',
+        tipBorder: '#464555',
+        tipTitle: '#c7c4d8',
+        tipBody: '#e3e2e9',
       } : {
         primary: '#3525cd',
         primaryRgb: '79, 70, 229',
         tertiary: '#ffb95f',
         tickColor: '#464555',
         gridColor: '#f1f5f9',
+        crosshair: 'rgba(70, 69, 85, 0.45)',
+        cardBg: '#ffffff',
+        tipBg: '#ffffff',
+        tipBorder: '#c7c4d8',
+        tipTitle: '#464555',
+        tipBody: '#131b2e',
+      };
+    }
+
+    // Vertical guide line through the hovered month, drawn over the series.
+    const crosshairPlugin = {
+      id: 'cashFlowCrosshair',
+      afterDatasetsDraw: function (chart, args, opts) {
+        const active = chart.getActiveElements();
+        if (!active.length) return;
+        const x = active[0].element.x;
+        const area = chart.chartArea;
+        const c = chart.ctx;
+        c.save();
+        c.beginPath();
+        c.setLineDash([4, 4]);
+        c.lineWidth = 1;
+        c.strokeStyle = (opts && opts.color) || 'rgba(128, 128, 128, 0.5)';
+        c.moveTo(x, area.top);
+        c.lineTo(x, area.bottom);
+        c.stroke();
+        c.restore();
+      }
+    };
+
+    // Keep the readout at the top of the plot and let it track sideways,
+    // instead of chasing the pointer up and down.
+    if (window.Chart && Chart.Tooltip && !Chart.Tooltip.positioners.cashFlowTop) {
+      Chart.Tooltip.positioners.cashFlowTop = function (items) {
+        if (!items.length) return false;
+        return { x: items[0].element.x, y: this.chart.chartArea.top };
       };
     }
 
@@ -693,6 +735,7 @@
       grad.addColorStop(1, 'rgba(' + t.primaryRgb + ', 0)');
       chart = new Chart(ctx, {
         type: 'line',
+        plugins: [crosshairPlugin],
         data: {
           labels: data.labels,
           datasets: [
@@ -706,6 +749,9 @@
               borderWidth: 3,
               pointRadius: 0,
               pointHoverRadius: 5,
+              pointHoverBackgroundColor: t.primary,
+              pointHoverBorderColor: t.cardBg,
+              pointHoverBorderWidth: 2,
             },
             {
               label: 'Expected',
@@ -717,16 +763,43 @@
               borderWidth: 3,
               pointRadius: 0,
               pointHoverRadius: 5,
+              pointHoverBackgroundColor: t.tertiary,
+              pointHoverBorderColor: t.cardBg,
+              pointHoverBorderWidth: 2,
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          // Snap to the whole month column so you never have to find the point.
+          interaction: { mode: 'index', intersect: false, axis: 'x' },
           plugins: {
             legend: { display: false },
+            cashFlowCrosshair: { color: t.crosshair },
             tooltip: {
+              position: 'cashFlowTop',
+              yAlign: 'top',
+              caretSize: 0,
+              caretPadding: 0,
+              backgroundColor: t.tipBg,
+              borderColor: t.tipBorder,
+              borderWidth: 1,
+              titleColor: t.tipTitle,
+              titleFont: { size: 11, weight: '600' },
+              bodyColor: t.tipBody,
+              bodyFont: { size: 13, weight: '700' },
+              padding: 10,
+              displayColors: true,
+              boxWidth: 8,
+              boxHeight: 8,
+              boxPadding: 4,
+              usePointStyle: true,
               callbacks: {
+                title: function (items) {
+                  const i = items[0].dataIndex;
+                  return (data.titles && data.titles[i]) || data.labels[i];
+                },
                 label: function (ctx) {
                   return ctx.dataset.label + ': ₼' + ctx.parsed.y.toLocaleString();
                 }
