@@ -586,11 +586,13 @@
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
       <div>
         <h2 class="text-headline-md font-headline-md text-on-surface">{% trans "Payment Projection" %}</h2>
-        <p class="text-label-sm text-on-surface-variant mt-1">{% trans "Expected inflows between today and the selected date." %}</p>
+        <p class="text-label-sm text-on-surface-variant mt-1">{% trans "Expected inflows between the selected dates." %}</p>
       </div>
-      <div class="flex items-center gap-2 flex-shrink-0">
-        <span class="material-symbols-outlined text-on-surface-variant text-[20px]">event</span>
-        <input id="projection-date" type="date" min="{{ today_iso }}" value="{{ default_projection_end_iso }}" class="h-11 px-3 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"/>
+      <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+        <span class="material-symbols-outlined text-on-surface-variant text-[20px] flex-shrink-0">event</span>
+        <input id="projection-start" type="date" value="{{ default_projection_start_iso }}" aria-label="{% trans 'Projection start date' %}" class="h-11 px-2 sm:px-3 flex-1 sm:flex-none min-w-0 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"/>
+        <span class="text-on-surface-variant flex-shrink-0">&ndash;</span>
+        <input id="projection-end" type="date" value="{{ default_projection_end_iso }}" aria-label="{% trans 'Projection end date' %}" class="h-11 px-2 sm:px-3 flex-1 sm:flex-none min-w-0 bg-surface-container-lowest border border-outline-variant rounded-xl text-label-md font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"/>
       </div>
     </div>
     <div class="space-y-3 flex-1">
@@ -598,11 +600,12 @@
         <p class="text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">{% trans "Expected payments" %}</p>
         <p class="text-headline-md font-headline-md text-secondary mt-1 truncate" id="projection-payments">₼0</p>
         <p class="text-label-sm text-on-surface-variant" id="projection-count">0 {% trans "payments" %}</p>
+        <p class="text-label-sm text-error font-bold mt-1 hidden" id="projection-overdue"></p>
       </div>
       <div class="p-4 rounded-2xl bg-primary/5 border border-primary/20">
         <p class="text-label-sm text-primary uppercase tracking-wider font-bold">{% trans "Projected total with cash" %}</p>
         <p class="text-headline-md font-headline-md text-primary mt-1 truncate" id="projection-total">₼0</p>
-        <p class="text-label-sm text-on-surface-variant">{% trans "Expected + available cash (in AZN)" %}</p>
+        <p class="text-label-sm text-on-surface-variant">{% trans "Available cash + payments still to fall due (in AZN)" %}</p>
       </div>
     </div>
   </div>
@@ -627,28 +630,59 @@
 </section>
 {% endif %}
 
-{{ future_payments_data|json_script:"future-payments-data" }}
+{{ projection_payments_data|json_script:"projection-payments-data" }}
 <script>
   (function () {
-    const data = JSON.parse(document.getElementById('future-payments-data').textContent);
+    const data = JSON.parse(document.getElementById('projection-payments-data').textContent);
     const availableCashAzn = {{ available_cash_azn }};
-    const input = document.getElementById('projection-date');
+    const startInput = document.getElementById('projection-start');
+    const endInput = document.getElementById('projection-end');
     const paymentsEl = document.getElementById('projection-payments');
     const countEl = document.getElementById('projection-count');
     const totalEl = document.getElementById('projection-total');
+    const overdueEl = document.getElementById('projection-overdue');
+    const todayIso = '{{ today_iso }}';
     function fmt(n) { return '₼' + n.toLocaleString('en-US'); }
-    function recalc() {
-      const end = input.value;
-      if (!end) { paymentsEl.textContent = '₼0'; countEl.textContent = '0'; totalEl.textContent = fmt(availableCashAzn); return; }
-      let sum = 0, count = 0;
-      for (const p of data) {
-        if (p.date <= end) { sum += p.amount; count++; } else break;
-      }
-      paymentsEl.textContent = fmt(sum);
-      countEl.textContent = count + ' ' + (count === 1 ? '{% trans "payment" %}' : '{% trans "payments" %}');
-      totalEl.textContent = fmt(sum + availableCashAzn);
+    function countLabel(n) {
+      return n + ' ' + (n === 1 ? '{% trans "payment" %}' : '{% trans "payments" %}');
     }
-    if (input) { input.addEventListener('change', recalc); input.addEventListener('input', recalc); recalc(); }
+    function render(sum, count, overdue) {
+      paymentsEl.textContent = fmt(sum);
+      countEl.textContent = countLabel(count);
+      // Available cash is a balance as of today, and already accounts for
+      // everything collected so far. Only instalments that have not yet fallen
+      // due can be added to it -- anything dated earlier is arrears, money that
+      // was owed and never arrived, so adding it would overstate the total.
+      totalEl.textContent = fmt(sum - overdue + availableCashAzn);
+      overdueEl.textContent = overdue > 0
+        ? fmt(overdue) + ' {% trans "overdue in this range" %}'
+        : '';
+      overdueEl.classList.toggle('hidden', overdue <= 0);
+    }
+    function recalc() {
+      const start = startInput.value;
+      const end = endInput.value;
+      // Stop the end picker offering dates before the start of the window.
+      if (start) endInput.min = start;
+      if (!start || !end || end < start) { render(0, 0, 0); return; }
+      let sum = 0, count = 0, overdue = 0;
+      // `data` is sorted by date, so skip ahead to the window and stop past it.
+      for (const p of data) {
+        if (p.date < start) continue;
+        if (p.date > end) break;
+        sum += p.amount;
+        count++;
+        if (p.date < todayIso) overdue += p.amount;
+      }
+      render(sum, count, overdue);
+    }
+    if (startInput && endInput) {
+      for (const el of [startInput, endInput]) {
+        el.addEventListener('change', recalc);
+        el.addEventListener('input', recalc);
+      }
+      recalc();
+    }
   })();
 </script>
 {% endblock %}

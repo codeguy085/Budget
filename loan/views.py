@@ -1116,18 +1116,22 @@ def dashboard(request):
         cash['AZN'] + cash['USD'] * usd_rate + cash['EUR'] * eur_rate + available_azn
     ))
 
-    future_payments = []
+    # Every instalment still outstanding on an active loan. The range starts at
+    # paid_month() + 1, so these are the unpaid ones -- including any whose due
+    # date has already passed, which is what lets the projection look backwards
+    # over arrears as well as forwards.
+    projection_payments = []
     for l in active_loans:
         paid_by_now = l.paid_month()
         for month_num in range(paid_by_now + 1, l.term + 1):
             due = _add_months(l.start.date(), month_num)
-            if due >= today:
-                future_payments.append({'date': due.isoformat(), 'amount': l.monthly_payment})
-    future_payments.sort(key=lambda x: x['date'])
-    context['future_payments_data'] = future_payments
+            projection_payments.append({'date': due.isoformat(), 'amount': l.monthly_payment})
+    projection_payments.sort(key=lambda x: x['date'])
+    context['projection_payments_data'] = projection_payments
 
     from datetime import timedelta as _td
     default_projection_end = today + _td(days=30)
+    context['default_projection_start_iso'] = today.isoformat()
     context['default_projection_end_iso'] = default_projection_end.isoformat()
 
     return render(request, 'dashboard.html', context)
