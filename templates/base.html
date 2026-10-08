@@ -285,7 +285,7 @@
 <aside id="app-sidebar" class="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-surface border-r border-outline-variant shadow-sm flex-col py-6 z-50">
   <div class="px-6 mb-10">
     <a href="{% url 'dashboard' %}" class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary">
+      <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance</span>
       </div>
       <div>
@@ -325,7 +325,7 @@
   </nav>
   <div class="px-4 space-y-2">
     <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container">
-      <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold flex-shrink-0">
+      <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold flex-shrink-0">
         {{ request.user.get_full_name|default:request.user.username|first|upper }}
       </div>
       <div class="min-w-0">
@@ -393,7 +393,7 @@
       <span class="material-symbols-outlined">notifications</span>
       <span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
     </button>
-    <div class="lg:hidden w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-label-sm">
+    <div class="lg:hidden w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-label-sm">
       {{ request.user.get_full_name|default:request.user.username|first|upper }}
     </div>
     {% block topbar_actions %}{% endblock %}

@@ -21,7 +21,7 @@
 
 <section class="bg-white lg:bg-transparent rounded-2xl lg:rounded-none p-5 lg:p-0 soft-shadow lg:shadow-none border lg:border-0 border-outline-variant/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 lg:gap-6">
   <div class="flex items-center gap-4 lg:gap-6">
-    <div class="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl bg-primary-container text-on-primary flex items-center justify-center text-2xl lg:text-3xl font-extrabold ring-4 ring-white soft-shadow flex-shrink-0">{{ customer.name|first|upper }}{{ customer.surname|first|upper }}</div>
+    <div class="w-16 h-16 lg:w-24 lg:h-24 rounded-2xl bg-primary text-on-primary flex items-center justify-center text-2xl lg:text-3xl font-extrabold ring-4 ring-white soft-shadow flex-shrink-0">{{ customer.name|first|upper }}{{ customer.surname|first|upper }}</div>
     <div class="min-w-0">
       <h2 class="text-2xl lg:text-3xl font-semibold text-on-surface mb-1 truncate">{{ customer.get_full_name }}</h2>
       <div class="flex items-center gap-4 text-on-surface-variant">
@@ -37,7 +37,7 @@
       <span class="material-symbols-outlined">edit</span>
       <span class="text-sm font-medium">{% trans "Edit Profile" %}</span>
     </a>
-    <a href="{% url 'loan_create' %}?customer={{ customer.id }}" class="flex items-center gap-2 bg-primary px-5 py-2.5 rounded-full text-on-primary font-bold hover:bg-primary-container transition-all hover:shadow-lg active:scale-95">
+    <a href="{% url 'loan_create' %}?customer={{ customer.id }}" class="flex items-center gap-2 bg-primary px-5 py-2.5 rounded-full text-on-primary font-bold hover:bg-primary-container hover:text-on-primary-container transition-all hover:shadow-lg active:scale-95">
       <span class="material-symbols-outlined">add</span>
       <span class="text-sm font-medium">{% trans "New Loan" %}</span>
     </a>
@@ -95,7 +95,7 @@
   <div class="bg-white p-4 lg:p-6 rounded-2xl soft-shadow border border-outline-variant/30 lg:border-l-4 lg:border-l-primary">
     <div class="flex justify-between items-start mb-2 lg:mb-4 gap-2">
       <span class="lg:hidden text-on-surface-variant text-label-sm">{% trans "Monthly Pay" %}</span>
-      <div class="hidden lg:block p-3 bg-primary-container text-on-primary-container rounded-xl">
+      <div class="hidden lg:block p-3 bg-primary text-on-primary rounded-xl">
         <span class="material-symbols-outlined">payments</span>
       </div>
       <span class="material-symbols-outlined lg:hidden text-primary text-xl">payments</span>
@@ -155,10 +155,10 @@
     <h4 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest mb-8">{% trans "Loan Composition" %}</h4>
     <div class="relative w-40 h-40 mb-8">
       <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" fill="transparent" r="16" stroke="#eaedff" stroke-width="4"></circle>
+        <circle cx="18" cy="18" fill="transparent" r="16" class="stroke-surface-container" stroke-width="4"></circle>
         {% if all_loans_count > 0 %}
-        <circle cx="18" cy="18" fill="transparent" r="16" stroke="#3525cd" stroke-dasharray="{{ active_pct|unlocalize }}, 100" stroke-linecap="round" stroke-width="4"></circle>
-        <circle cx="18" cy="18" fill="transparent" r="16" stroke="#684000" stroke-dasharray="{{ completed_pct|unlocalize }}, 100" stroke-dashoffset="-{{ active_pct|unlocalize }}" stroke-linecap="round" stroke-width="4"></circle>
+        <circle cx="18" cy="18" fill="transparent" r="16" class="stroke-primary" stroke-dasharray="{{ active_pct|unlocalize }}, 100" stroke-linecap="round" stroke-width="4"></circle>
+        <circle cx="18" cy="18" fill="transparent" r="16" class="stroke-tertiary" stroke-dasharray="{{ completed_pct|unlocalize }}, 100" stroke-dashoffset="-{{ active_pct|unlocalize }}" stroke-linecap="round" stroke-width="4"></circle>
         {% endif %}
       </svg>
       <div class="absolute inset-0 flex flex-col items-center justify-center">

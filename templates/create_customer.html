@@ -20,7 +20,7 @@
   <div class="lg:p-10">
     {% if customer %}
     <div class="flex flex-col items-center gap-2 mb-6 lg:mb-10">
-      <div class="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-primary-container text-on-primary flex items-center justify-center text-4xl lg:text-5xl font-extrabold">
+      <div class="w-24 h-24 lg:w-32 lg:h-32 rounded-full bg-primary text-on-primary flex items-center justify-center text-4xl lg:text-5xl font-extrabold">
         {{ customer.name|first|upper }}{{ customer.surname|first|upper }}
       </div>
       <span class="lg:hidden text-label-sm text-on-surface-variant uppercase tracking-wider">{% trans "Profile Initials" %}</span>
@@ -60,7 +60,7 @@
 
   <div class="flex flex-col-reverse lg:flex-row lg:px-10 lg:py-6 lg:bg-surface-container-low lg:border-t lg:border-outline-variant/30 lg:justify-end gap-3 lg:gap-4 pt-6 lg:pt-6">
     <a href="{% if customer %}{% url 'customer_detail' customer.id %}{% else %}{% url 'customer_list' %}{% endif %}" class="w-full lg:w-auto h-12 lg:h-auto flex items-center justify-center px-6 lg:py-2.5 text-label-md lg:text-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-2xl lg:rounded-full transition-all">{% trans "Cancel" %}</a>
-    <button type="submit" class="w-full lg:w-auto h-14 lg:h-auto flex items-center justify-center px-8 lg:py-2.5 bg-primary text-on-primary text-label-md lg:text-sm font-bold rounded-2xl lg:rounded-full hover:bg-primary-container transition-all shadow-lg shadow-primary/20 lg:shadow-sm active:scale-95">
+    <button type="submit" class="w-full lg:w-auto h-14 lg:h-auto flex items-center justify-center px-8 lg:py-2.5 bg-primary text-on-primary text-label-md lg:text-sm font-bold rounded-2xl lg:rounded-full hover:bg-primary-container hover:text-on-primary-container transition-all shadow-lg shadow-primary/20 lg:shadow-sm active:scale-95">
       {% if customer %}{% trans "Save Changes" %}{% else %}{% trans "Add Customer" %}{% endif %}
     </button>
   </div>
