@@ -586,7 +586,7 @@
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
       <div>
         <h2 class="text-headline-md font-headline-md text-on-surface">{% trans "Payment Projection" %}</h2>
-        <p class="text-label-sm text-on-surface-variant mt-1">{% trans "Expected inflows between the selected dates." %}</p>
+        <p class="text-label-sm text-on-surface-variant mt-1">{% trans "Payments received and still to come between the selected dates." %}</p>
       </div>
       <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
         <span class="material-symbols-outlined text-on-surface-variant text-[20px] flex-shrink-0">event</span>
@@ -597,10 +597,10 @@
     </div>
     <div class="space-y-3 flex-1">
       <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30">
-        <p class="text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">{% trans "Expected payments" %}</p>
+        <p class="text-label-sm text-on-surface-variant uppercase tracking-wider font-bold">{% trans "Payments in range" %}</p>
         <p class="text-headline-md font-headline-md text-secondary mt-1 truncate" id="projection-payments">₼0</p>
         <p class="text-label-sm text-on-surface-variant" id="projection-count">0 {% trans "payments" %}</p>
-        <p class="text-label-sm text-error font-bold mt-1 hidden" id="projection-overdue"></p>
+        <p class="text-label-sm text-on-surface-variant mt-1 hidden" id="projection-split"></p>
       </div>
       <div class="p-4 rounded-2xl bg-primary/5 border border-primary/20">
         <p class="text-label-sm text-primary uppercase tracking-wider font-bold">{% trans "Projected total with cash" %}</p>
@@ -640,24 +640,23 @@
     const paymentsEl = document.getElementById('projection-payments');
     const countEl = document.getElementById('projection-count');
     const totalEl = document.getElementById('projection-total');
-    const overdueEl = document.getElementById('projection-overdue');
-    const todayIso = '{{ today_iso }}';
+    const splitEl = document.getElementById('projection-split');
     function fmt(n) { return '₼' + n.toLocaleString('en-US'); }
     function countLabel(n) {
       return n + ' ' + (n === 1 ? '{% trans "payment" %}' : '{% trans "payments" %}');
     }
-    function render(sum, count, overdue) {
-      paymentsEl.textContent = fmt(sum);
+    function render(received, upcoming, count) {
+      paymentsEl.textContent = fmt(received + upcoming);
       countEl.textContent = countLabel(count);
-      // Available cash is a balance as of today, and already accounts for
-      // everything collected so far. Only instalments that have not yet fallen
-      // due can be added to it -- anything dated earlier is arrears, money that
-      // was owed and never arrived, so adding it would overstate the total.
-      totalEl.textContent = fmt(sum - overdue + availableCashAzn);
-      overdueEl.textContent = overdue > 0
-        ? fmt(overdue) + ' {% trans "overdue in this range" %}'
+      // Available cash already contains everything received, so only the
+      // not-yet-due side may be added to it.
+      totalEl.textContent = fmt(upcoming + availableCashAzn);
+      // The split is only worth spelling out for a window straddling today.
+      const both = received > 0 && upcoming > 0;
+      splitEl.textContent = both
+        ? fmt(received) + ' {% trans "received" %} · ' + fmt(upcoming) + ' {% trans "to come" %}'
         : '';
-      overdueEl.classList.toggle('hidden', overdue <= 0);
+      splitEl.classList.toggle('hidden', !both);
     }
     function recalc() {
       const start = startInput.value;
@@ -665,16 +664,16 @@
       // Stop the end picker offering dates before the start of the window.
       if (start) endInput.min = start;
       if (!start || !end || end < start) { render(0, 0, 0); return; }
-      let sum = 0, count = 0, overdue = 0;
+      let received = 0, upcoming = 0, count = 0;
       // `data` is sorted by date, so skip ahead to the window and stop past it.
       for (const p of data) {
         if (p.date < start) continue;
         if (p.date > end) break;
-        sum += p.amount;
         count++;
-        if (p.date < todayIso) overdue += p.amount;
+        if (p.kind === 'received') received += p.amount;
+        else upcoming += p.amount;
       }
-      render(sum, count, overdue);
+      render(received, upcoming, count);
     }
     if (startInput && endInput) {
       for (const el of [startInput, endInput]) {

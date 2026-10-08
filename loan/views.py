@@ -1116,16 +1116,24 @@ def dashboard(request):
         cash['AZN'] + cash['USD'] * usd_rate + cash['EUR'] * eur_rate + available_azn
     ))
 
-    # Every instalment still outstanding on an active loan. The range starts at
-    # paid_month() + 1, so these are the unpaid ones -- including any whose due
-    # date has already passed, which is what lets the projection look backwards
-    # over arrears as well as forwards.
-    projection_payments = []
+    # This panel answers a different question on each side of today: for past
+    # dates, money that actually arrived (real Payment rows, dated by paid_at);
+    # for future dates, instalments still to fall due. The two sets are
+    # disjoint, so a window spanning today can sum both without double counting.
+    projection_payments = [
+        {'date': paid_at.isoformat(), 'amount': amount, 'kind': 'received'}
+        for paid_at, amount in Payment.objects.values_list(
+            'paid_at', 'loan__monthly_payment'
+        )
+    ]
     for l in active_loans:
         paid_by_now = l.paid_month()
         for month_num in range(paid_by_now + 1, l.term + 1):
             due = _add_months(l.start.date(), month_num)
-            projection_payments.append({'date': due.isoformat(), 'amount': l.monthly_payment})
+            if due >= today:
+                projection_payments.append(
+                    {'date': due.isoformat(), 'amount': l.monthly_payment, 'kind': 'due'}
+                )
     projection_payments.sort(key=lambda x: x['date'])
     context['projection_payments_data'] = projection_payments
 

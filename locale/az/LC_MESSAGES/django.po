@@ -1102,26 +1102,29 @@ msgstr "Dövr sonu"
 msgid "Payment Projection"
 msgstr "Ödəniş proqnozu"
 
-msgid "Expected inflows between the selected dates."
-msgstr "Seçilmiş tarixlər arasında gözlənilən ödənişlər."
-
 msgid "Projection start date"
 msgstr "Proqnoz başlanğıc tarixi"
 
 msgid "Projection end date"
 msgstr "Proqnoz bitmə tarixi"
 
-msgid "Expected payments"
-msgstr "Gözlənilən ödənişlər"
+msgid "Payments in range"
+msgstr "Aralıqdaki ödənişlər"
+
+msgid "Payments received and still to come between the selected dates."
+msgstr "Seçilmiş tarixlər arasında alınmış və gözlənilən ödənişlər."
+
+msgid "received"
+msgstr "alınmış"
+
+msgid "to come"
+msgstr "gözlənilən"
 
 msgid "Projected total with cash"
 msgstr "Mövcud vəsait ilə ümumi proqnoz"
 
 msgid "Available cash + payments still to fall due (in AZN)"
 msgstr "Mövcud vəsait + hələ ödəniş vaxtı çatmamış məbləğ (AZN)"
-
-msgid "overdue in this range"
-msgstr "bu aralıqda gecikmiş"
 
 msgid "payment"
 msgstr "ödəniş"
